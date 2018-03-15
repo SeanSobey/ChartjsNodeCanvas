@@ -3,3 +3,4 @@
 --trace-deprecation
 --trace-warnings
 --allow-uncaught
+--globals window

@@ -1,4 +1,4 @@
-import assert from 'assert';
+import * as assert from 'assert';
 import { ChartConfiguration } from 'chart.js';
 import 'source-map-support/register';
 
@@ -51,9 +51,31 @@ describe('app', () => {
 		ChartJS.defaults.global.maintainAspectRatio = false;
 	};
 
-	it('works', async () => {
+	it('renders buffer', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const image = await canvasRenderService.render(configuration);
+		const image = await canvasRenderService.renderToBuffer(configuration);
 		assert.equal(image instanceof Buffer, true);
+	});
+
+	it('renders data url', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const dataUrl = await canvasRenderService.renderToDataURL(configuration);
+		assert.equal(dataUrl.startsWith('data:image/png;base64,'), true);
+	});
+
+	it('renders stream', (done) => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const stream = canvasRenderService.renderToStream(configuration);
+		let data: Array<Buffer> = [];
+		stream.on('data', (chunk: Buffer) => {
+			data.push(chunk);
+		});
+		stream.on('end', () => {
+			assert.equal(Buffer.concat(data).length > 0, true);
+			done();
+		});
+		stream.on('error', (error) => {
+			done(error);
+		});
 	});
 });

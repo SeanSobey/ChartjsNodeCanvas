@@ -1,0 +1,13 @@
+[*.{ts, js, json}]
+indent_style = tab
+tab_width = 4
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{ts, js}]
+quote_type = single
+
+[*.{md}]
+indent_style = space
+tab_width = 4

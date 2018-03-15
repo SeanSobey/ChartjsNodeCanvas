@@ -1,0 +1,173 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-eslint-rules",
+    "tslint-immutable",
+    "tslint-divid"
+  ],
+  "rules": {
+    "arrow-parens": false,
+    "array-type": [
+      true,
+      "generic"
+    ],
+    "ban": [
+      true,
+      [
+        "_",
+        "extend"
+      ],
+      [
+        "_",
+        "isNull"
+      ],
+      [
+        "_",
+        "isDefined"
+      ]
+    ],
+    "class-name": true,
+    "comment-format": [
+      false
+    ],
+    "curly": true,
+    "eofline": false,
+    "forin": true,
+    "indent": [
+      true,
+      "tabs",
+      4
+    ],
+    "interface-name": [
+      false
+    ],
+    "interface-over-type-literal": false,
+    "jsdoc-format": true,
+    "label-position": true,
+    "max-line-length": [
+      false
+    ],
+    "max-classes-per-file": [
+      false
+    ],
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-console": [
+      true,
+      "debug",
+      "info",
+      "time",
+      "timeEnd",
+      "trace"
+    ],
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-empty-interface": false,
+    "no-eval": true,
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
+    "no-string-literal": true,
+    "no-trailing-whitespace": true,
+    "no-unused-expression": true,
+    "no-unused-variable": true,
+    "no-use-before-declare": false,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-else",
+      "check-whitespace"
+    ],
+    "ordered-imports": [
+      false
+    ],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "radix": true,
+    "semicolon": [
+      true,
+      "always"
+    ],
+    "trailing-comma": [
+      false
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "typedef": [
+      true,
+      "call-signature",
+      "parameter",
+      "property-declaration"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      },
+      {
+        "call-signature": "onespace",
+        "index-signature": "onespace",
+        "parameter": "onespace",
+        "property-declaration": "onespace",
+        "variable-declaration": "onespace"
+      }
+    ],
+    "variable-name": false,
+    "whitespace": [
+      false,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-separator",
+      "check-type"
+    ],
+    //https://github.com/jonaskello/tslint-immutable
+    // :: Immutability rules ::
+    "readonly-keyword": [
+      true,
+      "ignore-local"
+    ],
+    "readonly-array": [
+      true,
+      "ignore-local"
+    ],
+    "no-let": true,
+    // :: Functional style rules ::
+    //"no-this": true,
+    //"no-class": true,
+    //"no-mixed-interface": true,
+    //"no-expression-statement": true,
+    //https://github.com/jonaskello/tslint-divid
+    // :: Other rules ::
+    "no-arguments": true,
+    "no-label": true,
+    //"no-semicolon-interface": true,
+    "import-containment": [
+      true,
+      {
+        "containmentPath": "path/to/libs",
+        "allowedExternalFileNames": [
+          "index"
+        ],
+        "disallowedInternalFileNames": [
+          "index"
+        ]
+      }
+    ]
+  },
+  "defaultSeverity": "warning"
+}

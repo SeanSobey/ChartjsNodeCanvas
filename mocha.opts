@@ -4,3 +4,4 @@
 --trace-warnings
 --allow-uncaught
 --globals window
+--require source-map-support/register

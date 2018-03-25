@@ -1,3 +1,17 @@
 {
-	"mocha.enabled": false
+	"mocha.enabled": true,
+	"mocha.options": {
+		"checkLeaks": true,
+		"throwDeprecation": true,
+		"traceDeprecation": true,
+		"traceWarnings": true,
+		"allowUncaught": true
+	},
+	"mocha.sourceDir": "src/",
+	"mocha.outputDir": "dist/",
+	"mocha.glob": "**/*.spec.js",
+	"mocha.compilerScript": "build",
+	"mocha.requires": [
+		"source-map-support/register"
+	]
 }

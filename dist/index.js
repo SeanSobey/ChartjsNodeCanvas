@@ -4,17 +4,18 @@ const Canvas = require("canvas-prebuilt");
 const fresh = require("fresh-require");
 class CanvasRenderService {
     constructor(width, height, chartCallback) {
-        this._canvas = new Canvas(width, height);
-        this._canvas.style = {};
+        this._width = width;
+        this._height = height;
         this._ChartJs = fresh('chart.js', require);
         if (chartCallback) {
             chartCallback(this._ChartJs);
         }
     }
-    async renderToDataURL(configuration) {
-        this.renderChart(configuration);
+    renderToDataURL(configuration) {
+        const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
-            this._canvas.toDataURL('image/png', (error, png) => {
+            const canvas = chart.canvas;
+            canvas.toDataURL('image/png', (error, png) => {
                 if (error) {
                     return reject(error);
                 }
@@ -23,9 +24,10 @@ class CanvasRenderService {
         });
     }
     renderToBuffer(configuration) {
-        this.renderChart(configuration);
+        const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
-            this._canvas.toBuffer((error, buffer) => {
+            const canvas = chart.canvas;
+            canvas.toBuffer((error, buffer) => {
                 if (error) {
                     return reject(error);
                 }
@@ -34,15 +36,18 @@ class CanvasRenderService {
         });
     }
     renderToStream(configuration) {
-        this.renderChart(configuration);
-        return this._canvas.pngStream();
+        const chart = this.renderChart(configuration);
+        const canvas = chart.canvas;
+        return canvas.pngStream();
     }
     renderChart(configuration) {
+        const canvas = new Canvas(this._width, this._height);
+        canvas.style = {};
         // Disable animation (otherwise charts will throw exceptions)
         configuration.options = configuration.options || {};
         configuration.options.responsive = false;
         configuration.options.animation = false;
-        const context = this._canvas.getContext('2d');
+        const context = canvas.getContext('2d');
         global.window = {}; //https://github.com/chartjs/Chart.js/pull/5324
         return new this._ChartJs(context, configuration);
     }

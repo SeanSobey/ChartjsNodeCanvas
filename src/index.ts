@@ -8,24 +8,26 @@ export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 
 export class CanvasRenderService {
 
-	private readonly _canvas: any;
+	private readonly _width: number;
+	private readonly _height: number;
 	private readonly _ChartJs: typeof ChartJS;
 
 	constructor(width: number, height: number, chartCallback?: ChartCallback) {
 
-		this._canvas = new Canvas(width, height);
-		this._canvas.style = {};
+		this._width = width;
+		this._height = height;
 		this._ChartJs = fresh('chart.js', require) as typeof ChartJS;
 		if (chartCallback) {
 			chartCallback(this._ChartJs);
 		}
 	}
 
-	public async renderToDataURL(configuration: Chart.ChartConfiguration): Promise<string> {
+	public renderToDataURL(configuration: Chart.ChartConfiguration): Promise<string> {
 
-		this.renderChart(configuration);
+		const chart = this.renderChart(configuration);
 		return new Promise<string>((resolve, reject) => {
-			this._canvas.toDataURL('image/png', (error: Error | null, png: string) => {
+			const canvas = chart.canvas as typeof Canvas;
+			canvas.toDataURL('image/png', (error: Error | null, png: string) => {
 				if (error) {
 					return reject(error);
 				}
@@ -36,9 +38,10 @@ export class CanvasRenderService {
 
 	public renderToBuffer(configuration: Chart.ChartConfiguration): Promise<Buffer> {
 
-		this.renderChart(configuration);
+		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
-			this._canvas.toBuffer((error: Error | null, buffer: Buffer) => {
+			const canvas = chart.canvas as typeof Canvas;
+			canvas.toBuffer((error: Error | null, buffer: Buffer) => {
 				if (error) {
 					return reject(error);
 				}
@@ -49,17 +52,20 @@ export class CanvasRenderService {
 
 	public renderToStream(configuration: Chart.ChartConfiguration): Stream {
 
-		this.renderChart(configuration);
-		return this._canvas.pngStream();
+		const chart = this.renderChart(configuration);
+		const canvas = chart.canvas as typeof Canvas;
+		return canvas.pngStream();
 	}
 
 	private renderChart(configuration: Chart.ChartConfiguration): Chart {
 
+		const canvas = new Canvas(this._width, this._height);
+		canvas.style = {};
 		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
 		configuration.options.animation = false as any;
-		const context = this._canvas.getContext('2d');
+		const context = canvas.getContext('2d');
 		(global as any).window = {};	//https://github.com/chartjs/Chart.js/pull/5324
 		return new this._ChartJs(context, configuration);
 	}

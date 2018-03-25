@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const assert = require("assert");
-require("source-map-support/register");
+const fs_1 = require("fs");
+const util_1 = require("util");
 const _1 = require("./");
+const writeFileAsync = util_1.promisify(fs_1.writeFile);
 describe('app', () => {
     const width = 400;
     const height = 400;
@@ -52,15 +54,27 @@ describe('app', () => {
         const image = await canvasRenderService.renderToBuffer(configuration);
         assert.equal(image instanceof Buffer, true);
     });
+    it('renders buffer in parallel', async () => {
+        const canvasRenderService = new _1.CanvasRenderService(width, height, chartCallback);
+        const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration));
+        const images = await Promise.all(promises);
+        images.forEach((image) => assert.equal(image instanceof Buffer, true));
+    });
     it('renders data url', async () => {
         const canvasRenderService = new _1.CanvasRenderService(width, height, chartCallback);
         const dataUrl = await canvasRenderService.renderToDataURL(configuration);
         assert.equal(dataUrl.startsWith('data:image/png;base64,'), true);
     });
+    it('renders data url in parallel', async () => {
+        const canvasRenderService = new _1.CanvasRenderService(width, height, chartCallback);
+        const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration));
+        const dataUrls = await Promise.all(promises);
+        dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith('data:image/png;base64,'), true));
+    });
     it('renders stream', (done) => {
         const canvasRenderService = new _1.CanvasRenderService(width, height, chartCallback);
         const stream = canvasRenderService.renderToStream(configuration);
-        let data = [];
+        const data = [];
         stream.on('data', (chunk) => {
             data.push(chunk);
         });

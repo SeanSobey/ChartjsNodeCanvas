@@ -1,8 +1,12 @@
 import * as assert from 'assert';
+import { writeFile } from 'fs';
+import { join, resolve } from 'path';
+import { promisify } from 'util';
 import { ChartConfiguration } from 'chart.js';
-import 'source-map-support/register';
 
 import { CanvasRenderService, ChartCallback } from './';
+
+const writeFileAsync = promisify(writeFile);
 
 describe('app', () => {
 
@@ -57,16 +61,30 @@ describe('app', () => {
 		assert.equal(image instanceof Buffer, true);
 	});
 
+	it('renders buffer in parallel', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration));
+		const images = await Promise.all(promises);
+		images.forEach((image) => assert.equal(image instanceof Buffer, true));
+	});
+
 	it('renders data url', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const dataUrl = await canvasRenderService.renderToDataURL(configuration);
 		assert.equal(dataUrl.startsWith('data:image/png;base64,'), true);
 	});
 
+	it('renders data url in parallel', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration));
+		const dataUrls = await Promise.all(promises);
+		dataUrls.forEach((dataUrl) =>assert.equal(dataUrl.startsWith('data:image/png;base64,'), true));
+	});
+
 	it('renders stream', (done) => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const stream = canvasRenderService.renderToStream(configuration);
-		let data: Array<Buffer> = [];
+		const data: Array<Buffer> = [];
 		stream.on('data', (chunk: Buffer) => {
 			data.push(chunk);
 		});

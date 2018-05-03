@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Canvas = require("canvas-prebuilt");
+const canvas_prebuilt_1 = require("canvas-prebuilt");
 const fresh = require("fresh-require");
 class CanvasRenderService {
     constructor(width, height, chartCallback) {
-        this._canvas = new Canvas(width, height);
+        this._canvas = canvas_prebuilt_1.createCanvas(width, height);
         this._canvas.style = {};
         this._ChartJs = fresh('chart.js', require);
         if (chartCallback) {

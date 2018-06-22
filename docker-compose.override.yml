@@ -1,0 +1,16 @@
+version: "3"
+
+# Override default compose file here.
+# https://docs.docker.com/compose/extends/#example-use-case
+
+
+# ci can skip copying the override file or delete it.
+# or ci can run command
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# services:
+#   test:
+#     command: /bin/bash -c echo skipping tests
+#   production:
+#     depends_on: 
+#       - build

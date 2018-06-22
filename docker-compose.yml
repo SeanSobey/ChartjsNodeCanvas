@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  base:
+    image: chartjs-node-canvas-base
+    build:
+      context: .
+      dockerfile: docker/base/Dockerfile
+    container_name: chartjs-node-canvas-base
+  build:
+    image: chartjs-node-canvas-build
+    depends_on: 
+      - base
+    build:
+      context: .
+      dockerfile: docker/build/Dockerfile
+    container_name: chartjs-node-canvas-build
+  test:
+    image: chartjs-node-canvas-build
+    container_name: chartjs-node-canvas-test
+    depends_on: 
+      - build
+    environment:
+      - NODE_ENV=test
+      - FONTCONFIG_PATH=/etc/fonts
+    command: npm run test
+  production:
+    image: chartjs-node-canvas
+    depends_on: 
+      - test
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
+    container_name: chartjs-node-canvas
+    environment:
+      - NODE_ENV=production
+
+#<< Docker Commands >>
+
+# Build Images
+#docker-compose build
+
+# Run Containers
+#docker-compose up
+
+# Run Tests specifically
+#docker-compose up test

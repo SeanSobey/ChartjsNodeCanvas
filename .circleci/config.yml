@@ -42,8 +42,11 @@ jobs:
       - run:
           name: Save Docker layers cache
           command: |
+            Echo ${CIRCLE_PROJECT_REPONAME}
             DOCKER_IMAGES=$(docker images --format "{{.Repository}}" --filter=reference="${CIRCLE_PROJECT_REPONAME}_*")
+            Echo Done 1
             DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
+            Echo Done 2
             docker save -o ~/docker-layers.tar $DOCKER_LAYERS
       - save_cache:
           key: v1-docker-{{ .Branch }}-{{ epoch }}

@@ -3,7 +3,7 @@ jobs:
   build:
     branches:
       only:
-    	- master
+        - master
     working_directory: /app
     docker:
       - image: docker:18.05.0-ce-git #https://hub.docker.com/r/library/docker/tags/

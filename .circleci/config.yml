@@ -18,15 +18,6 @@ jobs:
             apk add --no-cache 'py2-pip'
             pip install 'docker-compose==1.21.1'
 
-      - restore_cache:
-          keys:
-            - v1-docker-{{ .Branch }}
-      - run:
-          name: Load Docker layers cache
-          command: |
-            set +o pipefail
-            docker load -i ~/docker-layers.tar | true
-
       - run:
           name: Build Docker images
           command: |
@@ -36,17 +27,6 @@ jobs:
           name: Run Tests 
           command: |
             docker-compose up
-
-      - run:
-          name: Save Docker layers cache
-          command: |
-            DOCKER_IMAGES=$(docker images --format "{{.Repository}}" --filter=reference="chartjs-node-canvas*")
-            DOCKER_LAYERS=$(for image in $DOCKER_IMAGES; do docker history $image -q | grep -v missing; done)
-            docker save -o ~/docker-layers.tar $DOCKER_LAYERS
-      - save_cache:
-          key: v1-docker-{{ .Branch }}-{{ epoch }}
-          paths:
-            - ~/docker-layers.tar
 
       - run:
           name: Tag Docker image

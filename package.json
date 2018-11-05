@@ -1,6 +1,6 @@
 {
   "name": "chartjs-node-canvas",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,19 +31,19 @@
     "fresh-require": "^1.0.3"
   },
   "peerDependencies": {
-    "chart.js": "^2.7.2"
+    "chart.js": "^2.7.3"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.7.10",
-    "@types/mocha": "^5.2.0",
-    "@types/node": "^9.4.7",
-    "chart.js": "^2.7.2",
-    "mocha": "^5.1.1",
-    "source-map-support": "^0.5.5",
-    "tslint": "^5.9.1",
+    "@types/chart.js": "^2.7.40",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^9.6.36",
+    "chart.js": "^2.7.3",
+    "mocha": "^5.2.0",
+    "source-map-support": "^0.5.9",
+    "tslint": "^5.11.0",
     "tslint-divid": "^1.3.0",
-    "tslint-eslint-rules": "^5.1.0",
-    "tslint-immutable": "^4.5.2",
-    "typescript": "^2.8.3"
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-immutable": "^4.9.1",
+    "typescript": "^3.1.6"
   }
 }

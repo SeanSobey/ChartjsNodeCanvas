@@ -1,9 +1,6 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - master
     working_directory: /app
     docker:
       - image: docker:18.05.0-ce-git #https://hub.docker.com/r/library/docker/tags/
@@ -11,30 +8,54 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 18.05.0-ce #required for multi stage builds
-
       - run:
           name: Install Docker Compose
           command: |
             apk add --no-cache 'py2-pip'
             pip install 'docker-compose==1.21.1'
-
       - run:
           name: Build Docker images
           command: |
             docker-compose build
-
       - run:
           name: Run Tests 
           command: |
             docker-compose up
-
       - run:
           name: Tag Docker image
           command: |
             docker tag chartjs-node-canvas $DOCKER_USER/chartjs-node-canvas:${CIRCLE_SHA1}
-
       - run:
           name: Push Docker image to Dockerhub
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push $DOCKER_USER/chartjs-node-canvas:${CIRCLE_SHA1}
+  deploy:
+    working_directory: /app
+    docker:
+      - image: circleci/node:8.9.1
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/app/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/

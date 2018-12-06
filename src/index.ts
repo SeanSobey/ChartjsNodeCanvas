@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import { Stream } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 import { createCanvas } from 'canvas-prebuilt';
@@ -12,6 +11,13 @@ export class CanvasRenderService {
 	private readonly _height: number;
 	private readonly _ChartJs: typeof ChartJS;
 
+	/**
+	 * Create a new instance of CanvasRenderService.
+	 *
+	 * @param width The width of the charts to render, in pixles.
+	 * @param height The height of the charts to render, in pixles.
+	 * @param chartCallback optional callback which is called once with a new ChartJS global reference.
+	 */
 	constructor(width: number, height: number, chartCallback?: ChartCallback) {
 
 		this._width = width;
@@ -22,7 +28,13 @@ export class CanvasRenderService {
 		}
 	}
 
-	public renderToDataURL(configuration: Chart.ChartConfiguration): Promise<string> {
+	/**
+	 * Render to a data url as png.
+	 * @see https://github.com/Automattic/node-canvas#canvastodataurl
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 */
+	public renderToDataURL(configuration: ChartConfiguration): Promise<string> {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<string>((resolve, reject) => {
@@ -36,7 +48,13 @@ export class CanvasRenderService {
 		});
 	}
 
-	public renderToBuffer(configuration: Chart.ChartConfiguration): Promise<Buffer> {
+	/**
+	 * Render to a buffer as png.
+	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 */
+	public renderToBuffer(configuration: ChartConfiguration): Promise<Buffer> {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
@@ -50,14 +68,20 @@ export class CanvasRenderService {
 		});
 	}
 
-	public renderToStream(configuration: Chart.ChartConfiguration): Stream {
+	/**
+	 * Render to a stream as png.
+	 * @see https://github.com/Automattic/node-canvas#canvascreatepngstream
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 */
+	public renderToStream(configuration: ChartConfiguration): Stream {
 
 		const chart = this.renderChart(configuration);
 		const canvas = chart.canvas as any;
 		return canvas.pngStream();
 	}
 
-	private renderChart(configuration: Chart.ChartConfiguration): Chart {
+	private renderChart(configuration: ChartConfiguration): Chart {
 
 		const canvas = createCanvas(this._width, this._height);
 		canvas.style = {};

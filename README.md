@@ -4,9 +4,40 @@
 
 A node renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://github.com/Automattic/node-canva).
 
-Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs-node) that does not require jsdom (or the global variables that this requires) and allows chartJS as a peer dependency.
+Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs-node) that does not require jsdom (or the global variables that this requires) and allows chartJS as a peer dependency, so you can manage its version yourself.
+
+## Features
+
+* Supports all Chart JS features and charts.
+* Uses [canvas-prebuilt](https://www.npmjs.com/package/canvas-prebuilt), so hopefully no nasty issues with node-gyp.
+* No heavy DOM virtualization libraries, thanks to a [pull request](https://github.com/chartjs/Chart.js/pull/5324) to chart.js allowing it to run natively on node, requiring only a Canvas API.
+* Chart JS is a peer dependency, so you can bump and manage it yourself.
+* Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).
+* Uses [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable seperatly within each instance.
 
 ## Usage
+
+```js
+
+const { CanvasRenderService } = require('chartjs-node-canvas');
+
+(async () => {
+    const width = 400; //px
+    const height = 400; //px
+    const configuration = {
+        ... // See https://www.chartjs.org/docs/latest/configuration
+    };
+    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+        // See https://www.chartjs.org/docs/latest/configuration/#global-configuration
+        ChartJS.defaults.global.responsive = true;
+    });
+    const image = await canvasRenderService.renderToBuffer(configuration);
+    const dataUrl = await canvasRenderService.renderToDataURL(configuration); // image/png
+    const stream = canvasRenderService.renderToStream(configuration);
+})();
+```
+
+## Full Example
 
 ```js
 

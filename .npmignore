@@ -1,0 +1,14 @@
+.vscode/**/*
+docker/
+.circleci/
+
+.dockerignore
+docker-compose.override.yml
+docker-compose.yml
+.editorconfig
+mocha.opts
+tsconfig.json
+tslint.json
+
+src/**/*.spec.*
+dist/**/*.spec.*

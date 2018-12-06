@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { writeFile } from 'fs';
 import { promisify } from 'util';
+import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 
 import { CanvasRenderService, ChartCallback } from './';
@@ -54,10 +55,16 @@ describe('app', () => {
 		ChartJS.defaults.global.maintainAspectRatio = false;
 	};
 
-	it('renders buffer', async () => {
+	it('renders image', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const image = await canvasRenderService.renderToBuffer(configuration);
 		assert.equal(image instanceof Buffer, true);
+	});
+
+	it.skip('test image', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const image = await canvasRenderService.renderToBuffer(configuration);
+		await writeFileAsync('./test.png', image);
 	});
 
 	it('renders buffer in parallel', async () => {
@@ -77,7 +84,7 @@ describe('app', () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration));
 		const dataUrls = await Promise.all(promises);
-		dataUrls.forEach((dataUrl) =>assert.equal(dataUrl.startsWith('data:image/png;base64,'), true));
+		dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith('data:image/png;base64,'), true));
 	});
 
 	it('renders stream', (done) => {

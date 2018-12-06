@@ -18,7 +18,7 @@ jobs:
           command: |
             docker-compose build
       - run:
-          name: Run Tests 
+          name: Run Tests
           command: |
             docker-compose up
       - run:
@@ -32,7 +32,10 @@ jobs:
             docker push $DOCKER_USER/chartjs-node-canvas:${CIRCLE_SHA1}
       - run:
           name: Authenticate with NPM registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/app/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
+      - run:
+          name: Publish NPM package dry run
+          command: npm publish --dry-run
       - run:
           name: Publish NPM package
           command: npm publish

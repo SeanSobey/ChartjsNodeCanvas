@@ -50,6 +50,9 @@ jobs:
           root: ~/app
           paths: [.]
       - run:
+          name: Run build
+          command: npm build
+      - run:
           name: Run tests
           command: npm test
       - run:

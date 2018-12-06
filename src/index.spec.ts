@@ -1,6 +1,5 @@
 import * as assert from 'assert';
 import { writeFile } from 'fs';
-import { join, resolve } from 'path';
 import { promisify } from 'util';
 import { ChartConfiguration } from 'chart.js';
 

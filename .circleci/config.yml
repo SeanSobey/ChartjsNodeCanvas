@@ -1,7 +1,6 @@
 version: 2
 jobs:
-  build-deploy:
-    working_directory: /app
+  build-deploy-docker:
     docker:
       - image: docker:18.05.0-ce-git #https://hub.docker.com/r/library/docker/tags/
     steps:
@@ -30,20 +29,47 @@ jobs:
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push $DOCKER_USER/chartjs-node-canvas:${CIRCLE_SHA1}
+  build-deploy-npm:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10.13.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
       - run:
-          name: Authenticate with NPM registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
+          name: Install
+          command: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - persist_to_workspace:
+          root: ~/app
+          paths: [.]
+      - run:
+          name: Run tests
+          command: npm test
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/app/.npmrc
       - run:
           name: Publish NPM package dry run
           command: npm publish --dry-run
       - run:
-          name: Publish NPM package
+          name: Publish package
           command: npm publish
 workflows:
   version: 2
-  build-deploy:
+  build-deploy-docker:
     jobs:
-      - build-deploy:
+      - build-deploy-docker:
+          filters:
+            branches:
+              only: master
+      - build-deploy-npm:
           filters:
             branches:
               only: master

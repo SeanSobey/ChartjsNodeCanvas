@@ -55,12 +55,11 @@ jobs:
       - run:
           name: Run tests
           command: npm run test
+      - attach_workspace:
+          at: ~/app
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/app/.npmrc
-      - run:
-          name: Publish NPM package dry run
-          command: npm publish --dry-run
       - run:
           name: Publish package
           command: npm publish

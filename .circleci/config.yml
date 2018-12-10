@@ -71,7 +71,11 @@ workflows:
           filters:
             branches:
               only: master
+            tags:
+              only: /^v.*/
       - build-deploy-npm:
           filters:
             branches:
               only: master
+            tags:
+              only: /^v.*/

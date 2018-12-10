@@ -6,6 +6,12 @@ A node renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://gi
 
 Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs-node) that does not require jsdom (or the global variables that this requires) and allows chartJS as a peer dependency, so you can manage its version yourself.
 
+## Installation
+
+```
+npm i chartjs-node-canvas
+```
+
 ## Features
 
 * Supports all Chart JS features and charts.

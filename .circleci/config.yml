@@ -62,7 +62,15 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/app/.npmrc
       - run:
           name: Publish package
-          command: npm publish
+          command: |
+            packageName=$(node -p "require('./package.json').name")
+            packageVersion=$(node -p "require('./package.json').version")
+            publishVersion=$(npm view $packageName version)
+            if [ packageVersion != publishVersion ] then
+              echo Existing version is already published...skipping
+            else
+              npm publish
+            fi
 workflows:
   version: 2
   build-deploy:

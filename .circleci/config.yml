@@ -70,7 +70,7 @@ jobs:
             then
               npm publish
             else
-              echo Existing version $packageVersion is already published...skipping
+              echo "Existing version $packageVersion for $packageName is already published...skipping"
             fi
 workflows:
   version: 2

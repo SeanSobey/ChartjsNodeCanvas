@@ -68,9 +68,9 @@ jobs:
             publishVersion=$(npm view "$packageName" version)
             if [ "$packageVersion" != "$publishVersion" ]
             then
-              echo Existing version is already published...skipping
-            else
               npm publish
+            else
+              echo Existing version is already published...skipping
             fi
 workflows:
   version: 2

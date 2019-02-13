@@ -1,6 +1,6 @@
 import { Stream } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
-import { createCanvas } from 'canvas-prebuilt';
+import { createCanvas } from 'canvas';
 import * as fresh from 'fresh-require';
 
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;

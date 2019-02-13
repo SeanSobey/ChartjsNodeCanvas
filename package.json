@@ -1,6 +1,6 @@
 {
   "name": "chartjs-node-canvas",
-  "version": "1.1.11",
+  "version": "2.0.0",
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -27,7 +27,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas-prebuilt": "^2.0.0-alpha.12",
+    "canvas": "^2.3.1",
     "fresh-require": "^1.0.3"
   },
   "peerDependencies": {

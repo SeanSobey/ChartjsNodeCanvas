@@ -16,7 +16,6 @@ npm i chartjs-node-canvas
 ## Features
 
 * Supports all Chart JS features and charts.
-* Uses [canvas-prebuilt](https://www.npmjs.com/package/canvas-prebuilt), so hopefully no nasty issues with node-gyp.
 * No heavy DOM virtualization libraries, thanks to a [pull request](https://github.com/chartjs/Chart.js/pull/5324) to chart.js allowing it to run natively on node, requiring only a Canvas API.
 * Chart JS is a peer dependency, so you can bump and manage it yourself.
 * Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).

@@ -21,6 +21,19 @@ npm i chartjs-node-canvas
 * Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).
 * Uses [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable seperatly within each instance.
 
+## Limitations
+
+### Animations
+
+Chart animation (and responsive resize) is disabled by this library. This is necessary since the animation API's required are not available in node/canvas (this is not a browser environment after all).
+
+This is the same as:
+
+```js
+Chart.defaults.global.animation = false;
+Chart.defaults.global.responsive = false;
+```
+
 ## Usage
 
 ```js

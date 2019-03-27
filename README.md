@@ -34,6 +34,10 @@ Chart.defaults.global.animation = false;
 Chart.defaults.global.responsive = false;
 ```
 
+## API
+
+See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/API.md).
+
 ## Usage
 
 ```js

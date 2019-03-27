@@ -9,7 +9,9 @@
     "test": "mocha --opts ./mocha.opts dist/**/*.spec.js",
     "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha --opts ./mocha.opts dist/**/*.spec.js",
     "watch-build": "tsc --watch",
-    "watch-test": "mocha --watch --opts ./mocha.opts dist/**/*.spec.js"
+    "watch-test": "mocha --watch --opts ./mocha.opts dist/**/*.spec.js",
+    "release": "release-it",
+    "docs": "jsdoc2md dist/index.js > API.md"
   },
   "bugs": {
     "url": "https://github.com/SeanSobey/ChartjsNodeCanvas/issues",
@@ -38,7 +40,9 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^9.6.42",
     "chart.js": "^2.7.3",
+    "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^5.2.0",
+    "release-it": "^10.3.1",
     "source-map-support": "^0.5.10",
     "tslint": "^5.12.1",
     "tslint-divid": "^1.3.0",

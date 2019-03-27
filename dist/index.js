@@ -6,14 +6,16 @@ class CanvasRenderService {
     /**
      * Create a new instance of CanvasRenderService.
      *
-     * @param width The width of the charts to render, in pixles.
-     * @param height The height of the charts to render, in pixles.
+     * @param width The width of the charts to render, in pixels.
+     * @param height The height of the charts to render, in pixels.
      * @param chartCallback optional callback which is called once with a new ChartJS global reference.
+     * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
      */
-    constructor(width, height, chartCallback) {
+    constructor(width, height, chartCallback, type) {
         this._width = width;
         this._height = height;
         this._ChartJs = fresh('chart.js', require);
+        this._type = type;
         if (chartCallback) {
             chartCallback(this._ChartJs);
         }
@@ -23,12 +25,13 @@ class CanvasRenderService {
      * @see https://github.com/Automattic/node-canvas#canvastodataurl
      *
      * @param configuration The Chart JS configuration for the chart to render.
+     * @param mimeType The image format, `image/png` or `image/jpeg`.
      */
-    renderToDataURL(configuration) {
+    renderToDataURL(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
             const canvas = chart.canvas;
-            canvas.toDataURL('image/png', (error, png) => {
+            canvas.toDataURL(mimeType, (error, png) => {
                 if (error) {
                     return reject(error);
                 }
@@ -41,8 +44,9 @@ class CanvasRenderService {
      * @see https://github.com/Automattic/node-canvas#canvastobuffer
      *
      * @param configuration The Chart JS configuration for the chart to render.
+     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToBuffer(configuration) {
+    renderToBuffer(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
             const canvas = chart.canvas;
@@ -51,7 +55,7 @@ class CanvasRenderService {
                     return reject(error);
                 }
                 return resolve(buffer);
-            });
+            }, mimeType);
         });
     }
     /**
@@ -59,14 +63,24 @@ class CanvasRenderService {
      * @see https://github.com/Automattic/node-canvas#canvascreatepngstream
      *
      * @param configuration The Chart JS configuration for the chart to render.
+     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToStream(configuration) {
+    renderToStream(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
         const canvas = chart.canvas;
-        return canvas.pngStream();
+        switch (mimeType) {
+            case 'image/png':
+                return canvas.createPNGStream();
+            case 'image/jpeg':
+                return canvas.createJPEGStream();
+            case 'application/pdf':
+                return canvas.createPDFStream();
+            default:
+                throw new Error(`Un-handled mimeType: ${mimeType}`);
+        }
     }
     renderChart(configuration) {
-        const canvas = canvas_1.createCanvas(this._width, this._height);
+        const canvas = canvas_1.createCanvas(this._width, this._height, this._type);
         canvas.style = {};
         // Disable animation (otherwise charts will throw exceptions)
         configuration.options = configuration.options || {};

@@ -4,11 +4,11 @@ import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 
-import { CanvasRenderService, ChartCallback } from './';
+import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
 
 const writeFileAsync = promisify(writeFile);
 
-describe('app', () => {
+describe(CanvasRenderService.name, () => {
 
 	const width = 400;
 	const height = 400;
@@ -55,51 +55,91 @@ describe('app', () => {
 		ChartJS.defaults.global.maintainAspectRatio = false;
 	};
 
-	it('renders image', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const image = await canvasRenderService.renderToBuffer(configuration);
-		assert.equal(image instanceof Buffer, true);
-	});
-
 	it.skip('test image', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const image = await canvasRenderService.renderToBuffer(configuration);
 		await writeFileAsync('./test.png', image);
 	});
 
-	it('renders buffer in parallel', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration));
-		const images = await Promise.all(promises);
-		images.forEach((image) => assert.equal(image instanceof Buffer, true));
-	});
+	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [
+		[undefined, ['image/png', 'image/jpeg']],
+		//['svg', ['image/svg+xml']],
+		//['pdf', ['application/pdf']]
+	];
 
-	it('renders data url', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const dataUrl = await canvasRenderService.renderToDataURL(configuration);
-		assert.equal(dataUrl.startsWith('data:image/png;base64,'), true);
-	});
+	testData.forEach(([chartType, mimeTypes]) => {
 
-	it('renders data url in parallel', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration));
-		const dataUrls = await Promise.all(promises);
-		dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith('data:image/png;base64,'), true));
-	});
+		describe(`given chartType ${chartType}`, () => {
 
-	it('renders stream', (done) => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const stream = canvasRenderService.renderToStream(configuration);
-		const data: Array<Buffer> = [];
-		stream.on('data', (chunk: Buffer) => {
-			data.push(chunk);
-		});
-		stream.on('end', () => {
-			assert.equal(Buffer.concat(data).length > 0, true);
-			done();
-		});
-		stream.on('error', (error) => {
-			done(error);
+			mimeTypes.forEach((mimeType) => {
+
+				describe(`given mimeType '${mimeType}'`, () => {
+
+					function createSUT(): CanvasRenderService {
+
+						return new CanvasRenderService(width, height, chartCallback, chartType);
+					}
+
+					describe(CanvasRenderService.prototype.renderToBuffer.name, () => {
+
+						it('renders buffer', async () => {
+							const canvasRenderService = createSUT();
+							const image = await canvasRenderService.renderToBuffer(configuration, mimeType);
+							assert.equal(image instanceof Buffer, true);
+						});
+
+						it('renders buffer in parallel', async () => {
+							const canvasRenderService = createSUT();
+							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration, mimeType));
+							const images = await Promise.all(promises);
+							images.forEach((image) => assert.equal(image instanceof Buffer, true));
+						});
+					});
+
+					describe(CanvasRenderService.prototype.renderToDataURL.name, () => {
+
+						it('renders data url', async () => {
+							const canvasRenderService = createSUT();
+							const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
+							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
+						});
+
+						it('renders data url in parallel', async () => {
+							const canvasRenderService = createSUT();
+							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration, mimeType));
+							const dataUrls = await Promise.all(promises);
+							dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
+						});
+					});
+
+					describe(CanvasRenderService.prototype.renderToStream.name, () => {
+
+						if (mimeType === 'image/svg+xml') {
+							return;
+						}
+
+						it('renders stream', (done) => {
+							const canvasRenderService = createSUT();
+							const stream = canvasRenderService.renderToStream(configuration, mimeType);
+							const data: Array<Buffer> = [];
+							stream.on('data', (chunk: Buffer) => {
+								data.push(chunk);
+							});
+							stream.on('end', () => {
+								assert.equal(Buffer.concat(data).length > 0, true);
+								done();
+							});
+							stream.on('finish', () => {
+								assert.equal(Buffer.concat(data).length > 0, true);
+								done();
+							});
+							stream.on('error', (error) => {
+								done(error);
+							});
+						});
+					});
+				});
+			});
 		});
 	});
 });

@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas.svg?style=svg)](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas)
 [![NPM](https://img.shields.io/npm/v/chartjs-node-canvas.svg)](https://www.npmjs.com/package/chartjs-node-canvas)
 
-A node renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://github.com/Automattic/node-canva).
+A node renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://github.com/Automattic/node-canvas).
 
 Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs-node) that does not require jsdom (or the global variables that this requires) and allows chartJS as a peer dependency, so you can manage its version yourself.
 
@@ -101,10 +101,18 @@ const configuration = {
         }
     }
 };
-const chartCallback = (ChartJS) => {
+const chartCallback = (Chart) => {
 
-    ChartJS.defaults.global.responsive = true;
-    ChartJS.defaults.global.maintainAspectRatio = false;
+    // Global config example: https://www.chartjs.org/docs/latest/configuration/
+    Chart.defaults.global.elements.rectangle.borderWidth = 2;
+    // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
+    Chart.plugins.register({
+        // plugin implementation
+    });
+    // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
+    Chart.controllers.MyType = Chart.DatasetController.extend({
+        // chart implementation
+    });
 };
 
 (async () => {

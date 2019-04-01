@@ -34,7 +34,7 @@ export class CanvasRenderService {
 	}
 
 	/**
-	 * Render to a data url as png.
+	 * Render to a data url.
 	 * @see https://github.com/Automattic/node-canvas#canvastodataurl
 	 *
 	 * @param configuration The Chart JS configuration for the chart to render.
@@ -55,7 +55,7 @@ export class CanvasRenderService {
 	}
 
 	/**
-	 * Render to a buffer as png.
+	 * Render to a buffer.
 	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
 	 *
 	 * @param configuration The Chart JS configuration for the chart to render.
@@ -76,7 +76,7 @@ export class CanvasRenderService {
 	}
 
 	/**
-	 * Render to a stream as png.
+	 * Render to a stream.
 	 * @see https://github.com/Automattic/node-canvas#canvascreatepngstream
 	 *
 	 * @param configuration The Chart JS configuration for the chart to render.

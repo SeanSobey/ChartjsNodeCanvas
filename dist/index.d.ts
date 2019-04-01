@@ -19,7 +19,7 @@ export declare class CanvasRenderService {
      */
     constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType);
     /**
-     * Render to a data url as png.
+     * Render to a data url.
      * @see https://github.com/Automattic/node-canvas#canvastodataurl
      *
      * @param configuration The Chart JS configuration for the chart to render.
@@ -27,7 +27,7 @@ export declare class CanvasRenderService {
      */
     renderToDataURL(configuration: ChartConfiguration, mimeType?: MimeType): Promise<string>;
     /**
-     * Render to a buffer as png.
+     * Render to a buffer.
      * @see https://github.com/Automattic/node-canvas#canvastobuffer
      *
      * @param configuration The Chart JS configuration for the chart to render.
@@ -35,7 +35,7 @@ export declare class CanvasRenderService {
      */
     renderToBuffer(configuration: ChartConfiguration, mimeType?: MimeType): Promise<Buffer>;
     /**
-     * Render to a stream as png.
+     * Render to a stream.
      * @see https://github.com/Automattic/node-canvas#canvascreatepngstream
      *
      * @param configuration The Chart JS configuration for the chart to render.

@@ -44,7 +44,7 @@
     "chartjs-plugin-datalabels": "^0.6.0",
     "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^5.2.0",
-    "release-it": "^10.3.1",
+    "release-it": "^10.4.0",
     "source-map-support": "^0.5.11",
     "tslint": "^5.15.0",
     "tslint-divid": "^1.3.0",

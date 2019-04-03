@@ -97,6 +97,7 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 	ChartJS.plugins.register(freshRequire('<chart plugin>', require));
 });
 ```
+This will work with plugins that just return a plugin object and do no specific loading themselves.
 
 These approaches can be combined also.
 

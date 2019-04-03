@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { writeFile } from 'fs';
+import { writeFile, readFile } from 'fs';
 import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
@@ -8,6 +8,7 @@ import * as freshRequire from 'fresh-require';
 import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
 
 const writeFileAsync = promisify(writeFile);
+const readFileAsync = promisify(readFile);
 
 describe(CanvasRenderService.name, () => {
 
@@ -77,14 +78,13 @@ describe(CanvasRenderService.name, () => {
 
 	it('works with registering plugin', async () => {
 
-		const randomScalingFactor = () => Math.round((Math.random() - 0.5) * 100);
 		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
 
 			// (global as any).Chart = ChartJS;
 			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation', require));
 			// delete (global as any).Chart;
 		});
-		const image = await canvasRenderService.renderToBuffer({
+		const actual = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -95,29 +95,13 @@ describe(CanvasRenderService.name, () => {
 						borderColor: chartColors.blue,
 						borderWidth: 2,
 						fill: false,
-						data: [
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor()
-						]
+						data: [ -39, 44, -22, -45, -27, 12, 18 ]
 					},
 					{
 						type: 'bar',
 						label: 'Dataset 2',
 						backgroundColor: chartColors.red,
-						data: [
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor()
-						],
+						data: [ -18, -43, 36, -37, 1, -1, 26 ],
 						borderColor: 'white',
 						borderWidth: 2
 					},
@@ -125,15 +109,7 @@ describe(CanvasRenderService.name, () => {
 						type: 'bar',
 						label: 'Dataset 3',
 						backgroundColor: chartColors.green,
-						data: [
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor(),
-							randomScalingFactor()
-						]
+						data: [ -7, 21, 1, 7, 34, -29, -36 ]
 					}
 				]
 			},
@@ -155,7 +131,7 @@ describe(CanvasRenderService.name, () => {
 							type: 'line',
 							mode: 'horizontal',
 							scaleID: 'y-axis-0',
-							value: randomScalingFactor(),
+							value: 48,
 							borderColor: 'black',
 							borderWidth: 5,
 							label: {
@@ -171,8 +147,8 @@ describe(CanvasRenderService.name, () => {
 							yScaleID: 'y-axis-0',
 							xMin: 'February',
 							xMax: 'April',
-							yMin: randomScalingFactor(),
-							yMax: randomScalingFactor(),
+							yMin: -23,
+							yMax: 40,
 							backgroundColor: 'rgba(101, 33, 171, 0.5)',
 							borderColor: 'rgb(101, 33, 171)',
 							borderWidth: 1,
@@ -181,10 +157,9 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		});
-		//await writeFileAsync('./test.png', image);
-		const actual = hashCode(image.toString('base64').substring(0, 42));
-		const expected = -299120523;
-		assert.equal(actual, expected);
+		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', actual);
+		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
+		assert(actual.equals(expected));
 	});
 
 	it('works with self registering plugin', async () => {
@@ -202,7 +177,7 @@ describe(CanvasRenderService.name, () => {
 			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
 			// delete (global as any).Chart;
 		}, undefined, chartJsFactory);
-		const image = await canvasRenderService.renderToBuffer({
+		const actual = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
@@ -252,10 +227,9 @@ describe(CanvasRenderService.name, () => {
 				}
 			}
 		});
-		//await writeFileAsync('./test.png', image);
-		const actual = hashCode(image.toString('base64'));
-		const expected = -1377895140;
-		assert.equal(actual, expected);
+		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', actual);
+		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
+		assert(actual.equals(expected));
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [

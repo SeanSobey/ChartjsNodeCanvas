@@ -11,6 +11,15 @@ const writeFileAsync = promisify(writeFile);
 
 describe(CanvasRenderService.name, () => {
 
+	const chartColors = {
+		red: 'rgb(255, 99, 132)',
+		orange: 'rgb(255, 159, 64)',
+		yellow: 'rgb(255, 205, 86)',
+		green: 'rgb(75, 192, 192)',
+		blue: 'rgb(54, 162, 235)',
+		purple: 'rgb(153, 102, 255)',
+		grey: 'rgb(201, 203, 207)'
+	};
 	const width = 400;
 	const height = 400;
 	const configuration: ChartConfiguration = {
@@ -66,23 +75,129 @@ describe(CanvasRenderService.name, () => {
 		await writeFileAsync('./test.png', image);
 	});
 
-	it('works with self registering plugin', async () => {
+	it('works with registering plugin', async () => {
 
-		const chartJS = require('chart.js');
-		require('chartjs-plugin-datalabels');
-		const chartColors = {
-			red: 'rgb(255, 99, 132)',
-			orange: 'rgb(255, 159, 64)',
-			yellow: 'rgb(255, 205, 86)',
-			green: 'rgb(75, 192, 192)',
-			blue: 'rgb(54, 162, 235)',
-			purple: 'rgb(153, 102, 255)',
-			grey: 'rgb(201, 203, 207)'
-		};
-		const chartJsFactory = () => chartJS;
+		const randomScalingFactor = () => Math.round((Math.random() - 0.5) * 100);
 		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
 
-			assert.equal(ChartJS, chartJS);
+			// (global as any).Chart = ChartJS;
+			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation', require));
+			// delete (global as any).Chart;
+		});
+		const image = await canvasRenderService.renderToBuffer({
+			type: 'bar',
+			data: {
+				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+				datasets: [
+					{
+						type: 'line',
+						label: 'Dataset 1',
+						borderColor: chartColors.blue,
+						borderWidth: 2,
+						fill: false,
+						data: [
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor()
+						]
+					},
+					{
+						type: 'bar',
+						label: 'Dataset 2',
+						backgroundColor: chartColors.red,
+						data: [
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor()
+						],
+						borderColor: 'white',
+						borderWidth: 2
+					},
+					{
+						type: 'bar',
+						label: 'Dataset 3',
+						backgroundColor: chartColors.green,
+						data: [
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor(),
+							randomScalingFactor()
+						]
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Chart.js Combo Bar Line Chart'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: true
+				},
+				annotation: {
+					annotations: [
+						{
+							drawTime: 'afterDatasetsDraw',
+							id: 'hline',
+							type: 'line',
+							mode: 'horizontal',
+							scaleID: 'y-axis-0',
+							value: randomScalingFactor(),
+							borderColor: 'black',
+							borderWidth: 5,
+							label: {
+								backgroundColor: 'red',
+								content: 'Test Label',
+								enabled: true
+							}
+						},
+						{
+							drawTime: 'beforeDatasetsDraw',
+							type: 'box',
+							xScaleID: 'x-axis-0',
+							yScaleID: 'y-axis-0',
+							xMin: 'February',
+							xMax: 'April',
+							yMin: randomScalingFactor(),
+							yMax: randomScalingFactor(),
+							backgroundColor: 'rgba(101, 33, 171, 0.5)',
+							borderColor: 'rgb(101, 33, 171)',
+							borderWidth: 1,
+						}
+					]
+				}
+			} as any
+		});
+		//await writeFileAsync('./test.png', image);
+		const actual = hashCode(image.toString('base64').substring(0, 42));
+		const expected = -299120523;
+		assert.equal(actual, expected);
+	});
+
+	it('works with self registering plugin', async () => {
+
+		const chartJsFactory = () => {
+			const chartJS = require('chart.js');
+			require('chartjs-plugin-datalabels');
+			delete require.cache[require.resolve('chart.js')];
+			delete require.cache[require.resolve('chartjs-plugin-datalabels')];
+			return chartJS;
+		};
+		const canvasRenderService = new CanvasRenderService(width, height, (/*ChartJS*/) => {
+
 			// (global as any).Chart = ChartJS;
 			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
 			// delete (global as any).Chart;
@@ -90,7 +205,7 @@ describe(CanvasRenderService.name, () => {
 		const image = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
-				labels: [1,2,3,4,5,6,7,8,9,10] as any,
+				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
 				datasets: [{
 					backgroundColor: chartColors.red,
 					data: [12, 19, 3, 5, 2, 3],
@@ -118,7 +233,7 @@ describe(CanvasRenderService.name, () => {
 				plugins: {
 					datalabels: {
 						color: 'white',
-						display: function(context: any) {
+						display: function (context: any) {
 							return context.dataset.data[context.dataIndex] > 15;
 						},
 						font: {
@@ -138,6 +253,9 @@ describe(CanvasRenderService.name, () => {
 			}
 		});
 		//await writeFileAsync('./test.png', image);
+		const actual = hashCode(image.toString('base64'));
+		const expected = -1377895140;
+		assert.equal(actual, expected);
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [
@@ -221,4 +339,18 @@ describe(CanvasRenderService.name, () => {
 			});
 		});
 	});
+
+	function hashCode(string: string): number {
+
+		let hash = 0;
+		if (string.length === 0) {
+			return hash;
+		}
+		for (let i = 0; i < string.length; i++) {
+			const chr = string.charCodeAt(i);
+			hash = ((hash << 5) - hash) + chr;
+			hash |= 0; // Convert to 32bit integer
+		}
+		return hash;
+	}
 });

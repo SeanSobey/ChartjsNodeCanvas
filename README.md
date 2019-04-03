@@ -41,7 +41,6 @@ See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/AP
 ## Usage
 
 ```js
-
 const { CanvasRenderService } = require('chartjs-node-canvas');
 
 (async () => {
@@ -59,6 +58,45 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
     const stream = canvasRenderService.renderToStream(configuration);
 })();
 ```
+
+### Loading plugins
+
+The key to getting plugins working is knowing that this package uses [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`. And there are some tools you can use to solve these issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
+
+1. Temporary global variable for ChartJs:
+```js
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+
+	global.Chart = ChartJS;
+	require('<chart plugin>');
+	delete global.Chart;
+});
+```
+This should work for any plugin that expects a global Chart variable.
+2. Chart factory function for `CanvasRenderService`, newly added for this use case (`chartjs-node-canvas` version `2.2.0`):
+```js
+const chartJsFactory = () => {
+	const chartJS = require('chart.js');
+	require('<chart plugin>');
+        // Clear the require cache so to allow `CanvasRenderService` seperate instances of ChartJS and plugins.
+	delete require.cache[require.resolve('chart.js')];
+	delete require.cache[require.resolve('chart plugin')];
+	return chartJS;
+};
+const canvasRenderService = new CanvasRenderService(width, height, undefined, undefined, chartJsFactory);
+```
+3. Register plugin directly with ChartJS:
+```js
+const freshRequire = require('fresh-require');
+
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+
+	// Use 'fresh-require' to allow `CanvasRenderService` seperate instances of ChartJS and plugins.
+	ChartJS.plugins.register(freshRequire('<chart plugin>', require));
+});
+```
+
+These approaches can be combined also.
 
 ## Full Example
 

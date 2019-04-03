@@ -6,10 +6,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --opts ./mocha.opts dist/**/*.spec.js",
-    "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha --opts ./mocha.opts dist/**/*.spec.js",
+    "test": "mocha dist/**/*.spec.js",
+    "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha dist/**/*.spec.js",
     "watch-build": "tsc --watch",
-    "watch-test": "mocha --watch --opts ./mocha.opts dist/**/*.spec.js",
+    "watch-test": "mocha --watch dist/**/*.spec.js",
     "release": "release-it",
     "docs": "jsdoc2md dist/index.js > API.md"
   },
@@ -43,7 +43,7 @@
     "chartjs-plugin-annotation": "^0.5.7",
     "chartjs-plugin-datalabels": "^0.6.0",
     "jsdoc-to-markdown": "^4.0.1",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.2",
     "release-it": "^10.4.0",
     "source-map-support": "^0.5.11",
     "tslint": "^5.15.0",

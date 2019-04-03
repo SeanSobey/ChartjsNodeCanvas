@@ -6,7 +6,8 @@ docker/
 docker-compose.override.yml
 docker-compose.yml
 .editorconfig
-mocha.opts
+codealike.json
+.mocharc.json
 tsconfig.json
 tslint.json
 

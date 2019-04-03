@@ -1,0 +1,10 @@
+{
+  "allow-uncaught": true,
+  "globals": [
+    "window"
+  ],
+  "require": [
+    "source-map-support/register"
+  ],
+  "timeout": 2000
+}

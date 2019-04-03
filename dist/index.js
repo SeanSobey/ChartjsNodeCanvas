@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const canvas_1 = require("canvas");
-const fresh = require("fresh-require");
-const defaultChartJsFactory = () => fresh('chart.js', require);
+const fresh_require_1 = __importDefault(require("fresh-require"));
+const defaultChartJsFactory = () => fresh_require_1.default('chart.js', require);
 class CanvasRenderService {
     /**
      * Create a new instance of CanvasRenderService.

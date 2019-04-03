@@ -1,9 +1,9 @@
-import * as assert from 'assert';
+import { strict as assert } from 'assert';
 import { writeFile, readFile } from 'fs';
 import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
-import * as freshRequire from 'fresh-require';
+import freshRequire from 'fresh-require';
 
 import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
 
@@ -159,7 +159,7 @@ describe(CanvasRenderService.name, () => {
 		});
 		await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
 		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
-		assert(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1742834127;
 		// assert.equal(actual, expected);
@@ -232,7 +232,7 @@ describe(CanvasRenderService.name, () => {
 		});
 		await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
 		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
-		assert(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
 		// assert.equal(actual, expected);

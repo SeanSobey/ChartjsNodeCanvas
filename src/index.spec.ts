@@ -157,12 +157,12 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
-		// const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
-		// assert(actual.equals(expected));
-		const actual = hashCode(image.toString('base64'));
-		const expected = -1742834127;
-		assert.equal(actual, expected);
+		await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
+		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
+		assert(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		// const actual = hashCode(image.toString('base64'));
+		// const expected = -1742834127;
+		// assert.equal(actual, expected);
 	});
 
 	it('works with self registering plugin', async () => {
@@ -230,12 +230,12 @@ describe(CanvasRenderService.name, () => {
 				}
 			}
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
-		// const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
-		// assert(image.equals(expected));
-		const actual = hashCode(image.toString('base64'));
-		const expected = -1377895140;
-		assert.equal(actual, expected);
+		await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
+		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
+		assert(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		// const actual = hashCode(image.toString('base64'));
+		// const expected = -1377895140;
+		// assert.equal(actual, expected);
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [

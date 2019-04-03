@@ -84,7 +84,7 @@ describe(CanvasRenderService.name, () => {
 			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation', require));
 			// delete (global as any).Chart;
 		});
-		const actual = await canvasRenderService.renderToBuffer({
+		const image = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -157,9 +157,12 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', actual);
-		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
-		assert(actual.equals(expected));
+		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
+		// const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
+		// assert(actual.equals(expected));
+		const actual = hashCode(image.toString('base64'));
+		const expected = -1742834127;
+		assert.equal(actual, expected);
 	});
 
 	it('works with self registering plugin', async () => {
@@ -177,7 +180,7 @@ describe(CanvasRenderService.name, () => {
 			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
 			// delete (global as any).Chart;
 		}, undefined, chartJsFactory);
-		const actual = await canvasRenderService.renderToBuffer({
+		const image = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
@@ -227,9 +230,12 @@ describe(CanvasRenderService.name, () => {
 				}
 			}
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', actual);
-		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
-		assert(actual.equals(expected));
+		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
+		// const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
+		// assert(image.equals(expected));
+		const actual = hashCode(image.toString('base64'));
+		const expected = -1377895140;
+		assert.equal(actual, expected);
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [

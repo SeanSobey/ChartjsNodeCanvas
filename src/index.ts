@@ -7,6 +7,8 @@ export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg' | 'application/pdf' | 'image/svg+xml';
 
+const defaultChartJsFactory: () => typeof ChartJS = () => fresh('chart.js', require);
+
 export class CanvasRenderService {
 
 	private readonly _width: number;
@@ -21,12 +23,13 @@ export class CanvasRenderService {
 	 * @param height The height of the charts to render, in pixels.
 	 * @param chartCallback optional callback which is called once with a new ChartJS global reference.
 	 * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
+	 * @param chartJsFactory optional provider for chart.js.
 	 */
-	constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType) {
+	constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType, chartJsFactory?: () => typeof ChartJS) {
 
 		this._width = width;
 		this._height = height;
-		this._ChartJs = fresh('chart.js', require) as typeof ChartJS;
+		this._ChartJs = (chartJsFactory || defaultChartJsFactory)();
 		this._type = type;
 		if (chartCallback) {
 			chartCallback(this._ChartJs);

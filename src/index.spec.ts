@@ -3,6 +3,7 @@ import { writeFile } from 'fs';
 import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
+import * as freshRequire from 'fresh-require';
 
 import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
 
@@ -47,7 +48,11 @@ describe(CanvasRenderService.name, () => {
 					} as any
 				}]
 			}
-		}
+		},
+		plugins: {
+			annotation: {
+			}
+		} as any
 	};
 	const chartCallback: ChartCallback = (ChartJS) => {
 
@@ -59,6 +64,80 @@ describe(CanvasRenderService.name, () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const image = await canvasRenderService.renderToBuffer(configuration);
 		await writeFileAsync('./test.png', image);
+	});
+
+	it('works with self registering plugin', async () => {
+
+		const chartJS = require('chart.js');
+		require('chartjs-plugin-datalabels');
+		const chartColors = {
+			red: 'rgb(255, 99, 132)',
+			orange: 'rgb(255, 159, 64)',
+			yellow: 'rgb(255, 205, 86)',
+			green: 'rgb(75, 192, 192)',
+			blue: 'rgb(54, 162, 235)',
+			purple: 'rgb(153, 102, 255)',
+			grey: 'rgb(201, 203, 207)'
+		};
+		const chartJsFactory = () => chartJS;
+		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+
+			assert.equal(ChartJS, chartJS);
+			// (global as any).Chart = ChartJS;
+			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
+			// delete (global as any).Chart;
+		}, undefined, chartJsFactory);
+		const image = await canvasRenderService.renderToBuffer({
+			type: 'bar',
+			data: {
+				labels: [1,2,3,4,5,6,7,8,9,10] as any,
+				datasets: [{
+					backgroundColor: chartColors.red,
+					data: [12, 19, 3, 5, 2, 3],
+					datalabels: {
+						align: 'end',
+						anchor: 'start'
+					}
+				}, {
+					backgroundColor: chartColors.blue,
+					data: [3, 5, 2, 3, 30, 15, 19, 2],
+					datalabels: {
+						align: 'center',
+						anchor: 'center'
+					}
+				}, {
+					backgroundColor: chartColors.green,
+					data: [12, 19, 3, 5, 2, 3],
+					datalabels: {
+						anchor: 'end',
+						align: 'start',
+					}
+				}] as any
+			},
+			options: {
+				plugins: {
+					datalabels: {
+						color: 'white',
+						display: function(context: any) {
+							return context.dataset.data[context.dataIndex] > 15;
+						},
+						font: {
+							weight: 'bold'
+						},
+						formatter: Math.round
+					}
+				},
+				scales: {
+					xAxes: [{
+						stacked: true
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				}
+			}
+		});
+		//await writeFileAsync('./test.png', image);
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [

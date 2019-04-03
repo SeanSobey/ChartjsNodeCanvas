@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const canvas_1 = require("canvas");
 const fresh = require("fresh-require");
+const defaultChartJsFactory = () => fresh('chart.js', require);
 class CanvasRenderService {
     /**
      * Create a new instance of CanvasRenderService.
@@ -10,11 +11,12 @@ class CanvasRenderService {
      * @param height The height of the charts to render, in pixels.
      * @param chartCallback optional callback which is called once with a new ChartJS global reference.
      * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
+     * @param chartJsFactory optional provider for chart.js.
      */
-    constructor(width, height, chartCallback, type) {
+    constructor(width, height, chartCallback, type, chartJsFactory) {
         this._width = width;
         this._height = height;
-        this._ChartJs = fresh('chart.js', require);
+        this._ChartJs = (chartJsFactory || defaultChartJsFactory)();
         this._type = type;
         if (chartCallback) {
             chartCallback(this._ChartJs);

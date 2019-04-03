@@ -99,8 +99,8 @@ const configuration = {
             yAxes: [{
                 ticks: {
                     beginAtZero: true,
-                    callback: (value: number) => '$' + value
-                } as any
+                    callback: (value) => '$' + value
+                }
             }]
         }
     }

@@ -74,7 +74,7 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 ```
 This should work for any plugin that expects a global Chart variable.
 
-2. Chart factory function for `CanvasRenderService`, newly added for this use case (`chartjs-node-canvas` version `2.2.0`):
+2. Chart factory function for `CanvasRenderService`:
 ```js
 const chartJsFactory = () => {
 	const chartJS = require('chart.js');
@@ -86,6 +86,7 @@ const chartJsFactory = () => {
 };
 const canvasRenderService = new CanvasRenderService(width, height, undefined, undefined, chartJsFactory);
 ```
+This will work for plugins that `require` ChartJS themselves.
 
 3. Register plugin directly with ChartJS:
 ```js

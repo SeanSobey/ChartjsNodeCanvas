@@ -168,3 +168,7 @@ const chartCallback = (Chart) => {
     const stream = canvasRenderService.renderToStream(configuration);
 })();
 ```
+
+## Known Issues
+
+There is a problem with persisting config objects between render calls, see this [issue](https://github.com/SeanSobey/ChartjsNodeCanvas/issues/9) for details and workarounds.

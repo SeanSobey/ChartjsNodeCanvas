@@ -7,7 +7,7 @@ export declare type MimeType = 'image/png' | 'image/jpeg' | 'application/pdf' | 
 export declare class CanvasRenderService {
     private readonly _width;
     private readonly _height;
-    private readonly _ChartJs;
+    private readonly _chartJs;
     private readonly _type?;
     /**
      * Create a new instance of CanvasRenderService.

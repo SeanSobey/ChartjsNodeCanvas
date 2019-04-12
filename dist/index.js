@@ -19,10 +19,11 @@ class CanvasRenderService {
     constructor(width, height, chartCallback, type, chartJsFactory) {
         this._width = width;
         this._height = height;
-        this._ChartJs = (chartJsFactory || defaultChartJsFactory)();
+        this._chartJs = (chartJsFactory || defaultChartJsFactory)();
+        //this._createCanvas = freshRequire('canvas', require).createCanvas;
         this._type = type;
         if (chartCallback) {
-            chartCallback(this._ChartJs);
+            chartCallback(this._chartJs);
         }
     }
     /**
@@ -85,6 +86,7 @@ class CanvasRenderService {
         }
     }
     renderChart(configuration) {
+        //const canvas = this._createCanvas(this._width, this._height, this._type);
         const canvas = canvas_1.createCanvas(this._width, this._height, this._type);
         canvas.style = {};
         // Disable animation (otherwise charts will throw exceptions)
@@ -92,8 +94,7 @@ class CanvasRenderService {
         configuration.options.responsive = false;
         configuration.options.animation = false;
         const context = canvas.getContext('2d');
-        global.window = {}; //https://github.com/chartjs/Chart.js/pull/5324
-        return new this._ChartJs(context, configuration);
+        return new this._chartJs(context, configuration);
     }
 }
 exports.CanvasRenderService = CanvasRenderService;

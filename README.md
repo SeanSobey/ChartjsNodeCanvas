@@ -7,10 +7,20 @@ A node renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://gi
 
 Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs-node) that does not require jsdom (or the global variables that this requires) and allows chartJS as a peer dependency, so you can manage its version yourself.
 
+## Contents
+
+1. [Installation](#Installation)
+2. [Features](#Features)
+3. [Limitations](#Limitations)
+4. [API](#API)
+5. [Usage](#Usage)
+6. [Full Example](#Full%20Example)
+7. [Known Issues](#Known%20Issues)
+
 ## Installation
 
 ```
-npm i chartjs-node-canvas
+npm i chartjs-node-canvas chart.js
 ```
 
 ## Features
@@ -50,8 +60,6 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
         ... // See https://www.chartjs.org/docs/latest/configuration
     };
     const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-        // See https://www.chartjs.org/docs/latest/configuration/#global-configuration
-        ChartJS.defaults.global.responsive = true;
     });
     const image = await canvasRenderService.renderToBuffer(configuration);
     const dataUrl = await canvasRenderService.renderToDataURL(configuration); // image/png
@@ -59,14 +67,49 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
 })();
 ```
 
+### Custom Charts
+
+Just use the ChartJS reference in the callback:
+```js
+    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+    // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
+    ChartJS.controllers.MyType = Chart.DatasetController.extend({
+        // chart implementation
+    });
+});
+```
+
+### Global Config
+
+Just use the ChartJS reference in the callback:
+```js
+    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+    // Global config example: https://www.chartjs.org/docs/latest/configuration/
+    ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
+});
+```
+
 ### Loading plugins
 
-The key to getting plugins working is knowing that this package uses [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`. And there are some tools you can use to solve these issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
+#### Newer plugins
+
+Just use the ChartJS reference in the callback:
+```js
+    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+    // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
+    ChartJS.plugins.register({
+        // plugin implementation
+    });
+});
+```
+
+#### Older plugins
+
+The key to getting older plugins working is knowing that this package uses [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`. And there are some tools you can use to solve these issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
 
 1. Temporary global variable for ChartJs:
 ```js
 const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-
 	global.Chart = ChartJS;
 	require('<chart plugin>');
 	delete global.Chart;
@@ -93,7 +136,6 @@ This will work for plugins that `require` ChartJS themselves.
 const freshRequire = require('fresh-require');
 
 const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-
 	// Use 'fresh-require' to allow `CanvasRenderService` seperate instances of ChartJS and plugins.
 	ChartJS.plugins.register(freshRequire('<chart plugin>', require));
 });
@@ -147,16 +189,16 @@ const configuration = {
         }
     }
 };
-const chartCallback = (Chart) => {
+const chartCallback = (ChartJS) => {
 
     // Global config example: https://www.chartjs.org/docs/latest/configuration/
-    Chart.defaults.global.elements.rectangle.borderWidth = 2;
+    ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
     // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
-    Chart.plugins.register({
+    ChartJS.plugins.register({
         // plugin implementation
     });
     // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
-    Chart.controllers.MyType = Chart.DatasetController.extend({
+    ChartJS.controllers.MyType = ChartJS.DatasetController.extend({
         // chart implementation
     });
 };

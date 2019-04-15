@@ -36,9 +36,9 @@
     "chart.js": "^2.7.3"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.7.50",
+    "@types/chart.js": "^2.7.51",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^11.13.0",
+    "@types/node": "^11.13.4",
     "@types/node-memwatch": "^1.0.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-annotation": "^0.5.7",

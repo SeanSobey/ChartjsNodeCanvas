@@ -4,13 +4,18 @@ import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 import freshRequire from 'fresh-require';
+import memwatch from 'node-memwatch';
 
 import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
 
 const writeFileAsync = promisify(writeFile);
 const readFileAsync = promisify(readFile);
 
-describe(CanvasRenderService.name, () => {
+memwatch.on('leak', (info) => {
+	throw new Error(info.reason);
+});
+
+const suit = describe(CanvasRenderService.name, () => {
 
 	const chartColors = {
 		red: 'rgb(255, 99, 132)',
@@ -95,13 +100,13 @@ describe(CanvasRenderService.name, () => {
 						borderColor: chartColors.blue,
 						borderWidth: 2,
 						fill: false,
-						data: [ -39, 44, -22, -45, -27, 12, 18 ]
+						data: [-39, 44, -22, -45, -27, 12, 18]
 					},
 					{
 						type: 'bar',
 						label: 'Dataset 2',
 						backgroundColor: chartColors.red,
-						data: [ -18, -43, 36, -37, 1, -1, 26 ],
+						data: [-18, -43, 36, -37, 1, -1, 26],
 						borderColor: 'white',
 						borderWidth: 2
 					},
@@ -109,7 +114,7 @@ describe(CanvasRenderService.name, () => {
 						type: 'bar',
 						label: 'Dataset 3',
 						backgroundColor: chartColors.green,
-						data: [ -7, 21, 1, 7, 34, -29, -36 ]
+						data: [-7, 21, 1, 7, 34, -29, -36]
 					}
 				]
 			},
@@ -236,6 +241,42 @@ describe(CanvasRenderService.name, () => {
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
 		// assert.equal(actual, expected);
+	});
+
+	it('does not leak with new instance', async () => {
+
+		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
+			const heapDiff = new memwatch.HeapDiff();
+			console.log('generated heap for iteration ' + (iteration + 1));
+			const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+				.then(() => {
+					const diff = heapDiff.end();
+					console.log('generated diff for iteration ' + (iteration + 1));
+					return diff;
+				});
+		}));
+		const actual = diffs.map(d => d.change.size_bytes);
+		const expected = actual.slice().sort();
+		assert.notDeepEqual(actual, expected);
+	});
+
+	it('does not leak with same instance', async () => {
+
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
+			const heapDiff = new memwatch.HeapDiff();
+			console.log('generated heap for iteration ' + (iteration + 1));
+			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+				.then(() => {
+					const diff = heapDiff.end();
+					console.log('generated diff for iteration ' + (iteration + 1));
+					return diff;
+				});
+		}));
+		const actual = diffs.map(d => d.change.size_bytes);
+		const expected = actual.slice().sort();
+		assert.notDeepEqual(actual, expected);
 	});
 
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [

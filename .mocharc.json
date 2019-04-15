@@ -1,4 +1,5 @@
 {
+  "ignore-leaks": false,
   "allow-uncaught": true,
   "globals": [
     "window"
@@ -6,5 +7,5 @@
   "require": [
     "source-map-support/register"
   ],
-  "timeout": 2000
+  "timeout": 50000
 }

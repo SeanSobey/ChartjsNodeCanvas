@@ -51,6 +51,7 @@ export class CanvasRenderService {
 		return new Promise<string>((resolve, reject) => {
 			const canvas = chart.canvas as any;
 			canvas.toDataURL(mimeType, (error: Error | null, png: string) => {
+				chart.destroy();
 				if (error) {
 					return reject(error);
 				}
@@ -72,6 +73,7 @@ export class CanvasRenderService {
 		return new Promise<Buffer>((resolve, reject) => {
 			const canvas = chart.canvas as any;
 			canvas.toBuffer((error: Error | null, buffer: Buffer) => {
+				chart.destroy();
 				if (error) {
 					return reject(error);
 				}
@@ -91,6 +93,7 @@ export class CanvasRenderService {
 
 		const chart = this.renderChart(configuration);
 		const canvas = chart.canvas as any;
+		chart.destroy();
 		switch (mimeType) {
 			case 'image/png':
 				return canvas.createPNGStream();

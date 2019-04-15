@@ -59,10 +59,9 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
     const configuration = {
         ... // See https://www.chartjs.org/docs/latest/configuration
     };
-    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-    });
+    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => { });
     const image = await canvasRenderService.renderToBuffer(configuration);
-    const dataUrl = await canvasRenderService.renderToDataURL(configuration); // image/png
+    const dataUrl = await canvasRenderService.renderToDataURL(configuration);
     const stream = canvasRenderService.renderToStream(configuration);
 })();
 ```
@@ -105,7 +104,11 @@ Just use the ChartJS reference in the callback:
 
 #### Older plugins
 
-The key to getting older plugins working is knowing that this package uses [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`. And there are some tools you can use to solve these issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
+The key to getting older plugins working is knowing that this package uses an equivalent to [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`.
+
+There are some tools you can use to solve any issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
+
+---
 
 1. Temporary global variable for ChartJs:
 ```js
@@ -116,6 +119,8 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 });
 ```
 This should work for any plugin that expects a global Chart variable.
+
+---
 
 2. Chart factory function for `CanvasRenderService`:
 ```js
@@ -131,6 +136,8 @@ const canvasRenderService = new CanvasRenderService(width, height, undefined, un
 ```
 This will work for plugins that `require` ChartJS themselves.
 
+---
+
 3. Register plugin directly with ChartJS:
 ```js
 const freshRequire = require('fresh-require');
@@ -141,6 +148,8 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 });
 ```
 This will work with plugins that just return a plugin object and do no specific loading themselves.
+
+---
 
 These approaches can be combined also.
 

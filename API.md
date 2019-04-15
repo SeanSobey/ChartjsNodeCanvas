@@ -19,7 +19,7 @@ Create a new instance of CanvasRenderService.
 | --- | --- |
 | width | The width of the charts to render, in pixels. |
 | height | The height of the charts to render, in pixels. |
-| chartCallback | optional callback which is called once with a new ChartJS global reference. |
+| chartCallback | optional callback which is called once with a new ChartJS global reference as the only parameter. |
 | type | optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support). |
 | chartJsFactory | optional provider for chart.js. |
 

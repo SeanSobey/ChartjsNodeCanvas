@@ -11,6 +11,7 @@
     "watch-build": "tsc --watch",
     "watch-test": "mocha --watch dist/**/*.spec.js",
     "release": "release-it",
+    "build-and-release": "npm run-script build && npm run-script docs && npm run-script release",
     "docs": "jsdoc2md dist/index.js > API.md"
   },
   "bugs": {

@@ -3,7 +3,7 @@ import { writeFile, readFile } from 'fs';
 import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
-import freshRequire from 'fresh-require';
+import { freshRequire } from './freshRequire';
 import memwatch from 'node-memwatch';
 
 import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
@@ -15,7 +15,7 @@ memwatch.on('leak', (info) => {
 	throw new Error(info.reason);
 });
 
-const suit = describe(CanvasRenderService.name, () => {
+describe(CanvasRenderService.name, () => {
 
 	const chartColors = {
 		red: 'rgb(255, 99, 132)',
@@ -86,7 +86,7 @@ const suit = describe(CanvasRenderService.name, () => {
 		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
 
 			// (global as any).Chart = ChartJS;
-			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation', require));
+			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
 			// delete (global as any).Chart;
 		});
 		const image = await canvasRenderService.renderToBuffer({
@@ -243,42 +243,6 @@ const suit = describe(CanvasRenderService.name, () => {
 		// assert.equal(actual, expected);
 	});
 
-	it('does not leak with new instance', async () => {
-
-		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
-			const heapDiff = new memwatch.HeapDiff();
-			console.log('generated heap for iteration ' + (iteration + 1));
-			const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-			return canvasRenderService.renderToBuffer(configuration, 'image/png')
-				.then(() => {
-					const diff = heapDiff.end();
-					console.log('generated diff for iteration ' + (iteration + 1));
-					return diff;
-				});
-		}));
-		const actual = diffs.map(d => d.change.size_bytes);
-		const expected = actual.slice().sort();
-		assert.notDeepEqual(actual, expected);
-	});
-
-	it('does not leak with same instance', async () => {
-
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
-			const heapDiff = new memwatch.HeapDiff();
-			console.log('generated heap for iteration ' + (iteration + 1));
-			return canvasRenderService.renderToBuffer(configuration, 'image/png')
-				.then(() => {
-					const diff = heapDiff.end();
-					console.log('generated diff for iteration ' + (iteration + 1));
-					return diff;
-				});
-		}));
-		const actual = diffs.map(d => d.change.size_bytes);
-		const expected = actual.slice().sort();
-		assert.notDeepEqual(actual, expected);
-	});
-
 	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [
 		[undefined, ['image/png', 'image/jpeg']],
 		//['svg', ['image/svg+xml']],
@@ -359,6 +323,42 @@ const suit = describe(CanvasRenderService.name, () => {
 				});
 			});
 		});
+	});
+
+	it('does not leak with new instance', async () => {
+
+		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
+			const heapDiff = new memwatch.HeapDiff();
+			console.log('generated heap for iteration ' + (iteration + 1));
+			const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+				.then(() => {
+					const diff = heapDiff.end();
+					console.log('generated diff for iteration ' + (iteration + 1));
+					return diff;
+				});
+		}));
+		const actual = diffs.map(d => d.change.size_bytes);
+		const expected = actual.slice().sort();
+		assert.notDeepEqual(actual, expected);
+	});
+
+	it('does not leak with same instance', async () => {
+
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
+			const heapDiff = new memwatch.HeapDiff();
+			console.log('generated heap for iteration ' + (iteration + 1));
+			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+				.then(() => {
+					const diff = heapDiff.end();
+					console.log('generated diff for iteration ' + (iteration + 1));
+					return diff;
+				});
+		}));
+		const actual = diffs.map(d => d.change.size_bytes);
+		const expected = actual.slice().sort();
+		assert.notDeepEqual(actual, expected);
 	});
 
 	function hashCode(string: string): number {

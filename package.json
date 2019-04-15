@@ -29,8 +29,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.4.1",
-    "fresh-require": "^1.0.3"
+    "canvas": "^2.4.1"
   },
   "peerDependencies": {
     "chart.js": "^2.7.3"

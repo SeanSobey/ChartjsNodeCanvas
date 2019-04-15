@@ -1,13 +1,13 @@
 import { Stream } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 import { createCanvas } from 'canvas';
-import freshRequire from 'fresh-require';
+import { freshRequire } from './freshRequire';
 
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg' | 'application/pdf' | 'image/svg+xml';
 
-const defaultChartJsFactory: () => typeof ChartJS = () => freshRequire('chart.js', require);
+const defaultChartJsFactory: () => typeof ChartJS = () => freshRequire('chart.js');
 
 export class CanvasRenderService {
 

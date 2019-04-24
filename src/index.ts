@@ -61,6 +61,22 @@ export class CanvasRenderService {
 	}
 
 	/**
+	 * Render to a data url.
+	 * @see https://github.com/Automattic/node-canvas#canvastodataurl
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 * @param mimeType The image format, `image/png` or `image/jpeg`.
+	 */
+	public renderToDataURLSync(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): string {
+		
+		const chart = this.renderChart(configuration);
+		const canvas = chart.canvas as any;
+		const result = canvas.toDataURL(mimeType) as string;
+		chart.destory();
+		return result;
+	}
+
+	/**
 	 * Render to a buffer.
 	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
 	 *

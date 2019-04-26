@@ -270,6 +270,12 @@ describe(CanvasRenderService.name, () => {
 							assert.equal(image instanceof Buffer, true);
 						});
 
+						it('renders buffer sync', () => {
+							const canvasRenderService = createSUT();
+							const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
+							assert.equal(image instanceof Buffer, true);
+						});
+
 						it('renders buffer in parallel', async () => {
 							const canvasRenderService = createSUT();
 							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration, mimeType));
@@ -283,6 +289,12 @@ describe(CanvasRenderService.name, () => {
 						it('renders data url', async () => {
 							const canvasRenderService = createSUT();
 							const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
+							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
+						});
+
+						it('renders data url sync', () => {
+							const canvasRenderService = createSUT();
+							const dataUrl = canvasRenderService.renderToDataURLSync(configuration, mimeType);
 							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
 						});
 

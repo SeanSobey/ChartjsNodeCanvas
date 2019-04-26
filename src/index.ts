@@ -61,6 +61,22 @@ export class CanvasRenderService {
 	}
 
 	/**
+	 * Render to a data url synchronously.
+	 * @see https://github.com/Automattic/node-canvas#canvastodataurl
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 * @param mimeType The image format, `image/png` or `image/jpeg`.
+	 */
+	public renderToDataURLSync(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): string {
+
+		const chart = this.renderChart(configuration);
+		const canvas = chart.canvas as any;
+		chart.destroy();
+		const dataUrl = canvas.toDataURL(mimeType);
+		return dataUrl;
+	}
+
+	/**
 	 * Render to a buffer.
 	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
 	 *
@@ -80,6 +96,22 @@ export class CanvasRenderService {
 				return resolve(buffer);
 			}, mimeType);
 		});
+	}
+
+	/**
+	 * Render to a buffer synchronously.
+	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
+	 */
+	public renderToBufferSync(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Buffer {
+
+		const chart = this.renderChart(configuration);
+		const canvas = chart.canvas as any;
+		const buffer =  canvas.toBuffer(mimeType);
+		chart.destroy();
+		return buffer;
 	}
 
 	/**

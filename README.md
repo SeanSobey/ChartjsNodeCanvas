@@ -29,7 +29,8 @@ npm i chartjs-node-canvas chart.js
 * No heavy DOM virtualization libraries, thanks to a [pull request](https://github.com/chartjs/Chart.js/pull/5324) to chart.js allowing it to run natively on node, requiring only a Canvas API.
 * Chart JS is a peer dependency, so you can bump and manage it yourself.
 * Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).
-* Uses [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable seperatly within each instance.
+* Uses (similar to) [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable seperatly within each instance.
+* Support for custom fonts.
 
 ## Limitations
 
@@ -70,7 +71,7 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
 
 Just use the ChartJS reference in the callback:
 ```js
-    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
     // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
     ChartJS.controllers.MyType = Chart.DatasetController.extend({
         // chart implementation
@@ -82,10 +83,22 @@ Just use the ChartJS reference in the callback:
 
 Just use the ChartJS reference in the callback:
 ```js
-    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
     // Global config example: https://www.chartjs.org/docs/latest/configuration/
     ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
 });
+```
+
+### Custom Fonts
+
+Just use the `registerFont` method:
+```js
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+    // Just example usage
+    ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+});
+// Register before renderering any charts
+canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 ```
 
 ### Loading plugins
@@ -94,7 +107,7 @@ Just use the ChartJS reference in the callback:
 
 Just use the ChartJS reference in the callback:
 ```js
-    const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
     // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
     ChartJS.plugins.register({
         // plugin implementation

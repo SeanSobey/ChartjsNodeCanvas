@@ -26,10 +26,22 @@
     {
       "type": "npm",
       "script": "test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "test-unit",
       "group": {
         "kind": "test",
         "isDefault": true
       },
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "test-e2e",
+      "group": "test",
       "problemMatcher": []
     },
     {

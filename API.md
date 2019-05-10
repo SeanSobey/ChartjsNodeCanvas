@@ -10,6 +10,7 @@
     * [.renderToBuffer(configuration, mimeType)](#CanvasRenderService+renderToBuffer)
     * [.renderToBufferSync(configuration, mimeType)](#CanvasRenderService+renderToBufferSync)
     * [.renderToStream(configuration, mimeType)](#CanvasRenderService+renderToStream)
+    * [.registerFont(path, options)](#CanvasRenderService+registerFont)
 
 <a name="new_CanvasRenderService_new"></a>
 
@@ -90,3 +91,19 @@ Render to a stream.
 | configuration |  | The Chart JS configuration for the chart to render. |
 | mimeType | <code>image/png</code> | A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas. |
 
+<a name="CanvasRenderService+registerFont"></a>
+
+### canvasRenderService.registerFont(path, options)
+Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
+
+**Kind**: instance method of [<code>CanvasRenderService</code>](#CanvasRenderService)  
+
+| Param | Description |
+| --- | --- |
+| path | The path to the font file. |
+| options | The font options. |
+
+**Example**  
+```js
+registerFont('comicsans.ttf', { family: 'Comic Sans' });
+```

@@ -1,6 +1,6 @@
 import { Stream } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
-import { createCanvas } from 'canvas';
+import { createCanvas, registerFont } from 'canvas';
 import { freshRequire } from './freshRequire';
 
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
@@ -14,7 +14,8 @@ export class CanvasRenderService {
 	private readonly _width: number;
 	private readonly _height: number;
 	private readonly _chartJs: typeof ChartJS;
-	//private readonly _createCanvas: typeof createCanvas;
+	private readonly _createCanvas: typeof createCanvas;
+	private readonly _registerFont: typeof registerFont;
 	private readonly _type?: CanvasType;
 
 	/**
@@ -31,7 +32,8 @@ export class CanvasRenderService {
 		this._width = width;
 		this._height = height;
 		this._chartJs = (chartJsFactory || defaultChartJsFactory)();
-		//this._createCanvas = freshRequire('canvas', require).createCanvas;
+		this._createCanvas = freshRequire('canvas').createCanvas;
+		this._registerFont = freshRequire('canvas').registerFont;
 		this._type = type;
 		if (chartCallback) {
 			chartCallback(this._chartJs);
@@ -138,10 +140,22 @@ export class CanvasRenderService {
 		}
 	}
 
+	/**
+	 * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
+	 *
+	 * @param path The path to the font file.
+	 * @param options The font options.
+	 * @example
+	 * registerFont('comicsans.ttf', { family: 'Comic Sans' });
+	 */
+	public registerFont(path: string, options: { readonly family: string, readonly weight?: string, readonly style?: string }): void {
+
+		this._registerFont(path, options);
+	}
+
 	private renderChart(configuration: ChartConfiguration): Chart {
 
-		//const canvas = this._createCanvas(this._width, this._height, this._type);
-		const canvas = createCanvas(this._width, this._height, this._type);
+		const canvas = this._createCanvas(this._width, this._height, this._type);
 		canvas.style = {};
 		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};

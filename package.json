@@ -6,7 +6,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha dist/**/*.spec.js",
+    "test": "npm run-script test-unit && npm run-script test-e2e",
+    "test-unit": "mocha dist/**/*.spec.js --exclude dist/**/*.e2e.spec.js",
+    "test-e2e": "mocha dist/**/*.e2e.spec.js",
     "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha dist/**/*.spec.js",
     "watch-build": "tsc --watch",
     "watch-test": "mocha --watch dist/**/*.spec.js",

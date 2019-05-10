@@ -8,6 +8,8 @@ export declare class CanvasRenderService {
     private readonly _width;
     private readonly _height;
     private readonly _chartJs;
+    private readonly _createCanvas;
+    private readonly _registerFont;
     private readonly _type?;
     /**
      * Create a new instance of CanvasRenderService.
@@ -59,5 +61,18 @@ export declare class CanvasRenderService {
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
     renderToStream(configuration: ChartConfiguration, mimeType?: MimeType): Stream;
+    /**
+     * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
+     *
+     * @param path The path to the font file.
+     * @param options The font options.
+     * @example
+     * registerFont('comicsans.ttf', { family: 'Comic Sans' });
+     */
+    registerFont(path: string, options: {
+        readonly family: string;
+        readonly weight?: string;
+        readonly style?: string;
+    }): void;
     private renderChart;
 }

@@ -36,7 +36,7 @@ npm i chartjs-node-canvas chart.js
 
 ### Animations
 
-Chart animation (and responsive resize) is disabled by this library. This is necessary since the animation API's required are not available in node/canvas (this is not a browser environment after all).
+Chart animation (and responsive resize) is disabled by this library. This is necessary since the animation API's required are not available in Node JS/canvas-node (this is not a browser environment after all).
 
 This is the same as:
 
@@ -100,6 +100,7 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 // Register before renderering any charts
 canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 ```
+See the node-canvas [docs](https://github.com/Automattic/node-canvas#registerfont) and the chart js [docs](https://www.chartjs.org/docs/latest/general/fonts.html).
 
 ### Loading plugins
 

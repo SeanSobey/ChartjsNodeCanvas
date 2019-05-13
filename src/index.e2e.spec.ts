@@ -164,7 +164,7 @@ describe(CanvasRenderService.name, () => {
 		});
 		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
 		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1742834127;
 		// assert.equal(actual, expected);
@@ -237,7 +237,7 @@ describe(CanvasRenderService.name, () => {
 		});
 		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
 		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
 		// assert.equal(actual, expected);
@@ -294,7 +294,7 @@ describe(CanvasRenderService.name, () => {
 		const image = await canvasRenderService.renderToBuffer(configuration);
 		//await writeFileAsync('./testData/font.png', image);
 		const expected = await readFileAsync('./testData/font.png');
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image, null, 2)}, to equal ${JSON.stringify(expected, null, 2)}`);
+		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 	});
 
 	it('does not leak with new instance', async () => {

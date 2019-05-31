@@ -1,5 +1,6 @@
 import { strict as assert } from 'assert';
 import { writeFile, readFile } from 'fs';
+import { platform } from 'os';
 import { promisify } from 'util';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
@@ -162,8 +163,11 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-annotation.png', image);
-		const expected = await readFileAsync('./testData/chartjs-plugin-annotation.png');
+		const testDataPath = platform() === 'win32'
+			? './testData/chartjs-plugin-annotation.png'
+			: './testData/chartjs-plugin-annotation-linux.png';
+		//await writeFileAsync(testDataPath, image);
+		const expected = await readFileAsync(testDataPath);
 		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1742834127;
@@ -235,8 +239,11 @@ describe(CanvasRenderService.name, () => {
 				}
 			}
 		});
-		//await writeFileAsync('./testData/chartjs-plugin-datalabels.png', image);
-		const expected = await readFileAsync('./testData/chartjs-plugin-datalabels.png');
+		const testDataPath = platform() === 'win32'
+			? './testData/chartjs-plugin-datalabels.png'
+			: './testData/chartjs-plugin-datalabels-linux.png';
+		//await writeFileAsync(testDataPath, image);
+		const expected = await readFileAsync(testDataPath);
 		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
@@ -292,8 +299,11 @@ describe(CanvasRenderService.name, () => {
 		});
 		canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 		const image = await canvasRenderService.renderToBuffer(configuration);
-		//await writeFileAsync('./testData/font.png', image);
-		const expected = await readFileAsync('./testData/font.png');
+		const testDataPath = platform() === 'win32'
+			? './testData/font.png'
+			: './testData/font-linux.png';
+		//await writeFileAsync(testDataPath, image);
+		const expected = await readFileAsync(testDataPath);
 		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
 	});
 

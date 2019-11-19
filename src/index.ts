@@ -1,4 +1,4 @@
-import { Stream } from 'stream';
+import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 import { createCanvas, registerFont } from 'canvas';
 import { freshRequire } from './freshRequire';
@@ -8,6 +8,15 @@ export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg' | 'application/pdf' | 'image/svg+xml';
 
 const defaultChartJsFactory: () => typeof ChartJS = () => freshRequire('chart.js');
+
+// https://github.com/Automattic/node-canvas#non-standard-apis
+type Canvas	= HTMLCanvasElement & {
+	toBuffer(callback: (err: Error|null, result: Buffer) => void, mimeType?: string, config?: any): void;
+	toBuffer(mimeType?: string, config?: any): Buffer;
+	createPNGStream(config?: any): Readable;
+	createJPEGStream(config?: any): Readable;
+	createPDFStream(config?: any): Readable;
+};
 
 export class CanvasRenderService {
 
@@ -51,7 +60,10 @@ export class CanvasRenderService {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<string>((resolve, reject) => {
-			const canvas = chart.canvas as any;
+			if (!chart.canvas) {
+				return reject(new Error('Canvas is null'));
+			}
+			const canvas = chart.canvas as Canvas;
 			canvas.toDataURL(mimeType, (error: Error | null, png: string) => {
 				chart.destroy();
 				if (error) {
@@ -72,7 +84,10 @@ export class CanvasRenderService {
 	public renderToDataURLSync(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): string {
 
 		const chart = this.renderChart(configuration);
-		const canvas = chart.canvas as any;
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
 		chart.destroy();
 		const dataUrl = canvas.toDataURL(mimeType);
 		return dataUrl;
@@ -89,7 +104,10 @@ export class CanvasRenderService {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
-			const canvas = chart.canvas as any;
+			if (!chart.canvas) {
+				throw new Error('Canvas is null');
+			}
+			const canvas = chart.canvas as Canvas;
 			canvas.toBuffer((error: Error | null, buffer: Buffer) => {
 				chart.destroy();
 				if (error) {
@@ -110,7 +128,10 @@ export class CanvasRenderService {
 	public renderToBufferSync(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Buffer {
 
 		const chart = this.renderChart(configuration);
-		const canvas = chart.canvas as any;
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
 		const buffer =  canvas.toBuffer(mimeType);
 		chart.destroy();
 		return buffer;
@@ -123,11 +144,14 @@ export class CanvasRenderService {
 	 * @param configuration The Chart JS configuration for the chart to render.
 	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
 	 */
-	public renderToStream(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Stream {
+	public renderToStream(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Readable {
 
 		const chart = this.renderChart(configuration);
-		const canvas = chart.canvas as any;
-		chart.destroy();
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
+		setImmediate(() => chart.destroy());
 		switch (mimeType) {
 			case 'image/png':
 				return canvas.createPNGStream();

@@ -2,6 +2,7 @@ import { strict as assert } from 'assert';
 import { writeFile, readFile } from 'fs';
 import { platform } from 'os';
 import { promisify } from 'util';
+import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 import { freshRequire } from './freshRequire';
@@ -71,15 +72,45 @@ describe(CanvasRenderService.name, () => {
 		} as any
 	};
 	const chartCallback: ChartCallback = (ChartJS) => {
-
 		ChartJS.defaults.global.responsive = true;
 		ChartJS.defaults.global.maintainAspectRatio = false;
 	};
 
-	it.skip('test image', async () => {
+	it('works with render to buffer', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const image = await canvasRenderService.renderToBuffer(configuration);
-		await writeFileAsync('./test.png', image);
+		const actual = await canvasRenderService.renderToBuffer(configuration);
+		const testDataPath = platform() === 'win32'
+			? './testData/render-to-buffer.png'
+			: './testData/render-to-buffer-linux.png';
+		//return writeFileAsync(testDataPath, actual);
+		const expected = await readFileAsync(testDataPath);
+
+		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
+	});
+
+	it('works with render to data url', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const actual = await canvasRenderService.renderToDataURL(configuration);
+		const testDataPath = platform() === 'win32'
+			? './testData/render-to-data-URL.txt'
+			: './testData/render-to-data-URL-linux.txt';
+		//return writeFileAsync(testDataPath, actual, 'utf8');
+		const expected = await readFileAsync(testDataPath, 'utf8');
+
+		assert.strictEqual(actual, expected);
+	});
+
+	it('works with render to stream', async () => {
+		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const stream = canvasRenderService.renderToStream(configuration);
+		const actual = await streamToBuffer(stream);
+		const testDataPath = platform() === 'win32'
+			? './testData/render-to-stream.png'
+			: './testData/render-to-stream-linux.png';
+		//return writeFileAsync(testDataPath, actual);
+		const expected = await readFileAsync(testDataPath);
+
+		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
 	});
 
 	it('works with registering plugin', async () => {
@@ -90,7 +121,7 @@ describe(CanvasRenderService.name, () => {
 			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
 			// delete (global as any).Chart;
 		});
-		const image = await canvasRenderService.renderToBuffer({
+		const actual = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -168,7 +199,7 @@ describe(CanvasRenderService.name, () => {
 			: './testData/chartjs-plugin-annotation-linux.png';
 		//await writeFileAsync(testDataPath, image);
 		const expected = await readFileAsync(testDataPath);
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
+		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1742834127;
 		// assert.equal(actual, expected);
@@ -189,7 +220,7 @@ describe(CanvasRenderService.name, () => {
 			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
 			// delete (global as any).Chart;
 		}, undefined, chartJsFactory);
-		const image = await canvasRenderService.renderToBuffer({
+		const actual = await canvasRenderService.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
@@ -244,7 +275,7 @@ describe(CanvasRenderService.name, () => {
 			: './testData/chartjs-plugin-datalabels-linux.png';
 		//await writeFileAsync(testDataPath, image);
 		const expected = await readFileAsync(testDataPath);
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
+		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
 		// assert.equal(actual, expected);
@@ -298,13 +329,13 @@ describe(CanvasRenderService.name, () => {
 			ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
 		});
 		canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
-		const image = await canvasRenderService.renderToBuffer(configuration);
+		const actual = await canvasRenderService.renderToBuffer(configuration);
 		const testDataPath = platform() === 'win32'
 			? './testData/font.png'
 			: './testData/font-linux.png';
 		//await writeFileAsync(testDataPath, image);
 		const expected = await readFileAsync(testDataPath);
-		assert.ok(image.equals(expected), `Expected ${JSON.stringify(image)}, to equal ${JSON.stringify(expected)}`);
+		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
 	});
 
 	it('does not leak with new instance', async () => {
@@ -355,5 +386,21 @@ describe(CanvasRenderService.name, () => {
 			hash |= 0; // Convert to 32bit integer
 		}
 		return hash;
+	}
+
+	function streamToBuffer(stream: Readable): Promise<Buffer> {
+		const data: Array<Buffer> = [];
+		return new Promise((resolve, reject) => {
+			stream.on('data', (chunk: Buffer) => {
+				data.push(chunk);
+			});
+			stream.on('end', () => {
+				const buffer = Buffer.concat(data);
+				resolve(buffer);
+			});
+			stream.on('error', (error) => {
+				reject(error);
+			});
+		});
 	}
 });

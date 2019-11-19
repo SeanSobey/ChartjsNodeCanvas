@@ -33,6 +33,9 @@ class CanvasRenderService {
     renderToDataURL(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
+            if (!chart.canvas) {
+                return reject(new Error('Canvas is null'));
+            }
             const canvas = chart.canvas;
             canvas.toDataURL(mimeType, (error, png) => {
                 chart.destroy();
@@ -52,6 +55,9 @@ class CanvasRenderService {
      */
     renderToDataURLSync(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
+        if (!chart.canvas) {
+            throw new Error('Canvas is null');
+        }
         const canvas = chart.canvas;
         chart.destroy();
         const dataUrl = canvas.toDataURL(mimeType);
@@ -67,6 +73,9 @@ class CanvasRenderService {
     renderToBuffer(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
+            if (!chart.canvas) {
+                throw new Error('Canvas is null');
+            }
             const canvas = chart.canvas;
             canvas.toBuffer((error, buffer) => {
                 chart.destroy();
@@ -86,6 +95,9 @@ class CanvasRenderService {
      */
     renderToBufferSync(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
+        if (!chart.canvas) {
+            throw new Error('Canvas is null');
+        }
         const canvas = chart.canvas;
         const buffer = canvas.toBuffer(mimeType);
         chart.destroy();
@@ -100,8 +112,11 @@ class CanvasRenderService {
      */
     renderToStream(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
+        if (!chart.canvas) {
+            throw new Error('Canvas is null');
+        }
         const canvas = chart.canvas;
-        chart.destroy();
+        setImmediate(() => chart.destroy());
         switch (mimeType) {
             case 'image/png':
                 return canvas.createPNGStream();

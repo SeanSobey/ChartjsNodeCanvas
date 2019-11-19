@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Stream } from 'stream';
+import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 export declare type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export declare type CanvasType = 'pdf' | 'svg';
@@ -60,7 +60,7 @@ export declare class CanvasRenderService {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToStream(configuration: ChartConfiguration, mimeType?: MimeType): Stream;
+    renderToStream(configuration: ChartConfiguration, mimeType?: MimeType): Readable;
     /**
      * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
      *

@@ -1,10 +1,10 @@
 {
   "name": "chartjs-node-canvas",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "engineStrict": true,
+  "engineStrict": false,
   "engines": {
     "node": "11.14.0",
     "npm": "6.7.0"

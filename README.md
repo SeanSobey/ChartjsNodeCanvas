@@ -68,6 +68,24 @@ const { CanvasRenderService } = require('chartjs-node-canvas');
 })();
 ```
 
+### Memory Management
+
+Every instance of `CanvasRenderService` creates its own [canvas](https://github.com/Automattic/node-canvas). To ensure efficient memory and GC use make sure your implementation creates as few instances as possible and reuses them:
+
+```js
+const { CanvasRenderService } = require('chartjs-node-canvas');
+
+// Re-use one service, or as many as you need for different canvas size requirements
+const smallCanvasRenderService = new CanvasRenderService(400, 400);
+const bigCanvasRenderService = new CanvasRenderService(2000, 2000);
+
+// Expose just the 'render' methods to downstream code so they don't have to worry about life-cycle management.
+exports = {
+    renderSmallChart: (configuration) => smallCanvasRenderService.renderToBuffer(configuration),
+    renderBigChart: (configuration) => bigCanvasRenderService.renderToBuffer(configuration)
+};
+```
+
 ### Custom Charts
 
 Just use the ChartJS reference in the callback:

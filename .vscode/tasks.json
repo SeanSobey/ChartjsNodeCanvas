@@ -16,6 +16,13 @@
     },
     {
       "type": "npm",
+      "script": "lint",
+      "problemMatcher": [
+        "$tslint5"
+      ]
+    },
+    {
+      "type": "npm",
       "script": "watch-build",
       "group": "build",
       "isBackground": true,

@@ -37,16 +37,16 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.6.0"
+    "canvas": "^2.6.1"
   },
   "peerDependencies": {
     "chart.js": "^2.7.3"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.7.51",
+    "@types/chart.js": "^2.9.11",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.25",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.3",
     "chartjs-plugin-annotation": "^0.5.7",
     "chartjs-plugin-datalabels": "^0.6.0",
     "jsdoc-to-markdown": "^4.0.1",

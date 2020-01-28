@@ -1,7 +1,7 @@
 # chartjs-node-canvas
 
 <!-- [![CircleCI](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas.svg?style=svg)](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas) -->
-[![GitHub](https://github.com/SeanSobey/ChartjsNodeCanvas/workflows/Node%20CI/badge.svg)](https://github.com/SeanSobey/ChartjsNodeCanvas/actions)
+<!-- [![GitHub](https://github.com/SeanSobey/ChartjsNodeCanvas/workflows/Node%20CI/badge.svg)](https://github.com/SeanSobey/ChartjsNodeCanvas/actions) -->
 [![NPM](https://img.shields.io/npm/v/chartjs-node-canvas.svg)](https://www.npmjs.com/package/chartjs-node-canvas)
 
 A Node JS renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://github.com/Automattic/node-canvas).
@@ -11,18 +11,25 @@ Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs
 ## Contents
 
 1. [Installation](#Installation)
-2. [Features](#Features)
-3. [Limitations](#Limitations)
-4. [API](#API)
-5. [Usage](#Usage)
-6. [Full Example](#Full%20Example)
-7. [Known Issues](#Known%20Issues)
+2. [Node JS version](#Node%20JS%20version)
+3. [Features](#Features)
+4. [Limitations](#Limitations)
+5. [API](#API)
+6. [Usage](#Usage)
+7. [Full Example](#Full%20Example)
+8. [Known Issues](#Known%20Issues)
 
 ## Installation
 
 ```
 npm i chartjs-node-canvas chart.js
 ```
+
+## Node JS version
+
+This is limited by the upstream dependency [canvas](https://github.com/Automattic/node-canvas).
+
+See the `package.json` `engines` section for the current supported Node version. This is not limited using `engineStrict` so you can try a new verison if you like. You will need to do a `npm rebuild` to rebuild the canvas binaries.
 
 ## Features
 

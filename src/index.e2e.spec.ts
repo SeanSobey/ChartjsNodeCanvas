@@ -1,21 +1,17 @@
 import { strict as assert } from 'assert';
 import { writeFile, readFile } from 'fs';
 import { platform } from 'os';
+import { join } from 'path';
 import { promisify } from 'util';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 import { freshRequire } from './freshRequire';
-import memwatch from 'node-memwatch';
 
 import { CanvasRenderService, ChartCallback } from './';
 
 const writeFileAsync = promisify(writeFile);
 const readFileAsync = promisify(readFile);
-
-memwatch.on('leak', (info) => {
-	throw new Error(info.reason);
-});
 
 describe(CanvasRenderService.name, () => {
 
@@ -79,38 +75,33 @@ describe(CanvasRenderService.name, () => {
 	it('works with render to buffer', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const actual = await canvasRenderService.renderToBuffer(configuration);
-		const testDataPath = platform() === 'win32'
-			? './testData/render-to-buffer.png'
-			: './testData/render-to-buffer-linux.png';
-		//return writeFileAsync(testDataPath, actual);
-		const expected = await readFileAsync(testDataPath);
-
-		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
+		await assertImage(actual, 'render-to-buffer');
 	});
 
 	it('works with render to data url', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const actual = await canvasRenderService.renderToDataURL(configuration);
-		const testDataPath = platform() === 'win32'
-			? './testData/render-to-data-URL.txt'
-			: './testData/render-to-data-URL-linux.txt';
-		//return writeFileAsync(testDataPath, actual, 'utf8');
+		const extension = '.txt';
+		const fileName = 'render-to-data-URL';
+		const fileNameWithExtension = fileName + extension;
+		const testDataPath = join(process.cwd(), 'testData', platform(), fileName + extension);
 		const expected = await readFileAsync(testDataPath, 'utf8');
-
-		assert.strictEqual(actual, expected);
+		const equal = actual === expected;
+		if (!equal) {
+			await writeFileAsync(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
+			throw new assert.AssertionError({
+				message: `Expected image to match '${fileName}'`,
+				actual,
+				expected,
+			});
+		}
 	});
 
 	it('works with render to stream', async () => {
 		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
 		const stream = canvasRenderService.renderToStream(configuration);
 		const actual = await streamToBuffer(stream);
-		const testDataPath = platform() === 'win32'
-			? './testData/render-to-stream.png'
-			: './testData/render-to-stream-linux.png';
-		//return writeFileAsync(testDataPath, actual);
-		const expected = await readFileAsync(testDataPath);
-
-		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
+		await assertImage(actual, 'render-to-stream');
 	});
 
 	it('works with registering plugin', async () => {
@@ -194,15 +185,7 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		});
-		const testDataPath = platform() === 'win32'
-			? './testData/chartjs-plugin-annotation.png'
-			: './testData/chartjs-plugin-annotation-linux.png';
-		//await writeFileAsync(testDataPath, image);
-		const expected = await readFileAsync(testDataPath);
-		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
-		// const actual = hashCode(image.toString('base64'));
-		// const expected = -1742834127;
-		// assert.equal(actual, expected);
+		await assertImage(actual, 'chartjs-plugin-annotation');
 	});
 
 	it('works with self registering plugin', async () => {
@@ -270,15 +253,7 @@ describe(CanvasRenderService.name, () => {
 				}
 			}
 		});
-		const testDataPath = platform() === 'win32'
-			? './testData/chartjs-plugin-datalabels.png'
-			: './testData/chartjs-plugin-datalabels-linux.png';
-		//await writeFileAsync(testDataPath, image);
-		const expected = await readFileAsync(testDataPath);
-		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
-		// const actual = hashCode(image.toString('base64'));
-		// const expected = -1377895140;
-		// assert.equal(actual, expected);
+		await assertImage(actual, 'chartjs-plugin-datalabels');
 	});
 
 	it('works with custom font', async () => {
@@ -330,14 +305,12 @@ describe(CanvasRenderService.name, () => {
 		});
 		canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 		const actual = await canvasRenderService.renderToBuffer(configuration);
-		const testDataPath = platform() === 'win32'
-			? './testData/font.png'
-			: './testData/font-linux.png';
-		//await writeFileAsync(testDataPath, image);
-		const expected = await readFileAsync(testDataPath);
-		assert.ok(actual.equals(expected), `Expected ${JSON.stringify(actual)}, to equal ${JSON.stringify(expected)}`);
+		await assertImage(actual, 'font');
 	});
 
+	// TODO: Replace node-memwatch with a new lib!
+
+	/*
 	it('does not leak with new instance', async () => {
 
 		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
@@ -373,7 +346,9 @@ describe(CanvasRenderService.name, () => {
 		const expected = actual.slice().sort();
 		assert.notDeepEqual(actual, expected);
 	});
+	*/
 
+	/*
 	function hashCode(string: string): number {
 
 		let hash = 0;
@@ -386,6 +361,27 @@ describe(CanvasRenderService.name, () => {
 			hash |= 0; // Convert to 32bit integer
 		}
 		return hash;
+	}
+	*/
+
+	async function assertImage(actual: Buffer, fileName: string): Promise<void> {
+
+		const extension = '.png';
+		const fileNameWithExtension = fileName + extension;
+		const testDataPath = join(process.cwd(), 'testData', platform(), fileNameWithExtension);
+		const expected = await readFileAsync(testDataPath);
+		const equal = actual.equals(expected);
+		// const actual = hashCode(image.toString('base64'));
+		// const expected = -1377895140;
+		// assert.equal(actual, expected);
+		if (!equal) {
+			await writeFileAsync(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
+			throw new assert.AssertionError({
+				message: `Expected image to match '${fileName}'`,
+				actual,
+				expected,
+			});
+		}
 	}
 
 	function streamToBuffer(stream: Readable): Promise<Buffer> {

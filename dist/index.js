@@ -16,8 +16,9 @@ class CanvasRenderService {
         this._width = width;
         this._height = height;
         this._chartJs = (chartJsFactory || defaultChartJsFactory)();
-        this._createCanvas = freshRequire_1.freshRequire('canvas').createCanvas;
-        this._registerFont = freshRequire_1.freshRequire('canvas').registerFont;
+        const canvas = freshRequire_1.freshRequire('canvas');
+        this._createCanvas = canvas.createCanvas;
+        this._registerFont = canvas.registerFont;
         this._type = type;
         if (chartCallback) {
             chartCallback(this._chartJs);

@@ -13,5 +13,6 @@
 	"mocha.compilerScript": "build",
 	"mocha.requires": [
 		"source-map-support/register"
-	]
+	],
+	"deepcode.review.results.hideInformationIssues": false
 }

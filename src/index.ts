@@ -41,8 +41,9 @@ export class CanvasRenderService {
 		this._width = width;
 		this._height = height;
 		this._chartJs = (chartJsFactory || defaultChartJsFactory)();
-		this._createCanvas = freshRequire('canvas').createCanvas;
-		this._registerFont = freshRequire('canvas').registerFont;
+		const canvas = freshRequire('canvas');
+		this._createCanvas = canvas.createCanvas;
+		this._registerFont = canvas.registerFont;
 		this._type = type;
 		if (chartCallback) {
 			chartCallback(this._chartJs);

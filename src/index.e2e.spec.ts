@@ -1,17 +1,16 @@
-import { strict as assert } from 'assert';
-import { writeFile, readFile } from 'fs';
+import { strict as assert, AssertionError } from 'assert';
+import { promises as fs } from 'fs';
 import { platform } from 'os';
 import { join } from 'path';
 import { promisify } from 'util';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
+import { Stream } from 'stream';
 import { ChartConfiguration } from 'chart.js';
 import { freshRequire } from './freshRequire';
+import resemble from 'node-resemble-js';
 
 import { CanvasRenderService, ChartCallback } from './';
-
-const writeFileAsync = promisify(writeFile);
-const readFileAsync = promisify(readFile);
 
 describe(CanvasRenderService.name, () => {
 
@@ -85,12 +84,12 @@ describe(CanvasRenderService.name, () => {
 		const fileName = 'render-to-data-URL';
 		const fileNameWithExtension = fileName + extension;
 		const testDataPath = join(process.cwd(), 'testData', platform(), fileName + extension);
-		const expected = await readFileAsync(testDataPath, 'utf8');
-		const equal = actual === expected;
-		if (!equal) {
-			await writeFileAsync(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
-			throw new assert.AssertionError({
-				message: `Expected image to match '${fileName}'`,
+		const expected = await fs.readFile(testDataPath, 'utf8');
+		const result = actual === expected;
+		if (!result) {
+			await fs.writeFile(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
+			throw new AssertionError({
+				message: `Expected data url to match '${testDataPath}'`,
 				actual,
 				expected,
 			});
@@ -105,9 +104,7 @@ describe(CanvasRenderService.name, () => {
 	});
 
 	it('works with registering plugin', async () => {
-
 		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-
 			// (global as any).Chart = ChartJS;
 			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
 			// delete (global as any).Chart;
@@ -189,7 +186,6 @@ describe(CanvasRenderService.name, () => {
 	});
 
 	it('works with self registering plugin', async () => {
-
 		const chartJsFactory = () => {
 			const chartJS = require('chart.js');
 			require('chartjs-plugin-datalabels');
@@ -198,7 +194,6 @@ describe(CanvasRenderService.name, () => {
 			return chartJS;
 		};
 		const canvasRenderService = new CanvasRenderService(width, height, (/*ChartJS*/) => {
-
 			// (global as any).Chart = ChartJS;
 			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
 			// delete (global as any).Chart;
@@ -257,7 +252,6 @@ describe(CanvasRenderService.name, () => {
 	});
 
 	it('works with custom font', async () => {
-
 		const configuration: ChartConfiguration = {
 			type: 'bar',
 			data: {
@@ -300,7 +294,6 @@ describe(CanvasRenderService.name, () => {
 			} as any
 		};
 		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-
 			ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
 		});
 		canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
@@ -365,22 +358,42 @@ describe(CanvasRenderService.name, () => {
 	*/
 
 	async function assertImage(actual: Buffer, fileName: string): Promise<void> {
-
 		const extension = '.png';
 		const fileNameWithExtension = fileName + extension;
 		const testDataPath = join(process.cwd(), 'testData', platform(), fileNameWithExtension);
-		const expected = await readFileAsync(testDataPath);
-		const equal = actual.equals(expected);
+		const exists = await pathExists(testDataPath);
+		if (!exists) {
+			console.error(`Warning: expected image path does not exist!, creating '${testDataPath}'`);
+			await fs.writeFile(testDataPath, actual, 'base64');
+			return;
+		}
+		const expected = await fs.readFile(testDataPath);
+		const compareData = await new Promise<CompareData>((resolve) => {
+			resemble(actual)
+				.compareTo(expected)
+				.onComplete((data: CompareData) => {
+					resolve(data);
+				});
+		});
+		const misMatchPercentage = Number(compareData.misMatchPercentage);
+		// const result = actual.equals(expected);
+		const result = misMatchPercentage > 0;
 		// const actual = hashCode(image.toString('base64'));
 		// const expected = -1377895140;
 		// assert.equal(actual, expected);
-		if (!equal) {
-			await writeFileAsync(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
-			throw new assert.AssertionError({
-				message: `Expected image to match '${fileName}'`,
-				actual,
-				expected,
-			});
+		if (!result) {
+			await fs.writeFile(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
+			const diffPng = compareData.getDiffImage().pack();
+			await writeDiff(testDataPath.replace(fileNameWithExtension, fileName + '-diff' + extension), diffPng);
+			if (!result) {
+				throw new AssertionError({
+					message: `Expected image to match '${testDataPath}', mismatch was ${misMatchPercentage}'`,
+					actual: JSON.stringify(actual),
+					expected: JSON.stringify(expected),
+					operator: 'to equal',
+					stackStartFn: assertImage,
+				});
+			}
 		}
 	}
 
@@ -399,4 +412,31 @@ describe(CanvasRenderService.name, () => {
 			});
 		});
 	}
+
+	function writeDiff(filepath: string, png: Stream): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const chunks: Array<Uint8Array> = [];
+			png.on('data', (chunk: Uint8Array) => {
+				chunks.push(chunk);
+			});
+			png.on('end', () => {
+				const buffer = Buffer.concat(chunks);
+				fs.writeFile(filepath, buffer.toString('base64'), 'base64')
+					.then(() => resolve())
+					.catch(reject);
+			});
+			png.on('error', (err) => reject(err));
+		});
+	}
+
+	function pathExists(path: string): Promise<boolean> {
+		return fs.access(path).then(() => true).catch(() => false);
+	}
 });
+
+interface CompareData {
+	readonly misMatchPercentage: number;
+	readonly isSameDimensions: boolean;
+	readonly getImageDataUrl: () => any;
+	readonly getDiffImage: () => any;
+}

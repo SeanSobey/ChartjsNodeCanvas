@@ -13,7 +13,7 @@
     "build": "tsc",
     "lint": "tslint -p ./tsconfig.json",
     "test": "npm run-script test-unit && npm run-script test-e2e",
-    "test-unit": "mocha dist/**/*.spec.js --exclude dist/**/*.e2e.spec.js",
+    "test-unit": "mocha --exclude dist/**/*.e2e.spec.js dist/**/*.spec.js",
     "test-e2e": "mocha dist/**/*.e2e.spec.js",
     "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha dist/**/*.spec.js",
     "watch-build": "tsc --watch",
@@ -52,12 +52,15 @@
     "chartjs-plugin-datalabels": "^0.7.0",
     "jsdoc-to-markdown": "^5.0.3",
     "mocha": "^7.0.1",
+    "node-resemble-js": "^0.2.0",
+    "pngjs": "^3.4.0",
     "release-it": "^12.4.3",
     "source-map-support": "^0.5.16",
     "tslint": "^6.0.0",
     "tslint-divid": "^1.3.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-immutable": "^6.0.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "wtfnode": "^0.8.1"
   }
 }

@@ -29,7 +29,7 @@ npm i chartjs-node-canvas chart.js
 
 This is limited by the upstream dependency [canvas](https://github.com/Automattic/node-canvas).
 
-See the `package.json` `engines` section for the current supported Node version. This is not limited using `engineStrict` so you can try a new verison if you like. You will need to do a `npm rebuild` to rebuild the canvas binaries.
+See the `package.json` `engines` section for the current supported Node version. This is not limited using `engineStrict` so you can try a new version if you like. You will need to do a `npm rebuild` to rebuild the canvas binaries.
 
 ## Features
 

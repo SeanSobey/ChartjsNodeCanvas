@@ -10,53 +10,48 @@
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": [
-        "$tsc"
-      ]
+      "problemMatcher": "$tsc"
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "npm",
+      "script": "clean"
     },
     {
       "type": "npm",
       "script": "lint",
-      "problemMatcher": [
-        "$tslint5"
-      ]
+      "problemMatcher": "$eslint-stylish"
     },
     {
       "type": "npm",
       "script": "watch-build",
       "group": "build",
       "isBackground": true,
-      "problemMatcher": [
-        "$tsc"
-      ]
+      "problemMatcher": "$tsc"
     },
     {
       "type": "npm",
-      "script": "test",
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "type": "npm",
-      "script": "test-unit",
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "type": "npm",
-      "script": "test-e2e",
-      "group": "test",
-      "problemMatcher": []
+      "script": "watch-clean",
+      "isBackground": true
     },
     {
       "type": "npm",
       "script": "watch-test",
       "isBackground": true,
-      "group": "test",
-      "problemMatcher": []
+      "group": "test"
+    },
+    {
+      "type": "npm",
+      "script": "watch-lint",
+      "isBackground": true,
+      "problemMatcher": "$eslint-stylish"
     }
   ]
 }

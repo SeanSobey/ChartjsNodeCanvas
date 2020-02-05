@@ -4,13 +4,10 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: windows-latest
-
     strategy:
       matrix:
         node-version: [12.14.1]
-
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -20,22 +17,19 @@ jobs:
     - name: npm install
       run: npm ci
     - name: npm build
-      run: npm run build
+      run: npm run-script build
+    - name: npm lint
+      run: npm run-script lint
     - name: npm test
-      run: npm run test
+      run: npm run-script test
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./reports/test-coverage/cobertura-coverage.xml
+        fail_ci_if_error: true
     - name: npm publish
       shell: bash
-      run: |
-        packageName=$(node -p "require('./package.json').name")
-        packageVersion=$(node -p "require('./package.json').version")
-        publishVersion=$(npm view "$packageName" version)
-        if [ "$packageVersion" != "$publishVersion" ]
-        then
-          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm publish
-        else
-          echo "Existing version $packageVersion for $packageName is already published...skipping"
-        fi
+      run: ./.github/scripts/publish.sh
       env:
         CI: true
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

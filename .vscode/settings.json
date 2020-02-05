@@ -1,4 +1,22 @@
 {
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "single",
+  "files.associations": {
+    ".c8rc": "json",
+    ".dockerignore": "gitignore",
+    ".env.*": "dotenv",
+    ".nycrc": "json",
+    "Dockerfile.*": "dockerfile"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+  ],
+  "mochaExplorer.debuggerConfig": "Launch Tests",
+  "mochaExplorer.files": "dist/**/*.js",
+  "mochaExplorer.require": "source-map-support/register",
 	"mocha.enabled": true,
 	"mocha.options": {
 		"checkLeaks": true,

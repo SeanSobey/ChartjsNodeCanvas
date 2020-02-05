@@ -45,6 +45,13 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+# reports
+/reports/**
+!/reports/index.html
+
+# code coverage temp
+/coverage/**
+
 #dist specs
 dist/**/*.spec.*
 

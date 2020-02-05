@@ -1,0 +1,16 @@
+{
+	"reporter": [
+		"lcov",
+		"cobertura",
+		"text-summary",
+		"json"
+	],
+	"exclude": [
+		"dist/**/*.spec.js"
+	],
+	"include": [
+		"dist/**/*.js"
+	],
+	"temp-directory": "./coverage",
+	"reports-dir": "./reports/test-coverage"
+}

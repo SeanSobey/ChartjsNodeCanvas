@@ -64,10 +64,98 @@ describe(CanvasRenderService.name, () => {
 		ChartJS.defaults.global.maintainAspectRatio = false;
 	};
 
-	const testData: ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType>]> = [
-		[undefined, ['image/png', 'image/jpeg']],
-		//['svg', ['image/svg+xml']],
-		//['pdf', ['application/pdf']]
+
+	describe(`given chartType 'undefined'`, () => {
+
+		const mimeTypes: ReadonlyArray<MimeType> = ['image/png', 'image/jpeg'];
+		mimeTypes.forEach((mimeType) => {
+
+			describe(`given mimeType '${mimeType}'`, () => {
+
+				function createSUT(): CanvasRenderService {
+
+					return new CanvasRenderService(width, height, chartCallback, undefined);
+				}
+
+				describe(CanvasRenderService.prototype.renderToBuffer.name, () => {
+
+					it('renders chart', async () => {
+						const canvasRenderService = createSUT();
+						const image = await canvasRenderService.renderToBuffer(configuration, mimeType);
+						assert.equal(image instanceof Buffer, true);
+					});
+
+					it('renders chart in parallel', async () => {
+						const canvasRenderService = createSUT();
+						const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration, mimeType));
+						const images = await Promise.all(promises);
+						images.forEach((image) => assert.equal(image instanceof Buffer, true));
+					});
+				});
+
+				describe(CanvasRenderService.prototype.renderToBufferSync.name, () => {
+
+					it('renders buffer sync', () => {
+						const canvasRenderService = createSUT();
+						const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
+						assert.equal(image instanceof Buffer, true);
+					});
+				});
+
+				describe(CanvasRenderService.prototype.renderToDataURL.name, () => {
+
+					it('renders data url', async () => {
+						const canvasRenderService = createSUT();
+						const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
+						assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
+					});
+
+					it('renders data url in parallel', async () => {
+						const canvasRenderService = createSUT();
+						const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration, mimeType));
+						const dataUrls = await Promise.all(promises);
+						dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
+					});
+				});
+
+				describe(CanvasRenderService.prototype.renderToDataURLSync.name, () => {
+
+					it('renders data url', async () => {
+						const canvasRenderService = createSUT();
+						const dataUrl = canvasRenderService.renderToDataURLSync(configuration, mimeType);
+						assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
+					});
+				});
+
+				describe(CanvasRenderService.prototype.renderToStream.name, () => {
+
+					it('renders stream', (done) => {
+						const canvasRenderService = createSUT();
+						const stream = canvasRenderService.renderToStream(configuration, mimeType);
+						const data: Array<Buffer> = [];
+						stream.on('data', (chunk: Buffer) => {
+							data.push(chunk);
+						});
+						stream.on('end', () => {
+							assert.equal(Buffer.concat(data).length > 0, true);
+							done();
+						});
+						stream.on('finish', () => {
+							assert.equal(Buffer.concat(data).length > 0, true);
+							done();
+						});
+						stream.on('error', (error) => {
+							done(error);
+						});
+					});
+				});
+			});
+		});
+	});
+
+	const testData: ReadonlyArray<[CanvasType, ReadonlyArray<'application/pdf' | 'image/svg+xml'>]> = [
+		['svg', ['image/svg+xml']],
+		['pdf', ['application/pdf']]
 	];
 
 	testData.forEach(([chartType, mimeTypes]) => {
@@ -76,62 +164,27 @@ describe(CanvasRenderService.name, () => {
 
 			mimeTypes.forEach((mimeType) => {
 
-				describe(`given mimeType '${mimeType}'`, () => {
+				describe(`given extended mimeType '${mimeType}'`, () => {
 
 					function createSUT(): CanvasRenderService {
 
 						return new CanvasRenderService(width, height, chartCallback, chartType);
 					}
 
-					describe(CanvasRenderService.prototype.renderToBuffer.name, () => {
-
-						it('renders buffer', async () => {
-							const canvasRenderService = createSUT();
-							const image = await canvasRenderService.renderToBuffer(configuration, mimeType);
-							assert.equal(image instanceof Buffer, true);
-						});
+					describe(CanvasRenderService.prototype.renderToBufferSync.name, () => {
 
 						it('renders buffer sync', () => {
 							const canvasRenderService = createSUT();
 							const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
 							assert.equal(image instanceof Buffer, true);
 						});
-
-						it('renders buffer in parallel', async () => {
-							const canvasRenderService = createSUT();
-							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration, mimeType));
-							const images = await Promise.all(promises);
-							images.forEach((image) => assert.equal(image instanceof Buffer, true));
-						});
 					});
 
-					describe(CanvasRenderService.prototype.renderToDataURL.name, () => {
-
-						it('renders data url', async () => {
-							const canvasRenderService = createSUT();
-							const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
-							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
-						});
-
-						it('renders data url sync', () => {
-							const canvasRenderService = createSUT();
-							const dataUrl = canvasRenderService.renderToDataURLSync(configuration, mimeType);
-							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
-						});
-
-						it('renders data url in parallel', async () => {
-							const canvasRenderService = createSUT();
-							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration, mimeType));
-							const dataUrls = await Promise.all(promises);
-							dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
-						});
-					});
+					if (mimeType === 'image/svg+xml') {
+						return;
+					}
 
 					describe(CanvasRenderService.prototype.renderToStream.name, () => {
-
-						if (mimeType === 'image/svg+xml') {
-							return;
-						}
 
 						it('renders stream', (done) => {
 							const canvasRenderService = createSUT();

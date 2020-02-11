@@ -38,7 +38,7 @@ See the `package.json` `engines` section for the current supported Node version.
 * No heavy DOM virtualization libraries, thanks to a [pull request](https://github.com/chartjs/Chart.js/pull/5324) to chart.js allowing it to run natively on node, requiring only a Canvas API.
 * Chart JS is a peer dependency, so you can bump and manage it yourself.
 * Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).
-* Uses (similar to) [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable seperatly within each instance.
+* Uses (similar to) [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable separately within each instance.
 * Support for custom fonts.
 
 ## Limitations
@@ -53,6 +53,15 @@ This is the same as:
 Chart.defaults.global.animation = false;
 Chart.defaults.global.responsive = false;
 ```
+
+### SVG and PDF
+
+You need to install [ImageMagik](https://imagemagick.org/script/download.php).
+
+For some unknown reason canvas requires use of the [sync](https://github.com/Automattic/node-canvas#canvastobuffer) API's to use SVG's or PDF's. This libraries which support these are:
+
+* [renderToBufferSync](./API.md#CanvasRenderService+renderToBufferSync) ('application/pdf' | 'image/svg+xml')
+* [renderToStream](./API.md#CanvasRenderService+renderToStream) ('application/pdf')
 
 ## API
 
@@ -124,7 +133,7 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
     // Just example usage
     ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
 });
-// Register before renderering any charts
+// Register before rendering any charts
 canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 ```
 See the node-canvas [docs](https://github.com/Automattic/node-canvas#registerfont) and the chart js [docs](https://www.chartjs.org/docs/latest/general/fonts.html).
@@ -168,7 +177,7 @@ This should work for any plugin that expects a global Chart variable.
 const chartJsFactory = () => {
 	const chartJS = require('chart.js');
 	require('<chart plugin>');
-        // Clear the require cache so to allow `CanvasRenderService` seperate instances of ChartJS and plugins.
+        // Clear the require cache so to allow `CanvasRenderService` separate instances of ChartJS and plugins.
 	delete require.cache[require.resolve('chart.js')];
 	delete require.cache[require.resolve('chart plugin')];
 	return chartJS;
@@ -184,7 +193,7 @@ This will work for plugins that `require` ChartJS themselves.
 const freshRequire = require('fresh-require');
 
 const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-	// Use 'fresh-require' to allow `CanvasRenderService` seperate instances of ChartJS and plugins.
+	// Use 'fresh-require' to allow `CanvasRenderService` separate instances of ChartJS and plugins.
 	ChartJS.plugins.register(freshRequire('<chart plugin>', require));
 });
 ```

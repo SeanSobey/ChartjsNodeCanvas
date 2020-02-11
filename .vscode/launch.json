@@ -23,8 +23,11 @@
       "outFiles": [
         "${workspaceRoot}/dist/**/*.js"
       ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
-        "NODE_ENV": "test"
+        "NODE_ENV": "debug"
       }
     }
   ]

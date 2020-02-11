@@ -3,7 +3,7 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 export declare type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export declare type CanvasType = 'pdf' | 'svg';
-export declare type MimeType = 'image/png' | 'image/jpeg' | 'application/pdf' | 'image/svg+xml';
+export declare type MimeType = 'image/png' | 'image/jpeg';
 export declare class CanvasRenderService {
     private readonly _width;
     private readonly _height;
@@ -42,7 +42,7 @@ export declare class CanvasRenderService {
      * @see https://github.com/Automattic/node-canvas#canvastobuffer
      *
      * @param configuration The Chart JS configuration for the chart to render.
-     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
+     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
     renderToBuffer(configuration: ChartConfiguration, mimeType?: MimeType): Promise<Buffer>;
     /**
@@ -52,7 +52,7 @@ export declare class CanvasRenderService {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToBufferSync(configuration: ChartConfiguration, mimeType?: MimeType): Buffer;
+    renderToBufferSync(configuration: ChartConfiguration, mimeType?: MimeType | 'application/pdf' | 'image/svg+xml'): Buffer;
     /**
      * Render to a stream.
      * @see https://github.com/Automattic/node-canvas#canvascreatepngstream
@@ -60,7 +60,7 @@ export declare class CanvasRenderService {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToStream(configuration: ChartConfiguration, mimeType?: MimeType): Readable;
+    renderToStream(configuration: ChartConfiguration, mimeType?: MimeType | 'application/pdf'): Readable;
     /**
      * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
      *

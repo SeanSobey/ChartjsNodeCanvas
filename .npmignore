@@ -6,6 +6,7 @@ reports/
 scripts/
 tests/
 testData/
+coverage/
 
 .dockerignore
 docker-compose.override.yml

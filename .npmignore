@@ -1,6 +1,11 @@
 .vscode/**/*
 docker/
 .circleci/
+.github/
+reports/
+scripts/
+tests/
+testData/
 
 .dockerignore
 docker-compose.override.yml
@@ -10,6 +15,10 @@ codealike.json
 .mocharc.json
 tsconfig.json
 tslint.json
+.c8rc
+.nvmrc
+.tsbuildinfo
+.mocharc.js
 
 src/**/*.spec.*
 dist/**/*.spec.*

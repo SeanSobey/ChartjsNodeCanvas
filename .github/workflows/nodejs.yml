@@ -29,7 +29,7 @@ jobs:
         fail_ci_if_error: true
     - name: npm publish
       shell: bash
-      run: ./.github/scripts/publish.sh
+      run: ./scripts/publish.sh
       env:
         CI: true
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

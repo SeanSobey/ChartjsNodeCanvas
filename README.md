@@ -1,3 +1,5 @@
+[![Logo](./resources/logo.png)](https://github.com/SeanSobey/ChartjsNodeCanvas)
+
 # chartjs-node-canvas
 
 <!-- [![CircleCI](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas.svg?style=svg)](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas) -->

@@ -4,11 +4,6 @@
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "engineStrict": false,
-  "engines": {
-    "node": "12.14.1",
-    "npm": "6.13.4"
-  },
   "scripts": {
     "build": "tsc",
     "clean": "clean-dest -s ./src -d ./dist --file-map ./scripts/clean-dest --permanent --verbose",

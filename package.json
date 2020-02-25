@@ -6,8 +6,7 @@
   "types": "./dist/index.d.ts",
   "engineStrict": false,
   "engines": {
-    "node": "12.14.1",
-    "npm": "6.13.4"
+    "node": "10.x 11.x 12.x 13.x"
   },
   "scripts": {
     "build": "tsc",

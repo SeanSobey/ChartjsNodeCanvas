@@ -1,8 +1,3 @@
-<!-- [![Logo](./resources/logo.png)](https://github.com/SeanSobey/ChartjsNodeCanvas) -->
-<a href="https://github.com/SeanSobey/ChartjsNodeCanvas" align="center">
-  <img src="https://raw.githubusercontent.com/SeanSobey/ChartjsNodeCanvas/HEAD/resources/logo.png">
-</a
-
 # chartjs-node-canvas
 
 <!-- [![CircleCI](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas.svg?style=svg)](https://circleci.com/gh/SeanSobey/ChartjsNodeCanvas) -->
@@ -12,6 +7,11 @@
 [![packagephobia publish](https://badgen.net/packagephobia/publish/chartjs-node-canvas@latest)](https://bundlephobia.com/result?p=chartjs-node-canvas)
 <!-- [![bundlephobia](https://badgen.net/bundlephobia/min/chartjs-node-canvas@latest)](https://bundlephobia.com/result?p=chartjs-node-canvas) -->
 <!-- [![packagephobia install](https://badgen.net/packagephobia/install/chartjs-node-canvas@latest)](https://bundlephobia.com/result?p=chartjs-node-canvas) -->
+
+<!-- [![Logo](./resources/logo.png)](https://github.com/SeanSobey/ChartjsNodeCanvas) -->
+<a href="https://github.com/SeanSobey/ChartjsNodeCanvas" align="center">
+  <img src="https://raw.githubusercontent.com/SeanSobey/ChartjsNodeCanvas/HEAD/resources/logo.png">
+</a
 
 A Node JS renderer for [Chart.js](http://www.chartjs.org) using [canvas](https://github.com/Automattic/node-canvas).
 

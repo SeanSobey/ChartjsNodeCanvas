@@ -1,6 +1,9 @@
 <!-- [![Logo](./resources/logo.png)](https://github.com/SeanSobey/ChartjsNodeCanvas) -->
 <a href="https://github.com/SeanSobey/ChartjsNodeCanvas" align="center">
-  <img src="https://raw.githubusercontent.com/SeanSobey/ChartjsNodeCanvas/HEAD/resources/logo.png">
+  <!-- <img src="https://raw.githubusercontent.com/SeanSobey/ChartjsNodeCanvas/HEAD/resources/logo.png"> -->
+    <object type="image/svg+xml" data="./resources/logo.png">
+        Logo
+    </object>
 </a>
 
 # chartjs-node-canvas

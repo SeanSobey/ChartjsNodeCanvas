@@ -6,8 +6,9 @@ import { freshRequire } from './freshRequire';
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg';
+export type ChartJsFactory = () => typeof ChartJS;
 
-const defaultChartJsFactory: () => typeof ChartJS = () => freshRequire('chart.js');
+const defaultChartJsFactory: ChartJsFactory = () => freshRequire('chart.js');
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
 type Canvas	= HTMLCanvasElement & {
@@ -36,7 +37,7 @@ export class CanvasRenderService {
 	 * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
 	 * @param chartJsFactory optional provider for chart.js.
 	 */
-	constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType, chartJsFactory?: () => typeof ChartJS) {
+	constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType, chartJsFactory?: ChartJsFactory) {
 
 		this._width = width;
 		this._height = height;

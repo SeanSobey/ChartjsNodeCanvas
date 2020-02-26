@@ -17,6 +17,7 @@
         "run-script",
         "debug-test"
       ],
+      "preLaunchTask": "nvm",
       "timeout": 50000,
       "port": 33295,
       "sourceMaps": true,

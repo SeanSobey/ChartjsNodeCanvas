@@ -4,8 +4,22 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "type": "shell",
+      "windows": {
+        "command": "nvm use $(Get-Content .nvmrc)",
+      },
+      "linux":{
+        "command": "cat .nvmrc | nvm use"
+      },
+      "osx":{
+        "command": "cat .nvmrc | nvm use"
+      },
+      "label": "nvm",
+    },
+    {
       "type": "npm",
       "script": "build",
+      "dependsOn": "nvm",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -15,6 +29,7 @@
     {
       "type": "npm",
       "script": "test",
+      "dependsOn": "nvm",
       "group": {
         "kind": "test",
         "isDefault": true
@@ -22,16 +37,19 @@
     },
     {
       "type": "npm",
-      "script": "clean"
+      "script": "clean",
+      "dependsOn": "nvm"
     },
     {
       "type": "npm",
       "script": "lint",
+      "dependsOn": "nvm",
       "problemMatcher": "$eslint-stylish"
     },
     {
       "type": "npm",
       "script": "watch-build",
+      "dependsOn": "nvm",
       "group": "build",
       "isBackground": true,
       "problemMatcher": "$tsc"
@@ -44,12 +62,14 @@
     {
       "type": "npm",
       "script": "watch-test",
+      "dependsOn": "nvm",
       "isBackground": true,
       "group": "test"
     },
     {
       "type": "npm",
       "script": "watch-lint",
+      "dependsOn": "nvm",
       "isBackground": true,
       "problemMatcher": "$eslint-stylish"
     }

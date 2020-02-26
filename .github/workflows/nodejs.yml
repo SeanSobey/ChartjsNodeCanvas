@@ -53,7 +53,9 @@ jobs:
       run: npm ci
     - name: Build
       run: npm run-script build
-    - name: npm publish
+    - name: Check Size
+      run: npm run-script package-size
+    - name: Publish
       shell: bash
       run: ./scripts/publish.sh
       env:

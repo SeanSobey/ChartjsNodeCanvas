@@ -16,6 +16,7 @@
     "test": "c8 --all mocha dist/**/*.spec.js",
     "test-unit": "mocha --exclude dist/**/*.e2e.spec.js dist/**/*.spec.js",
     "test-e2e": "mocha dist/**/*.e2e.spec.js",
+    "package-size": "node ./scripts/package-size",
     "debug-test": "node --inspect-brk=33295 --nolazy node_modules/mocha/bin/_mocha dist/**/*.spec.js",
     "watch-build": "tsc --watch",
     "watch-clean": "nodemon --watch ./src -e ts --exec npm run-script clean",

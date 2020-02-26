@@ -4,10 +4,6 @@
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index",
   "types": "./dist/index.d.ts",
-  "engineStrict": true,
-  "engines": {
-    "node": "10.x 11.x 12.x 13.x"
-  },
   "scripts": {
     "nvm": "cat .nvmrc | nvm use",
     "build": "tsc",

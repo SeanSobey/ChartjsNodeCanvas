@@ -1,8 +1,11 @@
-import { strict as assert } from 'assert';
+import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
+import { freshRequire } from './freshRequire';
 
-import { CanvasRenderService, ChartCallback, CanvasType, MimeType } from './';
+import { CanvasRenderService, ChartCallback, CanvasType, MimeType, ChartJsFactory } from './';
+
+const assert = new Assert();
 
 describe(CanvasRenderService.name, () => {
 
@@ -58,94 +61,64 @@ describe(CanvasRenderService.name, () => {
 			}
 		} as any
 	};
-	const chartCallback: ChartCallback = (ChartJS) => {
-
-		ChartJS.defaults.global.responsive = true;
-		ChartJS.defaults.global.maintainAspectRatio = false;
+	const nullCanvasChartJsFactory: ChartJsFactory = () => {
+		const ChartJs = freshRequire('chart.js');
+		return class extends ChartJs {
+			constructor(context: any, configuration: any) {
+				super(context, configuration);
+				this.canvas = null;
+			}
+		} as any;
 	};
 
+	function createSUT(canvasType: CanvasType | undefined, chartJsFactory: ChartJsFactory | undefined): CanvasRenderService {
 
-	describe(`given chartType 'undefined'`, () => {
+		const chartCallback: ChartCallback = (ChartJS) => {
 
-		const mimeTypes: ReadonlyArray<MimeType> = ['image/png', 'image/jpeg'];
-		mimeTypes.forEach((mimeType) => {
+			ChartJS.defaults.global.responsive = true;
+			ChartJS.defaults.global.maintainAspectRatio = false;
+		};
+		return new CanvasRenderService(width, height, chartCallback, canvasType, chartJsFactory);
+	}
+	const nullCanvasErrorMessage = 'Canvas is null';
 
-			describe(`given mimeType '${mimeType}'`, () => {
+	const mimeTypes: ReadonlyArray<MimeType> = ['image/png', 'image/jpeg'];
 
-				function createSUT(): CanvasRenderService {
+	describe(CanvasRenderService.prototype.renderToDataURL.name, () => {
 
-					return new CanvasRenderService(width, height, chartCallback, undefined);
-				}
+		describe(`given chartJsFactory that returns null canvas`, () => {
 
-				describe(CanvasRenderService.prototype.renderToBuffer.name, () => {
+			const chartJsFactory = nullCanvasChartJsFactory;
 
-					it('renders chart', async () => {
-						const canvasRenderService = createSUT();
-						const image = await canvasRenderService.renderToBuffer(configuration, mimeType);
-						assert.equal(image instanceof Buffer, true);
-					});
+			it('throws error', async () => {
+				const canvasRenderService = createSUT(undefined, chartJsFactory);
+				await assert.rejectsError(() => canvasRenderService.renderToDataURL(configuration, undefined), Error, nullCanvasErrorMessage);
+			});
+		});
 
-					it('renders chart in parallel', async () => {
-						const canvasRenderService = createSUT();
-						const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToBuffer(configuration, mimeType));
-						const images = await Promise.all(promises);
-						images.forEach((image) => assert.equal(image instanceof Buffer, true));
-					});
-				});
+		describe(`given chartJsFactory 'undefined'`, () => {
 
-				describe(CanvasRenderService.prototype.renderToBufferSync.name, () => {
+			const chartJsFactory = undefined;
 
-					it('renders buffer sync', () => {
-						const canvasRenderService = createSUT();
-						const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
-						assert.equal(image instanceof Buffer, true);
-					});
-				});
+			describe(`given canvasType 'undefined'`, () => {
 
-				describe(CanvasRenderService.prototype.renderToDataURL.name, () => {
+				const canvasType = undefined;
 
-					it('renders data url', async () => {
-						const canvasRenderService = createSUT();
-						const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
-						assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
-					});
+				mimeTypes.forEach((mimeType) => {
 
-					it('renders data url in parallel', async () => {
-						const canvasRenderService = createSUT();
-						const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration, mimeType));
-						const dataUrls = await Promise.all(promises);
-						dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
-					});
-				});
+					describe(`given mimeType '${mimeType}'`, () => {
 
-				describe(CanvasRenderService.prototype.renderToDataURLSync.name, () => {
-
-					it('renders data url', async () => {
-						const canvasRenderService = createSUT();
-						const dataUrl = canvasRenderService.renderToDataURLSync(configuration, mimeType);
-						assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
-					});
-				});
-
-				describe(CanvasRenderService.prototype.renderToStream.name, () => {
-
-					it('renders stream', (done) => {
-						const canvasRenderService = createSUT();
-						const stream = canvasRenderService.renderToStream(configuration, mimeType);
-						const data: Array<Buffer> = [];
-						stream.on('data', (chunk: Buffer) => {
-							data.push(chunk);
+						it('renders data url', async () => {
+							const canvasRenderService = createSUT(canvasType, chartJsFactory);
+							const dataUrl = await canvasRenderService.renderToDataURL(configuration, mimeType);
+							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
 						});
-						stream.on('end', () => {
-							assert.equal(Buffer.concat(data).length > 0, true);
-							done();
-						});
-						stream.on('finish', () => {
-							assert.equal(Buffer.concat(data).length > 0, true);
-							done();
-						});
-						stream.on('error', (error) => {
-							done(error);
+
+						it('renders data url in parallel', async () => {
+							const canvasRenderService = createSUT(canvasType, chartJsFactory);
+							const promises = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURL(configuration, mimeType));
+							const dataUrls = await Promise.all(promises);
+							dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
 						});
 					});
 				});
@@ -153,56 +126,167 @@ describe(CanvasRenderService.name, () => {
 		});
 	});
 
-	const testData: ReadonlyArray<[CanvasType, ReadonlyArray<'application/pdf' | 'image/svg+xml'>]> = [
-		['svg', ['image/svg+xml']],
-		['pdf', ['application/pdf']]
-	];
+	describe(CanvasRenderService.prototype.renderToDataURLSync.name, () => {
 
-	testData.forEach(([chartType, mimeTypes]) => {
+		describe(`given chartJsFactory that returns null canvas`, () => {
 
-		describe(`given chartType ${chartType}`, () => {
+			const chartJsFactory = nullCanvasChartJsFactory;
 
-			mimeTypes.forEach((mimeType) => {
+			it('throws error', () => {
+				const canvasRenderService = createSUT(undefined, chartJsFactory);
+				assert.throws(() => canvasRenderService.renderToDataURLSync(configuration, undefined), Error, nullCanvasErrorMessage);
+			});
+		});
 
-				describe(`given extended mimeType '${mimeType}'`, () => {
+		describe(`given chartJsFactory 'undefined'`, () => {
 
-					function createSUT(): CanvasRenderService {
+			const chartJsFactory = undefined;
 
-						return new CanvasRenderService(width, height, chartCallback, chartType);
-					}
+			describe(`given canvasType 'undefined'`, () => {
 
-					describe(CanvasRenderService.prototype.renderToBufferSync.name, () => {
+				const canvasType = undefined;
 
-						it('renders buffer sync', () => {
-							const canvasRenderService = createSUT();
-							const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
+				mimeTypes.forEach((mimeType) => {
+
+					describe(`given mimeType '${mimeType}'`, () => {
+
+						it('renders data url', () => {
+							const canvasRenderService = createSUT(canvasType, chartJsFactory);
+							const dataUrl = canvasRenderService.renderToDataURLSync(configuration, mimeType);
+							assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true);
+						});
+
+						it('renders data url in parallel', () => {
+							const canvasRenderService = createSUT(canvasType, chartJsFactory);
+							const dataUrls = Array(3).fill(undefined).map(() => canvasRenderService.renderToDataURLSync(configuration, mimeType));
+							dataUrls.forEach((dataUrl) => assert.equal(dataUrl.startsWith(`data:${mimeType};base64,`), true));
+						});
+					});
+				});
+			});
+		});
+	});
+
+	describe(CanvasRenderService.prototype.renderToBuffer.name, () => {
+
+		describe(`given chartJsFactory that returns null canvas`, () => {
+
+			const chartJsFactory = nullCanvasChartJsFactory;
+
+			it('throws error', async () => {
+				const canvasRenderService = createSUT(undefined, chartJsFactory);
+				await assert.rejectsError(() => canvasRenderService.renderToBuffer(configuration, undefined), Error, nullCanvasErrorMessage);
+			});
+		});
+
+		describe(`given chartJsFactory 'undefined'`, () => {
+
+			const chartJsFactory = undefined;
+
+			describe(`given canvasType 'undefined'`, () => {
+
+				const canvasType = undefined;
+
+				mimeTypes.forEach((mimeType) => {
+
+					describe(`given extended mimeType '${mimeType}'`, () => {
+
+						it('renders chart', async () => {
+							const canvasRenderService = createSUT(canvasType, chartJsFactory);
+							const image = await canvasRenderService.renderToBuffer(configuration, mimeType);
 							assert.equal(image instanceof Buffer, true);
 						});
 					});
+				});
+			});
+		});
+	});
 
-					if (mimeType === 'image/svg+xml') {
-						return;
-					}
+	describe(CanvasRenderService.prototype.renderToBufferSync.name, () => {
 
-					describe(CanvasRenderService.prototype.renderToStream.name, () => {
+		describe(`given chartJsFactory that returns null canvas`, () => {
 
-						it('renders stream', (done) => {
-							const canvasRenderService = createSUT();
-							const stream = canvasRenderService.renderToStream(configuration, mimeType);
-							const data: Array<Buffer> = [];
-							stream.on('data', (chunk: Buffer) => {
-								data.push(chunk);
+			const chartJsFactory = nullCanvasChartJsFactory;
+
+			it('throws error', () => {
+				const canvasRenderService = createSUT(undefined, chartJsFactory);
+				assert.throws(() => canvasRenderService.renderToBufferSync(configuration, undefined), Error, nullCanvasErrorMessage);
+			});
+		});
+
+		describe(`given chartJsFactory 'undefined'`, () => {
+
+			const chartJsFactory = undefined;
+
+			([
+				[undefined, mimeTypes],
+				['svg', ['image/svg+xml']],
+				['pdf', ['application/pdf']]
+			] as ReadonlyArray<[CanvasType, ReadonlyArray<MimeType | 'application/pdf' | 'image/svg+xml'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+
+				describe(`given canvasType '${canvasType}'`, () => {
+
+					extendedMimeTypes.forEach((mimeType) => {
+
+						describe(`given mimeType '${mimeType}'`, () => {
+
+							it('renders chart', async () => {
+								const canvasRenderService = createSUT(canvasType, chartJsFactory);
+								const image = canvasRenderService.renderToBufferSync(configuration, mimeType);
+								assert.equal(image instanceof Buffer, true);
 							});
-							stream.on('end', () => {
-								assert.equal(Buffer.concat(data).length > 0, true);
-								done();
-							});
-							stream.on('finish', () => {
-								assert.equal(Buffer.concat(data).length > 0, true);
-								done();
-							});
-							stream.on('error', (error) => {
-								done(error);
+						});
+					});
+				});
+			});
+		});
+	});
+
+	describe(CanvasRenderService.prototype.renderToStream.name, () => {
+
+		describe(`given chartJsFactory that returns null canvas`, () => {
+
+			const chartJsFactory = nullCanvasChartJsFactory;
+
+			it('throws error', () => {
+				const canvasRenderService = createSUT(undefined, chartJsFactory);
+				assert.throws(() => canvasRenderService.renderToStream(configuration, undefined), Error, nullCanvasErrorMessage);
+			});
+		});
+
+		describe(`given chartJsFactory 'undefined'`, () => {
+
+			const chartJsFactory = undefined;
+
+			([
+				[undefined, mimeTypes],
+				['pdf', ['application/pdf']]
+			] as ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType | 'application/pdf'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+
+				describe(`given canvasType '${canvasType}'`, () => {
+
+					extendedMimeTypes.forEach((mimeType) => {
+
+						describe(`given extended mimeType '${mimeType}'`, () => {
+
+							it('renders stream', (done) => {
+								const canvasRenderService = createSUT(canvasType, chartJsFactory);
+								const stream = canvasRenderService.renderToStream(configuration, mimeType);
+								const data: Array<Buffer> = [];
+								stream.on('data', (chunk: Buffer) => {
+									data.push(chunk);
+								});
+								stream.on('end', () => {
+									assert.equal(Buffer.concat(data).length > 0, true);
+									done();
+								});
+								stream.on('finish', () => {
+									assert.equal(Buffer.concat(data).length > 0, true);
+									done();
+								});
+								stream.on('error', (error) => {
+									done(error);
+								});
 							});
 						});
 					});

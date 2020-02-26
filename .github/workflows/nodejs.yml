@@ -3,7 +3,7 @@ name: Node CI
 on: [push]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -16,17 +16,43 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install
       run: npm ci
-    - name: npm build
+    - name: Build
       run: npm run-script build
-    - name: npm lint
+    - name: Lint
       run: npm run-script lint
-    - name: npm test
+    - name: Test
       run: npm run-script test
     - uses: codecov/codecov-action@v1
       with:
+        name: Node v${{ matrix.node-version }}
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./reports/test-coverage/cobertura-coverage.xml
         fail_ci_if_error: true
+    # Does not yet support wildcards! Needs v2: https://github.com/actions/upload-artifact/pull/54
+    # When ready see https://help.github.com/en/actions/configuring-and-managing-workflows/persisting-workflow-data-using-artifacts#uploading-build-and-test-artifacts
+    # - name: Package Artifact
+    #   run: npm pack
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v1
+    #   with:
+    #     name: Node v${{ matrix.node-version }}
+    #     path: '*.tgz'
+  publish:
+    needs: build-and-test
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: ['13.x']
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install
+      run: npm ci
+    - name: Build
+      run: npm run-script build
     - name: npm publish
       shell: bash
       run: ./scripts/publish.sh

@@ -60,8 +60,8 @@ class CanvasRenderService {
             throw new Error('Canvas is null');
         }
         const canvas = chart.canvas;
-        chart.destroy();
         const dataUrl = canvas.toDataURL(mimeType);
+        chart.destroy();
         return dataUrl;
     }
     /**

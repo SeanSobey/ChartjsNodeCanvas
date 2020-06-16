@@ -11,8 +11,8 @@ export type ChartJsFactory = () => typeof ChartJS;
 const defaultChartJsFactory: ChartJsFactory = () => freshRequire('chart.js');
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
-type Canvas	= HTMLCanvasElement & {
-	toBuffer(callback: (err: Error|null, result: Buffer) => void, mimeType?: string, config?: any): void;
+type Canvas = HTMLCanvasElement & {
+	toBuffer(callback: (err: Error | null, result: Buffer) => void, mimeType?: string, config?: any): void;
 	toBuffer(mimeType?: string, config?: any): Buffer;
 	createPNGStream(config?: any): Readable;
 	createJPEGStream(config?: any): Readable;
@@ -90,8 +90,8 @@ export class CanvasRenderService {
 			throw new Error('Canvas is null');
 		}
 		const canvas = chart.canvas as Canvas;
-		chart.destroy();
 		const dataUrl = canvas.toDataURL(mimeType);
+		chart.destroy();
 		return dataUrl;
 	}
 
@@ -134,7 +134,7 @@ export class CanvasRenderService {
 			throw new Error('Canvas is null');
 		}
 		const canvas = chart.canvas as Canvas;
-		const buffer =  canvas.toBuffer(mimeType);
+		const buffer = canvas.toBuffer(mimeType);
 		chart.destroy();
 		return buffer;
 	}

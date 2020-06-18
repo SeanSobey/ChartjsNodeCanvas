@@ -1,6 +1,12 @@
 name: Node CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build-and-test:
@@ -38,6 +44,7 @@ jobs:
     #     name: Node v${{ matrix.node-version }}
     #     path: '*.tgz'
   publish:
+    if: github.ref == 'refs/heads/master'
     needs: build-and-test
     runs-on: windows-latest
     strategy:

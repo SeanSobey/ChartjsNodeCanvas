@@ -2,13 +2,29 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
 import { createCanvas, registerFont } from 'canvas';
 import { freshRequire } from './freshRequire';
+import { loadavg } from 'os';
 
+export type ChartJSNodeCanvasPlugins = {
+	/**
+	 * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
+	 */
+	readonly modern: ReadonlyArray<Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
+	/**
+	 * This should work for any plugin that expects a global Chart variable.
+	 */
+	readonly requireChartJSLegacy?: ReadonlyArray<string>;
+	/**
+	 * This will work for plugins that `require` ChartJS themselves.
+	 */
+	readonly globalVariableLegacy: ReadonlyArray<string>;
+	/**
+	 * This will work with plugins that just return a plugin object and do no specific loading themselves.
+	 */
+	readonly requireLegacy: ReadonlyArray<string>;
+};
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg';
-export type ChartJsFactory = () => typeof ChartJS;
-
-const defaultChartJsFactory: ChartJsFactory = () => freshRequire('chart.js');
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
 type Canvas	= HTMLCanvasElement & {
@@ -19,7 +35,30 @@ type Canvas	= HTMLCanvasElement & {
 	createPDFStream(config?: any): Readable;
 };
 
-export class CanvasRenderService {
+export interface ChartJSNodeCanvasOptions {
+	/**
+	 * The width of the charts to render, in pixels.
+	 */
+	readonly width: number;
+	/**
+	 * The height of the charts to render, in pixels.
+	 */
+	readonly height: number;
+	/**
+	 * Optional callback which is called once with a new ChartJS global reference as the only parameter.
+	 */
+	readonly chartCallback?: ChartCallback;
+	/**
+	 * Optional canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
+	 */
+	readonly type?: CanvasType;
+	/**
+	 * Optional plugins to register.
+	 */
+	readonly plugins?: ChartJSNodeCanvasPlugins;
+}
+
+export class ChartJSNodeCanvas {
 
 	private readonly _width: number;
 	private readonly _height: number;
@@ -31,24 +70,17 @@ export class CanvasRenderService {
 	/**
 	 * Create a new instance of CanvasRenderService.
 	 *
-	 * @param width The width of the charts to render, in pixels.
-	 * @param height The height of the charts to render, in pixels.
-	 * @param chartCallback optional callback which is called once with a new ChartJS global reference as the only parameter.
-	 * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
-	 * @param chartJsFactory optional provider for chart.js.
+	 * @param options Configuration for this instance
 	 */
-	constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType, chartJsFactory?: ChartJsFactory) {
+	constructor(options: ChartJSNodeCanvasOptions) {
 
-		this._width = width;
-		this._height = height;
-		this._chartJs = (chartJsFactory || defaultChartJsFactory)();
+		this._width = options.width;
+		this._height = options.height;
 		const canvas = freshRequire('canvas');
 		this._createCanvas = canvas.createCanvas;
 		this._registerFont = canvas.registerFont;
-		this._type = type;
-		if (chartCallback) {
-			chartCallback(this._chartJs);
-		}
+		this._type = options.type;
+		this._chartJs = this.initialize(options.plugins, options.chartCallback);
 	}
 
 	/**
@@ -177,6 +209,44 @@ export class CanvasRenderService {
 	public registerFont(path: string, options: { readonly family: string, readonly weight?: string, readonly style?: string }): void {
 
 		this._registerFont(path, options);
+	}
+
+	private initialize(plugins?: ChartJSNodeCanvasPlugins, chartCallback?: ChartCallback): typeof ChartJS {
+
+		const chartJs = require('chart.js');
+
+		if (plugins?.requireChartJSLegacy) {
+			for (const plugin of plugins.requireChartJSLegacy) {
+				require(plugin);
+				delete require.cache[require.resolve(plugin)];
+			}
+		}
+		delete require.cache[require.resolve('chart.js')];
+
+		if (plugins?.globalVariableLegacy) {
+			(global as any).Chart = chartJs;
+			for (const plugin of plugins.globalVariableLegacy) {
+				freshRequire(plugin);
+			}
+			delete (global as any).Chart;
+		}
+
+		if (plugins?.modern) {
+			for (const plugin of plugins.modern) {
+				chartJs.plugins.register(plugin);
+			}
+		}
+
+		if (plugins?.requireLegacy) {
+			for (const plugin of plugins.requireLegacy) {
+				chartJs.plugins.register(freshRequire(plugin));
+			}
+		}
+
+		if (chartCallback) {
+			chartCallback(chartJs);
+		}
+		return chartJs;
 	}
 
 	private renderChart(configuration: ChartConfiguration): Chart {

@@ -188,7 +188,7 @@ This should work for any plugin that expects a global Chart variable.
 
 ---
 
-1. Chart factory function for `CanvasRenderService`:
+2. Chart factory function for `CanvasRenderService`:
 
 ```js
 const chartJsFactory = () => {
@@ -206,7 +206,7 @@ This will work for plugins that `require` ChartJS themselves.
 
 ---
 
-1. Register plugin directly with ChartJS:
+3. Register plugin directly with ChartJS:
 
 ```js
 const freshRequire = require('fresh-require');

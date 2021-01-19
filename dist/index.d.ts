@@ -1,11 +1,50 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
+export declare type ChartJSNodeCanvasPlugins = {
+    /**
+     * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
+     */
+    readonly modern?: ReadonlyArray<Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
+    /**
+     * This should work for any plugin that expects a global Chart variable.
+     */
+    readonly requireChartJSLegacy?: ReadonlyArray<string>;
+    /**
+     * This will work for plugins that `require` ChartJS themselves.
+     */
+    readonly globalVariableLegacy?: ReadonlyArray<string>;
+    /**
+     * This will work with plugins that just return a plugin object and do no specific loading themselves.
+     */
+    readonly requireLegacy?: ReadonlyArray<string>;
+};
 export declare type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export declare type CanvasType = 'pdf' | 'svg';
 export declare type MimeType = 'image/png' | 'image/jpeg';
-export declare type ChartJsFactory = () => typeof ChartJS;
-export declare class CanvasRenderService {
+export interface ChartJSNodeCanvasOptions {
+    /**
+     * The width of the charts to render, in pixels.
+     */
+    readonly width: number;
+    /**
+     * The height of the charts to render, in pixels.
+     */
+    readonly height: number;
+    /**
+     * Optional callback which is called once with a new ChartJS global reference as the only parameter.
+     */
+    readonly chartCallback?: ChartCallback;
+    /**
+     * Optional canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
+     */
+    readonly type?: CanvasType;
+    /**
+     * Optional plugins to register.
+     */
+    readonly plugins?: ChartJSNodeCanvasPlugins;
+}
+export declare class ChartJSNodeCanvas {
     private readonly _width;
     private readonly _height;
     private readonly _chartJs;
@@ -15,13 +54,9 @@ export declare class CanvasRenderService {
     /**
      * Create a new instance of CanvasRenderService.
      *
-     * @param width The width of the charts to render, in pixels.
-     * @param height The height of the charts to render, in pixels.
-     * @param chartCallback optional callback which is called once with a new ChartJS global reference as the only parameter.
-     * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
-     * @param chartJsFactory optional provider for chart.js.
+     * @param options Configuration for this instance
      */
-    constructor(width: number, height: number, chartCallback?: ChartCallback, type?: CanvasType, chartJsFactory?: ChartJsFactory);
+    constructor(options: ChartJSNodeCanvasOptions);
     /**
      * Render to a data url.
      * @see https://github.com/Automattic/node-canvas#canvastodataurl
@@ -75,5 +110,6 @@ export declare class CanvasRenderService {
         readonly weight?: string;
         readonly style?: string;
     }): void;
+    private initialize;
     private renderChart;
 }

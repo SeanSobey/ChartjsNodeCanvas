@@ -1,28 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const freshRequire_1 = require("./freshRequire");
-const defaultChartJsFactory = () => freshRequire_1.freshRequire('chart.js');
-class CanvasRenderService {
+class ChartJSNodeCanvas {
     /**
      * Create a new instance of CanvasRenderService.
      *
-     * @param width The width of the charts to render, in pixels.
-     * @param height The height of the charts to render, in pixels.
-     * @param chartCallback optional callback which is called once with a new ChartJS global reference as the only parameter.
-     * @param type optional The canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
-     * @param chartJsFactory optional provider for chart.js.
+     * @param options Configuration for this instance
      */
-    constructor(width, height, chartCallback, type, chartJsFactory) {
-        this._width = width;
-        this._height = height;
-        this._chartJs = (chartJsFactory || defaultChartJsFactory)();
+    constructor(options) {
+        this._width = options.width;
+        this._height = options.height;
         const canvas = freshRequire_1.freshRequire('canvas');
         this._createCanvas = canvas.createCanvas;
         this._registerFont = canvas.registerFont;
-        this._type = type;
-        if (chartCallback) {
-            chartCallback(this._chartJs);
-        }
+        this._type = options.type;
+        this._chartJs = this.initialize(options.plugins, options.chartCallback);
     }
     /**
      * Render to a data url.
@@ -140,6 +132,37 @@ class CanvasRenderService {
     registerFont(path, options) {
         this._registerFont(path, options);
     }
+    initialize(plugins, chartCallback) {
+        const chartJs = require('chart.js');
+        if (plugins === null || plugins === void 0 ? void 0 : plugins.requireChartJSLegacy) {
+            for (const plugin of plugins.requireChartJSLegacy) {
+                require(plugin);
+                delete require.cache[require.resolve(plugin)];
+            }
+        }
+        delete require.cache[require.resolve('chart.js')];
+        if (plugins === null || plugins === void 0 ? void 0 : plugins.globalVariableLegacy) {
+            global.Chart = chartJs;
+            for (const plugin of plugins.globalVariableLegacy) {
+                freshRequire_1.freshRequire(plugin);
+            }
+            delete global.Chart;
+        }
+        if (plugins === null || plugins === void 0 ? void 0 : plugins.modern) {
+            for (const plugin of plugins.modern) {
+                chartJs.plugins.register(plugin);
+            }
+        }
+        if (plugins === null || plugins === void 0 ? void 0 : plugins.requireLegacy) {
+            for (const plugin of plugins.requireLegacy) {
+                chartJs.plugins.register(freshRequire_1.freshRequire(plugin));
+            }
+        }
+        if (chartCallback) {
+            chartCallback(chartJs);
+        }
+        return chartJs;
+    }
     renderChart(configuration) {
         const canvas = this._createCanvas(this._width, this._height, this._type);
         canvas.style = {};
@@ -151,5 +174,5 @@ class CanvasRenderService {
         return new this._chartJs(context, configuration);
     }
 }
-exports.CanvasRenderService = CanvasRenderService;
+exports.ChartJSNodeCanvas = ChartJSNodeCanvas;
 //# sourceMappingURL=index.js.map

@@ -8,7 +8,7 @@ export type ChartJSNodeCanvasPlugins = {
 	/**
 	 * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
 	 */
-	readonly modern: ReadonlyArray<Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
+	readonly modern?: ReadonlyArray<Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
 	/**
 	 * This should work for any plugin that expects a global Chart variable.
 	 */
@@ -16,11 +16,11 @@ export type ChartJSNodeCanvasPlugins = {
 	/**
 	 * This will work for plugins that `require` ChartJS themselves.
 	 */
-	readonly globalVariableLegacy: ReadonlyArray<string>;
+	readonly globalVariableLegacy?: ReadonlyArray<string>;
 	/**
 	 * This will work with plugins that just return a plugin object and do no specific loading themselves.
 	 */
-	readonly requireLegacy: ReadonlyArray<string>;
+	readonly requireLegacy?: ReadonlyArray<string>;
 };
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
 export type CanvasType = 'pdf' | 'svg';

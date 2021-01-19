@@ -72,14 +72,14 @@ describe(ChartJSNodeCanvas.name, () => {
 	};
 
 	it('works with render to buffer', async () => {
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
-		const actual = await ChartJSNodeCanvas.renderToBuffer(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'render-to-buffer');
 	});
 
 	it('works with render to data url', async () => {
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
-		const actual = await ChartJSNodeCanvas.renderToDataURL(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const actual = await chartJSNodeCanvas.renderToDataURL(configuration);
 		const extension = '.txt';
 		const fileName = 'render-to-data-URL';
 		const fileNameWithExtension = fileName + extension;
@@ -97,19 +97,21 @@ describe(ChartJSNodeCanvas.name, () => {
 	});
 
 	it('works with render to stream', async () => {
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
-		const stream = ChartJSNodeCanvas.renderToStream(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const stream = chartJSNodeCanvas.renderToStream(configuration);
 		const actual = await streamToBuffer(stream);
 		await assertImage(actual, 'render-to-stream');
 	});
 
 	it('works with registering plugin', async () => {
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, (ChartJS) => {
-			// (global as any).Chart = ChartJS;
-			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
-			// delete (global as any).Chart;
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, chartCallback: (ChartJS) => {
+				// (global as any).Chart = ChartJS;
+				ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
+				// delete (global as any).Chart;
+			}
 		});
-		const actual = await ChartJSNodeCanvas.renderToBuffer({
+		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -186,19 +188,18 @@ describe(ChartJSNodeCanvas.name, () => {
 	});
 
 	it('works with self registering plugin', async () => {
-		const chartJsFactory = () => {
-			const chartJS = require('chart.js');
-			require('chartjs-plugin-datalabels');
-			delete require.cache[require.resolve('chart.js')];
-			delete require.cache[require.resolve('chartjs-plugin-datalabels')];
-			return chartJS;
-		};
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, (/*ChartJS*/) => {
-			// (global as any).Chart = ChartJS;
-			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
-			// delete (global as any).Chart;
-		}, undefined, chartJsFactory);
-		const actual = await ChartJSNodeCanvas.renderToBuffer({
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, chartCallback: (/*ChartJS*/) => {
+				// (global as any).Chart = ChartJS;
+				// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
+				// delete (global as any).Chart;
+			}, plugins: {
+				requireLegacy: [
+					'chartjs-plugin-datalabels'
+				]
+			}
+		});
+		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
@@ -293,11 +294,13 @@ describe(ChartJSNodeCanvas.name, () => {
 				}
 			} as any
 		};
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, (ChartJS) => {
-			ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, chartCallback: (ChartJS) => {
+				ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+			}
 		});
-		ChartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
-		const actual = await ChartJSNodeCanvas.renderToBuffer(configuration);
+		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'font');
 	});
 

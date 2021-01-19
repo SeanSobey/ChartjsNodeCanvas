@@ -1,1 +1,2 @@
-export declare function freshRequire(file: string): any;
+/// <reference types="node" />
+export declare const freshRequire: NodeRequireFunction;

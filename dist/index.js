@@ -140,7 +140,6 @@ class ChartJSNodeCanvas {
                 delete require.cache[require.resolve(plugin)];
             }
         }
-        delete require.cache[require.resolve('chart.js')];
         if (plugins === null || plugins === void 0 ? void 0 : plugins.globalVariableLegacy) {
             global.Chart = chartJs;
             for (const plugin of plugins.globalVariableLegacy) {
@@ -166,6 +165,7 @@ class ChartJSNodeCanvas {
         if (chartCallback) {
             chartCallback(chartJs);
         }
+        delete require.cache[require.resolve('chart.js')];
         return chartJs;
     }
     renderChart(configuration) {

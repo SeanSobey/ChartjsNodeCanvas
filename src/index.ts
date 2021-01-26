@@ -221,7 +221,6 @@ export class ChartJSNodeCanvas {
 				delete require.cache[require.resolve(plugin)];
 			}
 		}
-		delete require.cache[require.resolve('chart.js')];
 
 		if (plugins?.globalVariableLegacy) {
 			(global as any).Chart = chartJs;
@@ -250,6 +249,9 @@ export class ChartJSNodeCanvas {
 		if (chartCallback) {
 			chartCallback(chartJs);
 		}
+
+		delete require.cache[require.resolve('chart.js')];
+
 		return chartJs;
 	}
 

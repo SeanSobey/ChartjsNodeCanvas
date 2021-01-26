@@ -43,11 +43,11 @@
     "chart.js": "^2.7.3"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.9.11",
+    "@types/chart.js": "^2.9.30",
     "@types/mocha": "^7.0.2",
     "@types/node": "^12.19.15",
     "c8": "^7.4.0",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "chartjs-plugin-annotation": "^0.5.7",
     "chartjs-plugin-crosshair": "^1.1.6",
     "chartjs-plugin-datalabels": "^0.7.0",

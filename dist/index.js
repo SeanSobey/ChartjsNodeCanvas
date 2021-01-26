@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartJSNodeCanvas = void 0;
 const freshRequire_1 = require("./freshRequire");
 class ChartJSNodeCanvas {
     /**

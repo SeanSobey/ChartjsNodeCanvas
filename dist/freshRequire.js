@@ -1,6 +1,7 @@
 "use strict";
 // https://github.com/hughsk/fresh-require
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.freshRequire = void 0;
 exports.freshRequire = (file) => {
     const resolvedFile = require.resolve(file);
     const temp = require.cache[resolvedFile];

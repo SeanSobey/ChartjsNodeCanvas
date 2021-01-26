@@ -5,13 +5,13 @@ export declare type ChartJSNodeCanvasPlugins = {
     /**
      * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
      */
-    readonly modern?: ReadonlyArray<Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
+    readonly modern?: ReadonlyArray<string | Chart.PluginServiceGlobalRegistration & Chart.PluginServiceRegistrationOptions>;
     /**
-     * This should work for any plugin that expects a global Chart variable.
+     * This will work for plugins that `require` ChartJS themselves.
      */
     readonly requireChartJSLegacy?: ReadonlyArray<string>;
     /**
-     * This will work for plugins that `require` ChartJS themselves.
+     * This should work for any plugin that expects a global Chart variable.
      */
     readonly globalVariableLegacy?: ReadonlyArray<string>;
     /**

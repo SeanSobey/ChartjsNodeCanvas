@@ -105,10 +105,8 @@ describe(ChartJSNodeCanvas.name, () => {
 
 	it('works with registering plugin', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
-			width, height, chartCallback: (ChartJS) => {
-				// (global as any).Chart = ChartJS;
-				ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
-				// delete (global as any).Chart;
+			width, height, plugins: {
+				modern: ['chartjs-plugin-annotation']
 			}
 		});
 		const actual = await chartJSNodeCanvas.renderToBuffer({
@@ -189,11 +187,7 @@ describe(ChartJSNodeCanvas.name, () => {
 
 	it('works with self registering plugin', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
-			width, height, chartCallback: (/*ChartJS*/) => {
-				// (global as any).Chart = ChartJS;
-				// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
-				// delete (global as any).Chart;
-			}, plugins: {
+			width, height, plugins: {
 				requireLegacy: [
 					'chartjs-plugin-datalabels'
 				]
@@ -250,6 +244,19 @@ describe(ChartJSNodeCanvas.name, () => {
 			}
 		});
 		await assertImage(actual, 'chartjs-plugin-datalabels');
+	});
+
+	it('works with global variable plugin', async () => {
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, plugins: {
+				globalVariableLegacy: [
+					'chartjs-plugin-crosshair'
+				]
+			}
+		});
+		// const actual = await chartJSNodeCanvas.renderToBuffer({
+		// });
+		// await assertImage(actual, 'chartjs-plugin-funnel');
 	});
 
 	it('works with custom font', async () => {

@@ -150,7 +150,12 @@ class ChartJSNodeCanvas {
         }
         if (plugins === null || plugins === void 0 ? void 0 : plugins.modern) {
             for (const plugin of plugins.modern) {
-                chartJs.plugins.register(plugin);
+                if (typeof plugin === 'string') {
+                    chartJs.plugins.register(freshRequire_1.freshRequire(plugin));
+                }
+                else {
+                    chartJs.plugins.register(plugin);
+                }
             }
         }
         if (plugins === null || plugins === void 0 ? void 0 : plugins.requireLegacy) {

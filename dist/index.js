@@ -14,7 +14,7 @@ class ChartJSNodeCanvas {
         const canvas = freshRequire_1.freshRequire('canvas');
         this._createCanvas = canvas.createCanvas;
         this._registerFont = canvas.registerFont;
-        this._type = options.type;
+        this._type = options.type && options.type.toLowerCase();
         this._chartJs = this.initialize(options.plugins, options.chartCallback);
     }
     /**

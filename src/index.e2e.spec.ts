@@ -10,9 +10,9 @@ import { ChartConfiguration } from 'chart.js';
 import { freshRequire } from './freshRequire';
 import resemble from 'node-resemble-js';
 
-import { CanvasRenderService, ChartCallback } from './';
+import { ChartJSNodeCanvas, ChartCallback } from './';
 
-describe(CanvasRenderService.name, () => {
+describe(ChartJSNodeCanvas.name, () => {
 
 	const chartColors = {
 		red: 'rgb(255, 99, 132)',
@@ -72,14 +72,14 @@ describe(CanvasRenderService.name, () => {
 	};
 
 	it('works with render to buffer', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const actual = await canvasRenderService.renderToBuffer(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'render-to-buffer');
 	});
 
 	it('works with render to data url', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const actual = await canvasRenderService.renderToDataURL(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const actual = await chartJSNodeCanvas.renderToDataURL(configuration);
 		const extension = '.txt';
 		const fileName = 'render-to-data-URL';
 		const fileNameWithExtension = fileName + extension;
@@ -97,19 +97,19 @@ describe(CanvasRenderService.name, () => {
 	});
 
 	it('works with render to stream', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-		const stream = canvasRenderService.renderToStream(configuration);
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+		const stream = chartJSNodeCanvas.renderToStream(configuration);
 		const actual = await streamToBuffer(stream);
 		await assertImage(actual, 'render-to-stream');
 	});
 
 	it('works with registering plugin', async () => {
-		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-			// (global as any).Chart = ChartJS;
-			ChartJS.plugins.register(freshRequire('chartjs-plugin-annotation'));
-			// delete (global as any).Chart;
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, plugins: {
+				modern: ['chartjs-plugin-annotation']
+			}
 		});
-		const actual = await canvasRenderService.renderToBuffer({
+		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -186,19 +186,14 @@ describe(CanvasRenderService.name, () => {
 	});
 
 	it('works with self registering plugin', async () => {
-		const chartJsFactory = () => {
-			const chartJS = require('chart.js');
-			require('chartjs-plugin-datalabels');
-			delete require.cache[require.resolve('chart.js')];
-			delete require.cache[require.resolve('chartjs-plugin-datalabels')];
-			return chartJS;
-		};
-		const canvasRenderService = new CanvasRenderService(width, height, (/*ChartJS*/) => {
-			// (global as any).Chart = ChartJS;
-			// ChartJS.plugins.register(freshRequire('chartjs-plugin-datalabels', require));
-			// delete (global as any).Chart;
-		}, undefined, chartJsFactory);
-		const actual = await canvasRenderService.renderToBuffer({
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, plugins: {
+				requireLegacy: [
+					'chartjs-plugin-datalabels'
+				]
+			}
+		});
+		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
@@ -251,6 +246,19 @@ describe(CanvasRenderService.name, () => {
 		await assertImage(actual, 'chartjs-plugin-datalabels');
 	});
 
+	it('works with global variable plugin', async () => {
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, plugins: {
+				globalVariableLegacy: [
+					'chartjs-plugin-crosshair'
+				]
+			}
+		});
+		// const actual = await chartJSNodeCanvas.renderToBuffer({
+		// });
+		// await assertImage(actual, 'chartjs-plugin-funnel');
+	});
+
 	it('works with custom font', async () => {
 		const configuration: ChartConfiguration = {
 			type: 'bar',
@@ -293,11 +301,13 @@ describe(CanvasRenderService.name, () => {
 				}
 			} as any
 		};
-		const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-			ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, chartCallback: (ChartJS) => {
+				ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+			}
 		});
-		canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
-		const actual = await canvasRenderService.renderToBuffer(configuration);
+		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'font');
 	});
 
@@ -309,8 +319,8 @@ describe(CanvasRenderService.name, () => {
 		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
 			const heapDiff = new memwatch.HeapDiff();
 			console.log('generated heap for iteration ' + (iteration + 1));
-			const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+			const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
+			return ChartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
 				.then(() => {
 					const diff = heapDiff.end();
 					console.log('generated diff for iteration ' + (iteration + 1));
@@ -324,11 +334,11 @@ describe(CanvasRenderService.name, () => {
 
 	it('does not leak with same instance', async () => {
 
-		const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
 		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
 			const heapDiff = new memwatch.HeapDiff();
 			console.log('generated heap for iteration ' + (iteration + 1));
-			return canvasRenderService.renderToBuffer(configuration, 'image/png')
+			return ChartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
 				.then(() => {
 					const diff = heapDiff.end();
 					console.log('generated diff for iteration ' + (iteration + 1));

@@ -38,7 +38,7 @@ npm i chartjs-node-canvas chart.js
 
 This is limited by the upstream dependency [canvas](https://github.com/Automattic/node-canvas).
 
-See the `package.json` `engines` section for the current supported Node version. This is not limited using `engineStrict` so you can try a new version if you like. You will need to do a `npm rebuild` to rebuild the canvas binaries.
+See the GitHub Actions [yml](.github/workflows/nodejs.yml) section for the current supported Node version(s). You will need to do a `npm rebuild` to rebuild the canvas binaries.
 
 ## Features
 
@@ -78,11 +78,11 @@ See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/AP
 ## Usage
 
 ```js
-const { CanvasRenderService } = require('chartjs-node-canvas');
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 
 const width = 400; //px
 const height = 400; //px
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => { });
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
 
 (async () => {
     const configuration = {
@@ -96,19 +96,17 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 
 ### Memory Management
 
-Every instance of `CanvasRenderService` creates its own [canvas](https://github.com/Automattic/node-canvas). To ensure efficient memory and GC use make sure your implementation creates as few instances as possible and reuses them:
+Every instance of `ChartJSNodeCanvas` creates its own [canvas](https://github.com/Automattic/node-canvas). To ensure efficient memory and GC use make sure your implementation creates as few instances as possible and reuses them:
 
 ```js
-const { CanvasRenderService } = require('chartjs-node-canvas');
-
 // Re-use one service, or as many as you need for different canvas size requirements
-const smallCanvasRenderService = new CanvasRenderService(400, 400);
-const bigCanvasRenderService = new CanvasRenderService(2000, 2000);
+const smallChartJSNodeCanvas = new ChartJSNodeCanvas({ width: 400, height: 400 });
+const bigCChartJSNodeCanvas = new ChartJSNodeCanvas({ width: 2000, height: 2000 });
 
 // Expose just the 'render' methods to downstream code so they don't have to worry about life-cycle management.
 exports = {
-    renderSmallChart: (configuration) => smallCanvasRenderService.renderToBuffer(configuration),
-    renderBigChart: (configuration) => bigCanvasRenderService.renderToBuffer(configuration)
+    renderSmallChart: (configuration) => smallChartJSNodeCanvas.renderToBuffer(configuration),
+    renderBigChart: (configuration) => bigCChartJSNodeCanvas.renderToBuffer(configuration)
 };
 ```
 
@@ -117,11 +115,13 @@ exports = {
 Just use the ChartJS reference in the callback:
 
 ```js
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ 
+    width, height, chartCallback: (ChartJS) => {
     // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
     ChartJS.controllers.MyType = Chart.DatasetController.extend({
         // chart implementation
     });
+}
 });
 ```
 
@@ -130,10 +130,10 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 Just use the ChartJS reference in the callback:
 
 ```js
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // Global config example: https://www.chartjs.org/docs/latest/configuration/
     ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
-});
+} });
 ```
 
 ### Custom Fonts
@@ -141,87 +141,86 @@ const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => 
 Just use the `registerFont` method:
 
 ```js
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback: (ChartJS) => {
     // Just example usage
     ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
 });
 // Register before rendering any charts
-canvasRenderService.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 ```
 
 See the node-canvas [docs](https://github.com/Automattic/node-canvas#registerfont) and the chart js [docs](https://www.chartjs.org/docs/latest/general/fonts.html).
 
 ### Loading plugins
 
+This library is designed to make loading plugins as simple as possible. For legacy plugins, you should just be able to add the module name to the appropriate array option and the library handles the rest.
+
+The Chart.JS [plugin API](https://www.chartjs.org/docs/latest/developers/plugins.html) has changed over time and this requires compatibility options for the different ways plugins have been historically loaded. ChartJS Node Canvas has a `plugin` option with specifiers for the different ways supported plugin loading methods are handled. If you are not sure about your plugin, just try the different ones until your plugin loads:
+
 #### Newer plugins
 
-Just use the ChartJS reference in the callback:
+Let `ChartJSNodeCanvas` manage the lifecycle of the plugin itself, each instance will have a separate instance of the plugin:
 
 ```js
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-    // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
-    ChartJS.plugins.register({
-        // plugin implementation
-    });
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    modern: ['chartjs-plugin-annotation']
+});
+```
+
+You want to share the plugin instance, this may cause unwanted issues, use at own risk:
+
+```js
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    modern: [require('chartjs-plugin-annotation')]
 });
 ```
 
 #### Older plugins
 
-The key to getting older plugins working is knowing that this package uses an equivalent to [fresh-require](https://www.npmjs.com/package/fresh-require) by default to retrieve its version of `chart.js`.
-
-There are some tools you can use to solve any issues with the way older ChartJS plugins that do not use the newer global plugin registration API, and instead either load chartjs itself or expect a global variable:
-
 ---
 
-1. Temporary global variable for ChartJs:
+1. Plugin that expects a global Chart variable.
 
 ```js
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-    global.Chart = ChartJS;
-    require('<chart plugin>');
-    delete global.Chart;
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    requireChartJSLegacy: ['<some plugin>']
 });
 ```
 
-This should work for any plugin that expects a global Chart variable.
-
 ---
 
-1. Chart factory function for `CanvasRenderService`:
+1. Plugins that `require` ChartJS themselves.
 
 ```js
-const chartJsFactory = () => {
-    const chartJS = require('chart.js');
-    require('<chart plugin>');
-        // Clear the require cache so to allow `CanvasRenderService` separate instances of ChartJS and plugins.
-    delete require.cache[require.resolve('chart.js')];
-    delete require.cache[require.resolve('chart plugin')];
-    return chartJS;
-};
-const canvasRenderService = new CanvasRenderService(width, height, undefined, undefined, chartJsFactory);
-```
-
-This will work for plugins that `require` ChartJS themselves.
-
----
-
-1. Register plugin directly with ChartJS:
-
-```js
-const freshRequire = require('fresh-require');
-
-const canvasRenderService = new CanvasRenderService(width, height, (ChartJS) => {
-    // Use 'fresh-require' to allow `CanvasRenderService` separate instances of ChartJS and plugins.
-    ChartJS.plugins.register(freshRequire('<chart plugin>', require));
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    globalVariableLegacy: ['chartjs-plugin-crosshair']
 });
 ```
 
-This will work with plugins that just return a plugin object and do no specific loading themselves.
+---
+
+3. Register plugin directly with ChartJS:
+
+```js
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    requireLegacy: ['chartjs-plugin-datalabels']
+});
+```
 
 ---
 
-These approaches can be combined also.
+These approaches can be combined also:
+
+```js
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+    modern: ['chartjs-plugin-annotation'],
+
+
+    requireLegacy: ['chartjs-plugin-datalabels']
+});
+```
+
+See the [tests](src/index.e2e.spec.ts#106) for some examples.
 
 ## Full Example
 

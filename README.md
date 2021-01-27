@@ -46,7 +46,7 @@ See the GitHub Actions [yml](.github/workflows/nodejs.yml) section for the curre
 * No heavy DOM virtualization libraries, thanks to a [pull request](https://github.com/chartjs/Chart.js/pull/5324) to chart.js allowing it to run natively on node, requiring only a Canvas API.
 * Chart JS is a peer dependency, so you can bump and manage it yourself.
 * Provides a callback with the global ChartJS variable, so you can use the [Global Configuration](https://www.chartjs.org/docs/latest/configuration/#global-configuration).
-* Uses (similar to) [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `CanvasRenderService`, so you can mutate the ChartJS global variable separately within each instance.
+* Uses (similar to) [fresh-require](https://www.npmjs.com/package/fresh-require) for each instance of `ChartJSNodeCanvas`, so you can mutate the ChartJS global variable separately within each instance.
 * Support for custom fonts.
 
 ## Limitations
@@ -68,8 +68,8 @@ You need to install [ImageMagik](https://imagemagick.org/script/download.php).
 
 For some unknown reason canvas requires use of the [sync](https://github.com/Automattic/node-canvas#canvastobuffer) API's to use SVG's or PDF's. This libraries which support these are:
 
-* [renderToBufferSync](./API.md#CanvasRenderService+renderToBufferSync) ('application/pdf' | 'image/svg+xml')
-* [renderToStream](./API.md#CanvasRenderService+renderToStream) ('application/pdf')
+* [renderToBufferSync](./API.md#ChartJSNodeCanvas+renderToBufferSync) ('application/pdf' | 'image/svg+xml')
+* [renderToStream](./API.md#ChartJSNodeCanvas+renderToStream) ('application/pdf')
 
 ## API
 
@@ -88,9 +88,9 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
     const configuration = {
         ... // See https://www.chartjs.org/docs/latest/configuration
     };
-    const image = await canvasRenderService.renderToBuffer(configuration);
-    const dataUrl = await canvasRenderService.renderToDataURL(configuration);
-    const stream = canvasRenderService.renderToStream(configuration);
+    const image = await chartJSNodeCanvas.renderToBuffer(configuration);
+    const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
+    const stream = chartJSNodeCanvas.renderToStream(configuration);
 })();
 ```
 
@@ -115,7 +115,7 @@ exports = {
 Just use the ChartJS reference in the callback:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ 
+const chartJSNodeCanvas = new ChartJSNodeCanvas({
     width, height, chartCallback: (ChartJS) => {
     // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
     ChartJS.controllers.MyType = Chart.DatasetController.extend({
@@ -225,7 +225,7 @@ See the [tests](src/index.e2e.spec.ts#106) for some examples.
 ## Full Example
 
 ```js
-const { CanvasRenderService } = require('chartjs-node-canvas');
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 
 const width = 400;
 const height = 400;
@@ -242,7 +242,7 @@ const chartCallback = (ChartJS) => {
         // chart implementation
     });
 };
-const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
 
 (async () => {
     const configuration = {
@@ -282,9 +282,9 @@ const canvasRenderService = new CanvasRenderService(width, height, chartCallback
             }
         }
     };
-    const image = await canvasRenderService.renderToBuffer(configuration);
-    const dataUrl = await canvasRenderService.renderToDataURL(configuration);
-    const stream = canvasRenderService.renderToStream(configuration);
+    const image = await chartJSNodeCanvas.renderToBuffer(configuration);
+    const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
+    const stream = chartJSNodeCanvas.renderToStream(configuration);
 })();
 ```
 

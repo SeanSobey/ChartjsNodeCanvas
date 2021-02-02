@@ -74,6 +74,16 @@ export class ChartJSNodeCanvas {
 	 */
 	constructor(options: ChartJSNodeCanvasOptions) {
 
+		if (options === null || typeof (options) !== 'object') {
+			throw new Error('An options parameter object is required');
+		}
+		if (!options.width || typeof (options.width) !== 'number') {
+			throw new Error('A width option is required');
+		}
+		if (!options.height || typeof (options.height) !== 'number') {
+			throw new Error('A height option is required');
+		}
+
 		this._width = options.width;
 		this._height = options.height;
 		const canvas = freshRequire('canvas');

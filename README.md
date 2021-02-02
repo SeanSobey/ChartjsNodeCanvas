@@ -75,6 +75,10 @@ For some unknown reason canvas requires use of the [sync](https://github.com/Aut
 
 See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/API.md).
 
+### V3.0
+
+Note there are breaking changes in the version 3 bump, see the updated API docs and [Change Log](./CHANGELOG.md) for details.
+
 ## Usage
 
 ```js
@@ -141,10 +145,10 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: 
 Just use the `registerFont` method:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback: (ChartJS) => {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // Just example usage
     ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
-});
+} });
 // Register before rendering any charts
 chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
 ```
@@ -162,17 +166,17 @@ The Chart.JS [plugin API](https://www.chartjs.org/docs/latest/developers/plugins
 Let `ChartJSNodeCanvas` manage the lifecycle of the plugin itself, each instance will have a separate instance of the plugin:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     modern: ['chartjs-plugin-annotation']
-});
+} });
 ```
 
 You want to share the plugin instance, this may cause unwanted issues, use at own risk:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     modern: [require('chartjs-plugin-annotation')]
-});
+} });
 ```
 
 #### Older plugins
@@ -182,9 +186,9 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
 1. Plugin that expects a global Chart variable.
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     requireChartJSLegacy: ['<some plugin>']
-});
+}});
 ```
 
 ---
@@ -192,9 +196,9 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
 1. Plugins that `require` ChartJS themselves.
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     globalVariableLegacy: ['chartjs-plugin-crosshair']
-});
+} });
 ```
 
 ---
@@ -202,9 +206,9 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
 3. Register plugin directly with ChartJS:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     requireLegacy: ['chartjs-plugin-datalabels']
-});
+} });
 ```
 
 ---
@@ -212,12 +216,10 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
 These approaches can be combined also:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, plugins: {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     modern: ['chartjs-plugin-annotation'],
-
-
     requireLegacy: ['chartjs-plugin-datalabels']
-});
+} });
 ```
 
 See the [tests](src/index.e2e.spec.ts#106) for some examples.
@@ -242,7 +244,7 @@ const chartCallback = (ChartJS) => {
         // chart implementation
     });
 };
-const chartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 
 (async () => {
     const configuration = {

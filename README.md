@@ -71,6 +71,14 @@ For some unknown reason canvas requires use of the [sync](https://github.com/Aut
 * [renderToBufferSync](./API.md#ChartJSNodeCanvas+renderToBufferSync) ('application/pdf' | 'image/svg+xml')
 * [renderToStream](./API.md#ChartJSNodeCanvas+renderToStream) ('application/pdf')
 
+You also need to set the canvas type when you initialize the `ChartJSNodeCanvas` instance like the following:
+
+```js
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
+
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ type: 'svg', width: 800, height: 600 }); 
+```
+
 ## API
 
 See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/API.md).

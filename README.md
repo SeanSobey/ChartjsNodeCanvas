@@ -64,8 +64,6 @@ Chart.defaults.global.responsive = false;
 
 ### SVG and PDF
 
-You need to install [ImageMagik](https://imagemagick.org/script/download.php).
-
 For some unknown reason canvas requires use of the [sync](https://github.com/Automattic/node-canvas#canvastobuffer) API's to use SVG's or PDF's. This libraries which support these are:
 
 * [renderToBufferSync](./API.md#ChartJSNodeCanvas+renderToBufferSync) ('application/pdf' | 'image/svg+xml')

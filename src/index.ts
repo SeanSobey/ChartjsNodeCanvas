@@ -132,8 +132,8 @@ export class ChartJSNodeCanvas {
 			throw new Error('Canvas is null');
 		}
 		const canvas = chart.canvas as Canvas;
-		chart.destroy();
 		const dataUrl = canvas.toDataURL(mimeType);
+		chart.destroy();
 		return dataUrl;
 	}
 

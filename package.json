@@ -17,7 +17,6 @@
     "watch-build": "tsc --watch",
     "watch-clean": "nodemon --watch ./src -e ts --exec npm run-script clean",
     "watch-test": "nodemon --watch ./dist -e js --exec npm run-script test",
-    "build-and-release": "npm run-script build && npm run-script docs && npm run-script release",
     "docs": "jsdoc2md dist/index.js > API.md"
   },
   "bugs": {

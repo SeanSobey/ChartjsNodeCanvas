@@ -48,6 +48,10 @@
     },
     {
       "type": "npm",
+      "script": "docs"
+    },
+    {
+      "type": "npm",
       "script": "watch-build",
       "dependsOn": "nvm",
       "group": "build",

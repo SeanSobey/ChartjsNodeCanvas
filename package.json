@@ -17,7 +17,7 @@
     "watch-build": "tsc --watch",
     "watch-clean": "nodemon --watch ./src -e ts --exec npm run-script clean",
     "watch-test": "nodemon --watch ./dist -e js --exec npm run-script test",
-    "docs": "jsdoc2md dist/index.js > API.md"
+    "docs": "jsdoc2md dist/new.js > API.new.md && jsdoc2md dist/legacy.js > API.legacy.md"
   },
   "bugs": {
     "url": "https://github.com/SeanSobey/ChartjsNodeCanvas/issues",

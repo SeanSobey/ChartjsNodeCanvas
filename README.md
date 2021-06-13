@@ -201,17 +201,13 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
 }});
 ```
 
----
-
-1. Plugins that `require` ChartJS themselves.
+2. Plugins that `require` ChartJS themselves.
 
 ```js
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
     globalVariableLegacy: ['chartjs-plugin-crosshair']
 } });
 ```
-
----
 
 3. Register plugin directly with ChartJS:
 

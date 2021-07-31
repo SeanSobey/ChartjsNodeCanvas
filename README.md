@@ -19,14 +19,14 @@ Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs
 
 ## Contents
 
-1. [Installation](#Installation)
-2. [Node JS version](#Node%20JS%20version)
-3. [Features](#Features)
-4. [Limitations](#Limitations)
-5. [API](#API)
-6. [Usage](#Usage)
-7. [Full Example](#Full%20Example)
-8. [Known Issues](#Known%20Issues)
+1. [Installation](#installation)
+2. [Node JS version](#node-js-version)
+3. [Features](#features)
+4. [Limitations](#limitations)
+5. [API](#api)
+6. [Usage](#usage)
+7. [Full Example](#full-example)
+8. [Known Issues](#known-issues)
 
 ## Installation
 

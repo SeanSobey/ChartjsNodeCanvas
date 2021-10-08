@@ -20,7 +20,7 @@ class ChartJSNodeCanvas {
         }
         this._width = options.width;
         this._height = options.height;
-        const canvas = freshRequire_1.freshRequire('canvas');
+        const canvas = (0, freshRequire_1.freshRequire)('canvas');
         this._createCanvas = canvas.createCanvas;
         this._registerFont = canvas.registerFont;
         this._type = options.type && options.type.toLowerCase();
@@ -153,14 +153,14 @@ class ChartJSNodeCanvas {
         if (plugins === null || plugins === void 0 ? void 0 : plugins.globalVariableLegacy) {
             global.Chart = chartJs;
             for (const plugin of plugins.globalVariableLegacy) {
-                freshRequire_1.freshRequire(plugin);
+                (0, freshRequire_1.freshRequire)(plugin);
             }
             delete global.Chart;
         }
         if (plugins === null || plugins === void 0 ? void 0 : plugins.modern) {
             for (const plugin of plugins.modern) {
                 if (typeof plugin === 'string') {
-                    chartJs.register(freshRequire_1.freshRequire(plugin));
+                    chartJs.register((0, freshRequire_1.freshRequire)(plugin));
                 }
                 else {
                     chartJs.register(plugin);
@@ -169,7 +169,7 @@ class ChartJSNodeCanvas {
         }
         if (plugins === null || plugins === void 0 ? void 0 : plugins.requireLegacy) {
             for (const plugin of plugins.requireLegacy) {
-                chartJs.register(freshRequire_1.freshRequire(plugin));
+                chartJs.register((0, freshRequire_1.freshRequire)(plugin));
             }
         }
         if (chartCallback) {

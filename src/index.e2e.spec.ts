@@ -1,6 +1,6 @@
 import { strict as assert, AssertionError } from 'assert';
 import { promises as fs } from 'fs';
-import { platform } from 'os';
+import { platform, EOL } from 'os';
 import { join } from 'path';
 import { promisify } from 'util';
 import { Readable } from 'stream';
@@ -53,12 +53,12 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: [{
+				yAxes: {
 					ticks: {
 						beginAtZero: true,
 						callback: (value: number) => '$' + value
 					} as any
-				}]
+				}
 			}
 		},
 		plugins: {
@@ -67,8 +67,8 @@ describe(ChartJSNodeCanvas.name, () => {
 		} as any
 	};
 	const chartCallback: ChartCallback = (ChartJS) => {
-		ChartJS.defaults.global.responsive = true;
-		ChartJS.defaults.global.maintainAspectRatio = false;
+		ChartJS.defaults.responsive = true;
+		ChartJS.defaults.maintainAspectRatio = false;
 	};
 
 	it('works with render to buffer', async () => {
@@ -83,15 +83,19 @@ describe(ChartJSNodeCanvas.name, () => {
 		const extension = '.txt';
 		const fileName = 'render-to-data-URL';
 		const fileNameWithExtension = fileName + extension;
-		const testDataPath = join(process.cwd(), 'testData', platform(), fileName + extension);
-		const expected = await fs.readFile(testDataPath, 'utf8');
+		const expectedDataPath = join(process.cwd(), 'testData', platform(), fileName + extension);
+		const expected = await fs.readFile(expectedDataPath, 'utf8');
 		const result = actual === expected;
 		if (!result) {
-			await fs.writeFile(testDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension), actual);
+			const actualDataPath = expectedDataPath.replace(fileNameWithExtension, fileName + '-actual' + extension);
+			await fs.writeFile(actualDataPath, actual);
+			const compare = `<div>Actual:</div>${EOL}<img src="${actual}">${EOL}<div>Expected:</div><img src="${expected}">`;
+			const compareDataPath = expectedDataPath.replace(fileNameWithExtension, fileName + '-compare.html');
+			await fs.writeFile(compareDataPath, compare);
 			throw new AssertionError({
-				message: `Expected data url to match '${testDataPath}'`,
-				actual,
-				expected,
+				message: `Expected data urls to match${EOL}See '${compareDataPath}'`,
+				actual: actualDataPath,
+				expected: expectedDataPath,
 			});
 		}
 	});
@@ -232,14 +236,14 @@ describe(ChartJSNodeCanvas.name, () => {
 						},
 						formatter: Math.round
 					}
-				},
+				} as any, // TODO: resolve type
 				scales: {
-					xAxes: [{
+					xAxes: {
 						stacked: true
-					}],
-					yAxes: [{
+					},
+					yAxes: {
 						stacked: true
-					}]
+					}
 				}
 			}
 		});
@@ -288,12 +292,12 @@ describe(ChartJSNodeCanvas.name, () => {
 			},
 			options: {
 				scales: {
-					yAxes: [{
+					yAxes: {
 						ticks: {
 							beginAtZero: true,
 							callback: (value: number) => '$' + value
 						} as any
-					}]
+					}
 				}
 			},
 			plugins: {
@@ -303,7 +307,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		};
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
 			width, height, chartCallback: (ChartJS) => {
-				ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
 			}
 		});
 		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });

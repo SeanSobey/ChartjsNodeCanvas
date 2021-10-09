@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
-    "@types/node": "^12.19.15",
+    "@types/node": "^16.10.3",
     "c8": "^7.4.0",
     "chart.js": "^3.5.1",
     "chartjs-plugin-annotation": "^1.0.2",

@@ -1,3 +1,4 @@
+/// <reference types="resemblejs" />
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';

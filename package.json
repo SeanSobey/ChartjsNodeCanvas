@@ -55,7 +55,6 @@
     "jsdoc-to-markdown": "^5.0.3",
     "mocha": "^7.2.0",
     "nodemon": "^2.0.13",
-    "pngjs": "^3.4.0",
     "release-it": "^14.11.6",
     "resemblejs": "^4.0.0",
     "source-map-support": "^0.5.20",

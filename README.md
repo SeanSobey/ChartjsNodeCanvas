@@ -58,8 +58,8 @@ Chart animation (and responsive resize) is disabled by this library. This is nec
 This is the same as:
 
 ```js
-Chart.defaults.global.animation = false;
-Chart.defaults.global.responsive = false;
+Chart.defaults.animation = false;
+Chart.defaults.responsive = false;
 ```
 
 ### SVG and PDF
@@ -121,13 +121,14 @@ exports = {
 Just use the ChartJS reference in the callback:
 
 ```js
-const chartJSNodeCanvas = new ChartJSNodeCanvas({
-    width, height, chartCallback: (ChartJS) => {
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
-    ChartJS.controllers.MyType = Chart.DatasetController.extend({
-        // chart implementation
-    });
-}
+    class MyType extends Chart.DatasetController {
+
+    }
+
+    Chart.register(MyType);
+    }
 });
 ```
 
@@ -138,7 +139,7 @@ Just use the ChartJS reference in the callback:
 ```js
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // Global config example: https://www.chartjs.org/docs/latest/configuration/
-    ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
+    ChartJS.defaults.elements.line.borderWidth = 2;
 } });
 ```
 
@@ -149,7 +150,7 @@ Just use the `registerFont` method:
 ```js
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // Just example usage
-    ChartJS.defaults.global.defaultFontFamily = 'VTKS UNAMOUR';
+    ChartJS.global.defaultFontFamily = 'VTKS UNAMOUR';
 } });
 // Register before rendering any charts
 chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
@@ -221,72 +222,6 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, plugins: {
 ```
 
 See the [tests](src/index.e2e.spec.ts#106) for some examples.
-
-## Full Example
-
-```js
-const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
-
-const width = 400;
-const height = 400;
-const chartCallback = (ChartJS) => {
-
-    // Global config example: https://www.chartjs.org/docs/latest/configuration/
-    ChartJS.defaults.global.elements.rectangle.borderWidth = 2;
-    // Global plugin example: https://www.chartjs.org/docs/latest/developers/plugins.html
-    ChartJS.plugins.register({
-        // plugin implementation
-    });
-    // New chart type example: https://www.chartjs.org/docs/latest/developers/charts.html
-    ChartJS.controllers.MyType = ChartJS.DatasetController.extend({
-        // chart implementation
-    });
-};
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
-
-(async () => {
-    const configuration = {
-        type: 'bar',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        callback: (value) => '$' + value
-                    }
-                }]
-            }
-        }
-    };
-    const image = await chartJSNodeCanvas.renderToBuffer(configuration);
-    const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
-    const stream = chartJSNodeCanvas.renderToStream(configuration);
-})();
-```
 
 ## Known Issues
 

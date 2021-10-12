@@ -1,4 +1,4 @@
-FROM node:11.14.0-slim
+FROM node:14.18.0-slim
 
 LABEL maintainer = "sean.m.sobey@gmail.com"
 

@@ -48,12 +48,12 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: [{
+				yAxes: {
 					ticks: {
 						beginAtZero: true,
 						callback: (value: number) => '$' + value
 					} as any
-				}]
+				}
 			}
 		},
 		plugins: {
@@ -66,8 +66,8 @@ describe(ChartJSNodeCanvas.name, () => {
 
 		const chartCallback: ChartCallback = (ChartJS) => {
 
-			ChartJS.defaults.global.responsive = true;
-			ChartJS.defaults.global.maintainAspectRatio = false;
+			ChartJS.defaults.responsive = true;
+			ChartJS.defaults.maintainAspectRatio = false;
 		};
 		return new ChartJSNodeCanvas({ width, height, chartCallback, type, plugins });
 	}

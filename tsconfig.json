@@ -24,6 +24,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
 
     /* Module Resolution Options */
     "moduleResolution": "node",
@@ -43,5 +44,8 @@
   },
   "include": [
     "./src/**/*"
-  ]
+  ],
+  "buildOptions": {
+    "verbose": true
+  }
 }

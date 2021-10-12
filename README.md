@@ -81,14 +81,6 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ type: 'svg', width: 800, heigh
 
 See the [API docs](https://github.com/SeanSobey/ChartjsNodeCanvas/blob/master/API.md).
 
-### V3.0
-
-Note, there are breaking changes in the version 3 bump, see the updated API docs and [Change Log](./CHANGELOG.md) for details.
-
-### V3.1.1 and V3.2.0
-
-Note, there were issues with the V3 deploy, see [#60](https://github.com/SeanSobey/ChartjsNodeCanvas/issues/60), to address this the legacy API was added back.
-
 ## Usage
 
 ```js

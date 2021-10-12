@@ -1,2 +1,1 @@
-/// <reference types="node" />
-export declare const freshRequire: NodeRequireFunction;
+export declare const freshRequire: (id: string) => any;

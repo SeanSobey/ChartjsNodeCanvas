@@ -1,6 +1,6 @@
 // https://github.com/hughsk/fresh-require
 
-export const freshRequire: NodeRequireFunction = (file) => {
+export const freshRequire: /*NodeJS.Require*/ (id: string) => any = (file) => {
 
 	const resolvedFile = require.resolve(file);
 	const temp = require.cache[resolvedFile];

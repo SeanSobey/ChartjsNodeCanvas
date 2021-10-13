@@ -2,7 +2,6 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
 import { createCanvas, registerFont } from 'canvas';
 import { freshRequire } from './freshRequire';
-import { loadavg } from 'os';
 
 export type ChartJSNodeCanvasPlugins = {
 	/**
@@ -268,7 +267,7 @@ export class ChartJSNodeCanvas {
 	private renderChart(configuration: ChartConfiguration): ChartJS {
 
 		const canvas = this._createCanvas(this._width, this._height, this._type);
-		canvas.style = {};
+		(canvas as any).style = (canvas as any).style || {};
 		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;

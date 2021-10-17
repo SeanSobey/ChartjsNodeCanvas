@@ -54,6 +54,7 @@ export declare class ChartJSNodeCanvas {
     private readonly _chartJs;
     private readonly _createCanvas;
     private readonly _registerFont;
+    private readonly _image;
     private readonly _type?;
     /**
      * Create a new instance of CanvasRenderService.

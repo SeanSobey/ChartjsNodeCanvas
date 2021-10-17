@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
-import { createCanvas, registerFont } from 'canvas';
+import { createCanvas, registerFont, Image } from 'canvas';
 import { freshRequire } from './freshRequire';
 import { BackgroundColourPlugin } from './backgroundColourPlugin';
 
@@ -70,6 +70,7 @@ export class ChartJSNodeCanvas {
 	private readonly _chartJs: typeof ChartJS;
 	private readonly _createCanvas: typeof createCanvas;
 	private readonly _registerFont: typeof registerFont;
+	private readonly _image: typeof Image;
 	private readonly _type?: CanvasType;
 
 	/**
@@ -94,6 +95,7 @@ export class ChartJSNodeCanvas {
 		const canvas = freshRequire('canvas');
 		this._createCanvas = canvas.createCanvas;
 		this._registerFont = canvas.registerFont;
+		this._image = canvas.Image;
 		this._type = options.type && options.type.toLowerCase() as CanvasType;
 		this._chartJs = this.initialize(options);
 	}
@@ -283,6 +285,9 @@ export class ChartJSNodeCanvas {
 		configuration.options.responsive = false;
 		configuration.options.animation = false as any;
 		const context = canvas.getContext('2d');
-		return new this._chartJs(context, configuration);
+		(global as any).Image = this._image; // Some plugins use this API
+		const chart = new this._chartJs(context, configuration);
+		delete (global as any).Image;
+		return chart;
 	}
 }

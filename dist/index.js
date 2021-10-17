@@ -24,6 +24,7 @@ class ChartJSNodeCanvas {
         const canvas = (0, freshRequire_1.freshRequire)('canvas');
         this._createCanvas = canvas.createCanvas;
         this._registerFont = canvas.registerFont;
+        this._image = canvas.Image;
         this._type = options.type && options.type.toLowerCase();
         this._chartJs = this.initialize(options);
     }
@@ -191,7 +192,10 @@ class ChartJSNodeCanvas {
         configuration.options.responsive = false;
         configuration.options.animation = false;
         const context = canvas.getContext('2d');
-        return new this._chartJs(context, configuration);
+        global.Image = this._image; // Some plugins use this API
+        const chart = new this._chartJs(context, configuration);
+        delete global.Image;
+        return chart;
     }
 }
 exports.ChartJSNodeCanvas = ChartJSNodeCanvas;

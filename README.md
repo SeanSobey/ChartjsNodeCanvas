@@ -100,6 +100,8 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
 })();
 ```
 
+Also see the [example](./src/example.ts) and the generated [image](./example.png).
+
 ### Memory Management
 
 Every instance of `ChartJSNodeCanvas` creates its own [canvas](https://github.com/Automattic/node-canvas). To ensure efficient memory and GC use make sure your implementation creates as few instances as possible and reuses them:

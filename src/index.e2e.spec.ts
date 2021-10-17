@@ -318,6 +318,13 @@ describe(ChartJSNodeCanvas.name, () => {
 		await assertImage(actual, 'font');
 	});
 
+	it('works with background color', async () => {
+
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback, backgroundColour: 'white' });
+		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
+		await assertImage(actual, 'background-color');
+	});
+
 	// TODO: Replace node-memwatch with a new lib!
 
 	/*

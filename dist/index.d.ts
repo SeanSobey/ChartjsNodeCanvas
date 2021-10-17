@@ -43,6 +43,10 @@ export interface ChartJSNodeCanvasOptions {
      * Optional plugins to register.
      */
     readonly plugins?: ChartJSNodeCanvasPlugins;
+    /**
+     * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts.
+     */
+    readonly backgroundColour?: string;
 }
 export declare class ChartJSNodeCanvas {
     private readonly _width;

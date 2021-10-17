@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^16.10.4",
+    "@types/offscreencanvas": "^2019.6.4",
     "c8": "^7.10.0",
     "chart.js": "^3.5.1",
     "chartjs-plugin-annotation": "^1.0.2",

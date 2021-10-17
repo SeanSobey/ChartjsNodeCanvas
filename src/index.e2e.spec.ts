@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
 import { ChartConfiguration } from 'chart.js';
-import resemble from 'resemblejs';
+import resemble, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult } from 'resemblejs';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
 
@@ -416,10 +416,11 @@ describe(ChartJSNodeCanvas.name, () => {
 	}
 
 	// resemblejs/compareImages
-	function compareImages(image1: string | Buffer, image2: string | Buffer, options?: resemble.ResembleSingleCallbackComparisonOptions)
-		: Promise<resemble.ResembleSingleCallbackComparisonResult> {
+	//function compareImages(image1: string | Buffer, image2: string | Buffer, options?: ResembleSingleCallbackComparisonOptions): Promise<ResembleSingleCallbackComparisonResult> {
+	function compareImages(image1: string | Buffer, image2: string | Buffer, options?: any): Promise<any> {
 			return new Promise((resolve, reject) => {
-				resemble.compare(image1, image2, options || {}, (err, data) => {
+				//resemble.compare(image1, image2, options || {}, (err, data) => {
+				resemble.compare(image1, image2, options || {}, (err: any, data: any) => {
 					if (err) {
 						reject(err);
 					} else {

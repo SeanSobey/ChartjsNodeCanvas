@@ -58,7 +58,7 @@ export interface ChartJSNodeCanvasOptions {
 	readonly plugins?: ChartJSNodeCanvasPlugins;
 
 	/**
-	 * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts.
+	 * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
 	 */
 	readonly backgroundColour?: string;
 }

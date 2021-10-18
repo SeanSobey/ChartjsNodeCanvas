@@ -34,11 +34,15 @@ Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs
 npm i chartjs-node-canvas chart.js
 ```
 
-## Node JS version
+### Node JS version
 
 This is limited by the upstream dependency [canvas](https://github.com/Automattic/node-canvas).
 
 See the GitHub Actions [yml](.github/workflows/nodejs.yml) section for the current supported Node version(s). You will need to do a `npm rebuild` to rebuild the canvas binaries.
+
+### Charts.JS version
+
+Currently supports 3.x.x. You are given the ability to maintain the version yourself via peer dependency, but be aware that going above the specified [version](./package.json) might result in errors.
 
 ## Features
 
@@ -88,7 +92,8 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 
 const width = 400; //px
 const height = 400; //px
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+const backgroundColour = 'white'; // Uses https://www.w3schools.com/tags/canvas_fillstyle.asp
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
 
 (async () => {
     const configuration = {
@@ -159,6 +164,14 @@ chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UN
 ```
 
 See the node-canvas [docs](https://github.com/Automattic/node-canvas#registerfont) and the chart js [docs](https://www.chartjs.org/docs/latest/general/fonts.html).
+
+### Background color
+
+Due to the many issues and question this includes a [convenience plugin](./src/backgroundColourPlugin.ts) to fill the otherwise transparent background. It uses the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API;
+
+```js
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour: 'purple' });
+```
 
 ### Loading plugins
 

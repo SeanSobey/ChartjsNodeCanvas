@@ -1,4 +1,4 @@
-import { strict as assert, AssertionError } from 'assert';
+import { AssertionError } from 'assert';
 import { promises as fs } from 'fs';
 import { platform, EOL } from 'os';
 import { join } from 'path';
@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
 import { ChartConfiguration } from 'chart.js';
-import resemble, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult } from 'resemblejs';
+import resemble /*, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult }*/ from 'resemblejs';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
 
@@ -247,21 +247,27 @@ describe(ChartJSNodeCanvas.name, () => {
 		await assertImage(actual, 'chartjs-plugin-datalabels');
 	});
 
-	it.skip('works with global variable plugin', async () => {
-		const chartJSNodeCanvas = new ChartJSNodeCanvas({
-			width, height, backgroundColour: 'white', plugins: {
-				globalVariableLegacy: [
-					'chartjs-plugin-crosshair'
-				]
-			}
-		});
-		// const actual = await chartJSNodeCanvas.renderToBuffer({
-		// });
-		// await assertImage(actual, 'chartjs-plugin-funnel');
-	});
+	// it.skip('works with global variable plugin', async () => {
+	// 	const chartJSNodeCanvas = new ChartJSNodeCanvas({
+	// 		width, height, backgroundColour: 'white', plugins: {
+	// 			globalVariableLegacy: [
+	// 				'chartjs-plugin-crosshair'
+	// 			]
+	// 		}
+	// 	});
+	// 	const actual = await chartJSNodeCanvas.renderToBuffer({
+	// 	});
+	// 	await assertImage(actual, 'chartjs-plugin-funnel');
+	// });
 
 	it('works with custom font', async () => {
-		const configuration: ChartConfiguration = {
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			width, height, backgroundColour: 'white', chartCallback: (ChartJS) => {
+				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
+			}
+		});
+		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
 				labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -301,14 +307,7 @@ describe(ChartJSNodeCanvas.name, () => {
 				annotation: {
 				}
 			} as any
-		};
-		const chartJSNodeCanvas = new ChartJSNodeCanvas({
-			width, height, backgroundColour: 'white', chartCallback: (ChartJS) => {
-				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
-			}
 		});
-		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
-		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'font');
 	});
 

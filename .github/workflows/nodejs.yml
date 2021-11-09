@@ -26,6 +26,10 @@ jobs:
         Expand-Archive gtk.zip -DestinationPath "C:\GTK"
         Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
         .\libjpeg.exe /S
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        vs-version: '15.0'
     - name: NPM install
       run: npm ci
     - name: Build

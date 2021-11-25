@@ -1,7 +1,6 @@
 import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
-import { freshRequire } from './freshRequire';
 
 import { ChartJSNodeCanvas, ChartCallback, CanvasType, MimeType, ChartJSNodeCanvasPlugins } from './';
 
@@ -9,15 +8,15 @@ const assert = new Assert();
 
 describe(ChartJSNodeCanvas.name, () => {
 
-	const chartColors = {
-		red: 'rgb(255, 99, 132)',
-		orange: 'rgb(255, 159, 64)',
-		yellow: 'rgb(255, 205, 86)',
-		green: 'rgb(75, 192, 192)',
-		blue: 'rgb(54, 162, 235)',
-		purple: 'rgb(153, 102, 255)',
-		grey: 'rgb(201, 203, 207)'
-	};
+	// const chartColors = {
+	// 	red: 'rgb(255, 99, 132)',
+	// 	orange: 'rgb(255, 159, 64)',
+	// 	yellow: 'rgb(255, 205, 86)',
+	// 	green: 'rgb(75, 192, 192)',
+	// 	blue: 'rgb(54, 162, 235)',
+	// 	purple: 'rgb(153, 102, 255)',
+	// 	grey: 'rgb(201, 203, 207)'
+	// };
 	const width = 400;
 	const height = 400;
 	const configuration: ChartConfiguration = {

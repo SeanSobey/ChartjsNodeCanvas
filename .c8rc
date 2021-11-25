@@ -6,7 +6,8 @@
 		"json"
 	],
 	"exclude": [
-		"dist/**/*.spec.js"
+		"dist/**/*.spec.js",
+		"dist/example.js"
 	],
 	"include": [
 		"dist/**/*.js"

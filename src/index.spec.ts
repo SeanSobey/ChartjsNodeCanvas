@@ -71,7 +71,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		return new ChartJSNodeCanvas({ width, height, chartCallback, type, plugins });
 	}
 
-	const mimeTypes: ReadonlyArray<MimeType> = ['image/png', 'image/jpeg'];
+	const mimeTypes: ReadonlyArray<MimeType.PNG | MimeType.JPEG> = [MimeType.PNG, MimeType.JPEG];
 
 	describe(ChartJSNodeCanvas.prototype.renderToDataURL.name, () => {
 
@@ -152,7 +152,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			[undefined, mimeTypes],
 			['svg', ['image/svg+xml']],
 			['pdf', ['application/pdf']]
-		] as ReadonlyArray<[CanvasType, ReadonlyArray<MimeType | 'application/pdf' | 'image/svg+xml'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+		] as ReadonlyArray<[CanvasType, ReadonlyArray<MimeType>]>).forEach(([canvasType, extendedMimeTypes]) => {
 
 			describe(`given canvasType '${canvasType}'`, () => {
 
@@ -176,7 +176,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		([
 			[undefined, mimeTypes],
 			['pdf', ['application/pdf']]
-		] as ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType | 'application/pdf'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+		] as ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType.JPEG | MimeType.PNG | MimeType.PDF>]>).forEach(([canvasType, extendedMimeTypes]) => {
 
 			describe(`given canvasType '${canvasType}'`, () => {
 

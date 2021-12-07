@@ -1,8 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ChartJSNodeCanvas = void 0;
+exports.ChartJSNodeCanvas = exports.MimeType = void 0;
 const freshRequire_1 = require("./freshRequire");
 const backgroundColourPlugin_1 = require("./backgroundColourPlugin");
+var MimeType;
+(function (MimeType) {
+    MimeType["PNG"] = "image/png";
+    MimeType["JPEG"] = "image/jpeg";
+    MimeType["PDF"] = "application/pdf";
+    MimeType["SVG"] = "image/svg+xml";
+})(MimeType = exports.MimeType || (exports.MimeType = {}));
 class ChartJSNodeCanvas {
     /**
      * Create a new instance of CanvasRenderService.
@@ -34,21 +41,28 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType The image format, `image/png` or `image/jpeg`.
+     * @param quality An optional jpeg quality from 0 to 1.
      */
-    renderToDataURL(configuration, mimeType = 'image/png') {
+    renderToDataURL(configuration, mimeType = MimeType.PNG, qualityOrConfig) {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
             if (!chart.canvas) {
                 return reject(new Error('Canvas is null'));
             }
             const canvas = chart.canvas;
-            canvas.toDataURL(mimeType, (error, png) => {
+            const callback = (error, png) => {
                 chart.destroy();
                 if (error) {
                     return reject(error);
                 }
                 return resolve(png);
-            });
+            };
+            if (mimeType === MimeType.JPEG && qualityOrConfig) {
+                canvas.toDataURL(mimeType, qualityOrConfig, callback);
+            }
+            else {
+                canvas.toDataURL(mimeType, callback);
+            }
         });
     }
     /**
@@ -57,14 +71,15 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType The image format, `image/png` or `image/jpeg`.
+     * @param quality An optional jpeg quality from 0 to 1.
      */
-    renderToDataURLSync(configuration, mimeType = 'image/png') {
+    renderToDataURLSync(configuration, mimeType = MimeType.PNG, quality) {
         const chart = this.renderChart(configuration);
         if (!chart.canvas) {
             throw new Error('Canvas is null');
         }
         const canvas = chart.canvas;
-        const dataUrl = canvas.toDataURL(mimeType);
+        const dataUrl = canvas.toDataURL(mimeType, quality);
         chart.destroy();
         return dataUrl;
     }
@@ -74,8 +89,9 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
+     * @param imageConfiguration An optional config for the canvas image [options](https://github.com/Automattic/node-canvas#canvastobuffer).
      */
-    renderToBuffer(configuration, mimeType = 'image/png') {
+    renderToBuffer(configuration, mimeType = MimeType.PNG, imageConfiguration) {
         const chart = this.renderChart(configuration);
         return new Promise((resolve, reject) => {
             if (!chart.canvas) {
@@ -88,7 +104,7 @@ class ChartJSNodeCanvas {
                     return reject(error);
                 }
                 return resolve(buffer);
-            }, mimeType);
+            }, mimeType, imageConfiguration);
         });
     }
     /**
@@ -97,14 +113,15 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
+     * @param imageConfiguration An optional config for the canvas image [options](https://github.com/Automattic/node-canvas#canvastobuffer).
      */
-    renderToBufferSync(configuration, mimeType = 'image/png') {
+    renderToBufferSync(configuration, mimeType = MimeType.PNG, imageConfiguration) {
         const chart = this.renderChart(configuration);
         if (!chart.canvas) {
             throw new Error('Canvas is null');
         }
         const canvas = chart.canvas;
-        const buffer = canvas.toBuffer(mimeType);
+        const buffer = canvas.toBuffer(mimeType, imageConfiguration);
         chart.destroy();
         return buffer;
     }
@@ -114,8 +131,9 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
+     * @param imageConfiguration An optional config for the canvas image options. See the relevant configs for [png](https://github.com/Automattic/node-canvas#canvascreatepngstream), [jpeg](https://github.com/Automattic/node-canvas#canvascreatejpegstream) or [pdf](https://github.com/Automattic/node-canvas#canvascreatepdfstream).
      */
-    renderToStream(configuration, mimeType = 'image/png') {
+    renderToStream(configuration, mimeType = MimeType.PNG, imageConfiguration) {
         const chart = this.renderChart(configuration);
         if (!chart.canvas) {
             throw new Error('Canvas is null');
@@ -124,11 +142,11 @@ class ChartJSNodeCanvas {
         setImmediate(() => chart.destroy());
         switch (mimeType) {
             case 'image/png':
-                return canvas.createPNGStream();
+                return canvas.createPNGStream(imageConfiguration);
             case 'image/jpeg':
-                return canvas.createJPEGStream();
+                return canvas.createJPEGStream(imageConfiguration);
             case 'application/pdf':
-                return canvas.createPDFStream();
+                return canvas.createPDFStream(imageConfiguration);
             default:
                 throw new Error(`Un-handled mimeType: ${mimeType}`);
         }

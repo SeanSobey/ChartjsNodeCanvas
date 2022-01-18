@@ -25,8 +25,7 @@ Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs
 4. [Limitations](#limitations)
 5. [API](#api)
 6. [Usage](#usage)
-7. [Full Example](#full-example)
-8. [Known Issues](#known-issues)
+7. [Known Issues](#known-issues)
 
 ## Installation
 

@@ -18,6 +18,8 @@ services:
   test:
     image: chartjs-node-canvas-build
     container_name: chartjs-node-canvas-test
+    volumes:
+      - ./testData:/usr/server/testData
     depends_on: 
       - build
     environment:
@@ -34,14 +36,3 @@ services:
     container_name: chartjs-node-canvas
     environment:
       - NODE_ENV=production
-
-#<< Docker Commands >>
-
-# Build Images
-#docker-compose build
-
-# Run Containers
-#docker-compose up
-
-# Run Tests specifically
-#docker-compose up test

@@ -377,10 +377,6 @@ describe(ChartJSNodeCanvas.name, () => {
 	function getTestDataPath(): string {
 
 		const paths = [process.cwd(), 'testData', platform()];
-		if (process.env.DOCKER_OS) {
-			paths.push(process.env.DOCKER_OS);
-			console.log('distro', process.env.DOCKER_OS);
-		}
 		return path.join(...paths);
 	}
 

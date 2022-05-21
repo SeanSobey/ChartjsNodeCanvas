@@ -26,7 +26,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: powershell
       run: ./.github/scripts/install.ps1
-    - name: Install Cairo dependencies (Ubuntu)
+    - name: Install Cairo dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       shell: bash
       run: ./.github/scripts/install.sh
@@ -58,6 +58,13 @@ jobs:
     #   with:
     #     name: Node v${{ matrix.node-version }}
     #     path: '*.tgz'
+    - name: 'Upload Test Data Artifact'
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-data
+        path: ./testData/**/*.{png,txt}
+        retention-days: 5
   publish:
     if: github.ref == 'refs/heads/master'
     needs: build-and-test

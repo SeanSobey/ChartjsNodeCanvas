@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /usr/server
 
-ENV DOCKER_OS=debian
-
 COPY package.json package-lock.json ./
 
 RUN npm ci --production --no-color

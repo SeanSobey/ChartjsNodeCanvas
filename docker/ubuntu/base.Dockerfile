@@ -30,8 +30,6 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 WORKDIR /usr/server
 
-ENV DOCKER_OS=ubuntu
-
 COPY package.json package-lock.json ./
 
 RUN npm ci --production --no-color

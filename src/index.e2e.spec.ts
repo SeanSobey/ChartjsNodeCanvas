@@ -1,7 +1,7 @@
 import { AssertionError } from 'assert';
 import { promises as fs } from 'fs';
-import { platform, EOL } from 'os';
-import { join } from 'path';
+import os, { platform, EOL } from 'os';
+import path, { join } from 'path';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
@@ -81,7 +81,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		const extension = '.txt';
 		const fileName = 'render-to-data-URL';
 		const fileNameWithExtension = fileName + extension;
-		const expectedDataPath = join(process.cwd(), 'testData', platform(), fileName + extension);
+		const expectedDataPath = join(getTestDataPath(), fileName + extension);
 		const expected = await fs.readFile(expectedDataPath, 'utf8');
 		// const result = actual === expected;
 		const compareData = await compareImages(actual, expected, { output: { useCrossOrigin: false } });
@@ -374,10 +374,20 @@ describe(ChartJSNodeCanvas.name, () => {
 	}
 	*/
 
+	function getTestDataPath(): string {
+
+		const paths = [process.cwd(), 'testData', platform()];
+		if (process.env.DOCKER_OS) {
+			paths.push(process.env.DOCKER_OS);
+			console.log('distro', process.env.DOCKER_OS);
+		}
+		return path.join(...paths);
+	}
+
 	async function assertImage(actual: Buffer, fileName: string): Promise<void> {
 		const extension = '.png';
 		const fileNameWithExtension = fileName + extension;
-		const testDataPath = join(process.cwd(), 'testData', platform(), fileNameWithExtension);
+		const testDataPath = join(getTestDataPath(), fileNameWithExtension);
 		const exists = await pathExists(testDataPath);
 		if (!exists) {
 			console.error(`Warning: expected image path does not exist!, creating '${testDataPath}'`);
@@ -416,16 +426,16 @@ describe(ChartJSNodeCanvas.name, () => {
 	// resemblejs/compareImages
 	//function compareImages(image1: string | Buffer, image2: string | Buffer, options?: ResembleSingleCallbackComparisonOptions): Promise<ResembleSingleCallbackComparisonResult> {
 	function compareImages(image1: string | Buffer, image2: string | Buffer, options?: any): Promise<any> {
-			return new Promise((resolve, reject) => {
-				//resemble.compare(image1, image2, options || {}, (err, data) => {
-				resemble.compare(image1, image2, options || {}, (err: any, data: any) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve(data);
-					}
-				});
+		return new Promise((resolve, reject) => {
+			//resemble.compare(image1, image2, options || {}, (err, data) => {
+			resemble.compare(image1, image2, options || {}, (err: any, data: any) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(data);
+				}
 			});
+		});
 	}
 
 	function streamToBuffer(stream: Readable): Promise<Buffer> {

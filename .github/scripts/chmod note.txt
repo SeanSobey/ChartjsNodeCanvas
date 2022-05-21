@@ -1,0 +1,3 @@
+From https://github.community/t/action-showing-permission-denied/134957
+
+git update-index --chmod=+x ./.github/scripts/<xxx>.sh

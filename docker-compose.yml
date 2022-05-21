@@ -1,47 +1,64 @@
 version: "3"
 
 services:
-  base:
-    image: chartjs-node-canvas-base
+  base-slim:
+    image: chartjs-node-canvas-base-slim
     build:
       context: .
-      dockerfile: docker/base/Dockerfile
-    container_name: chartjs-node-canvas-base
-  build:
-    image: chartjs-node-canvas-build
+      dockerfile: docker/slim/base.Dockerfile
+    container_name: chartjs-node-canvas-base-slim
+  build-slim:
+    image: chartjs-node-canvas-build-slim
     depends_on: 
-      - base
+      - base-slim
     build:
       context: .
-      dockerfile: docker/build/Dockerfile
-    container_name: chartjs-node-canvas-build
-  test:
-    image: chartjs-node-canvas-build
-    container_name: chartjs-node-canvas-test
+      dockerfile: docker/slim/build.Dockerfile
+    container_name: chartjs-node-canvas-build-slim
+  test-slim:
+    image: chartjs-node-canvas-build-slim
+    container_name: chartjs-node-canvas-test-slim
+    volumes:
+      - ./testData:/usr/server/testData
     depends_on: 
-      - build
+      - build-slim
     environment:
       - NODE_ENV=test
       - FONTCONFIG_PATH=/etc/fonts
     command: npm run test
-  production:
-    image: chartjs-node-canvas
+  production-slim:
+    image: chartjs-node-canvas-slim
     depends_on: 
-      - test
+      - test-slim
     build:
       context: .
-      dockerfile: docker/production/Dockerfile
-    container_name: chartjs-node-canvas
+      dockerfile: docker/slim/production.Dockerfile
+    container_name: chartjs-node-canvas-slim
     environment:
       - NODE_ENV=production
 
-#<< Docker Commands >>
-
-# Build Images
-#docker-compose build
-
-# Run Containers
-#docker-compose up
-
-# Run Tests specifically
-#docker-compose up test
+  base-ubuntu:
+    image: chartjs-node-canvas-base-ubuntu
+    build:
+      context: .
+      dockerfile: docker/ubuntu/base.Dockerfile
+    container_name: chartjs-node-canvas-base-ubuntu
+  build-ubuntu:
+    image: chartjs-node-canvas-build-ubuntu
+    depends_on: 
+      - base-ubuntu
+    build:
+      context: .
+      dockerfile: docker/ubuntu/build.Dockerfile
+    container_name: chartjs-node-canvas-build-ubuntu
+  test-ubuntu:
+    image: chartjs-node-canvas-build-ubuntu
+    container_name: chartjs-node-canvas-test-ubuntu
+    volumes:
+      - ./testData:/usr/server/testData
+    depends_on: 
+      - build-ubuntu
+    environment:
+      - NODE_ENV=test
+      - FONTCONFIG_PATH=/etc/fonts
+    command: npm run test

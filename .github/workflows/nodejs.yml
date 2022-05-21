@@ -10,23 +10,28 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         node-version: ['10.x', '12.x', '14.x', '16.x']
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Install Cairo dependencies
-      run: |
-        Invoke-WebRequest "http://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "gtk.zip"
-        Expand-Archive gtk.zip -DestinationPath "C:\GTK"
-        Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
-        .\libjpeg.exe /S
+    - name: Install Cairo dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: ./.github/scripts/install.ps1
+    - name: Install Cairo dependencies (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      shell: bash
+      run: ./.github/scripts/install.sh
     - name: Add msbuild to PATH
+      if: matrix.os == 'windows-latest'
       uses: microsoft/setup-msbuild@v1.1
       with:
         vs-version: '15.0'
@@ -53,6 +58,13 @@ jobs:
     #   with:
     #     name: Node v${{ matrix.node-version }}
     #     path: '*.tgz'
+    - name: 'Upload Test Data Artifact'
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-data
+        path: ./testData/
+        retention-days: 5
   publish:
     if: github.ref == 'refs/heads/master'
     needs: build-and-test
@@ -74,7 +86,7 @@ jobs:
       run: npm run-script package-size
     - name: Publish
       shell: bash
-      run: ./scripts/publish.sh
+      run: ./.github/scripts/publish.sh
       env:
         CI: true
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

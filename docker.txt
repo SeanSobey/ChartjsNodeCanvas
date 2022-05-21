@@ -1,0 +1,11 @@
+#<< Docker Commands >>
+
+# Build Images
+docker-compose build
+
+# Run Containers
+docker-compose up
+
+# Run Tests specifically
+docker-compose up test-slim
+docker-compose up test-ubuntu

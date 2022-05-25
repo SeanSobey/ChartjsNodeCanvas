@@ -59,7 +59,8 @@ export class AnimationPlugin implements ChartJSPlugin {
 	public afterDraw(chart: ChartJS): boolean | void {
 		const frameRate = this.options.frameRate ?? 30;
 		const diff = this.difference();
-		if ((diff - this.vars.prev) > 1000 / frameRate && !this.vars.wait) {
+		const timeHasPassed = (diff - this.vars.prev) > (1000 / frameRate);
+		if (timeHasPassed && !this.vars.wait) {
 			this.render(chart).catch(this._animationCompleted);
 		}
 		this.vars.count += 1;

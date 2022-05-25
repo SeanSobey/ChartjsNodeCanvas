@@ -1,4 +1,7 @@
 import { Readable } from 'stream';
+if (typeof window !== 'undefined' && !global.window) {
+	(global as any).window = { requestAnimationFrame: setImmediate };
+}
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
 import { createCanvas, registerFont, Image } from 'canvas';
 import { freshRequire } from './freshRequire';
@@ -301,6 +304,7 @@ export class ChartJSNodeCanvas {
 			chartJs.register(new BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
 		}
 		if (options.animation) {
+			(global as any).window = { requestAnimationFrame: setImmediate };
 			const { buffers, urls } = this._animation;
 			chartJs.register(new AnimationPlugin(options.animation, buffers, urls, (animationError?: Error) => {
 				this._animation.completed = true;

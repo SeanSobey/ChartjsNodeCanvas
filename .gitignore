@@ -108,3 +108,6 @@ typings/
 
 #dist
 dist/**
+
+# test data
+testData/

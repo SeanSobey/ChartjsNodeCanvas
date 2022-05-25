@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
+import { AnimationOptions } from './animationPlugin';
 export declare type ChartJSNodeCanvasPlugins = {
     /**
      * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
@@ -47,8 +48,10 @@ export interface ChartJSNodeCanvasOptions {
      * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
      */
     readonly backgroundColour?: string;
+    readonly animation?: AnimationOptions;
 }
 export declare class ChartJSNodeCanvas {
+    private readonly _animation;
     private readonly _width;
     private readonly _height;
     private readonly _chartJs;
@@ -87,6 +90,13 @@ export declare class ChartJSNodeCanvas {
      */
     renderToBuffer(configuration: ChartConfiguration, mimeType?: MimeType): Promise<Buffer>;
     /**
+     * Render to a buffer.
+     * @see https://github.com/Automattic/node-canvas#canvastobuffer
+     *
+     * @param configuration The Chart JS configuration for the chart to render.
+     */
+    renderAnimationFrames(configuration: ChartConfiguration): Promise<ReadonlyArray<string> | ReadonlyArray<Buffer>>;
+    /**
      * Render to a buffer synchronously.
      * @see https://github.com/Automattic/node-canvas#canvastobuffer
      *
@@ -116,5 +126,5 @@ export declare class ChartJSNodeCanvas {
         readonly style?: string;
     }): void;
     private initialize;
-    private renderChart;
+    renderChart(configuration: ChartConfiguration): ChartJS;
 }

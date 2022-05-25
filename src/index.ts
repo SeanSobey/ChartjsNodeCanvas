@@ -2,6 +2,7 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
 import { createCanvas, registerFont, Image } from 'canvas';
 import { freshRequire } from './freshRequire';
+import { AnimationOptions, AnimationPlugin, AnimationType } from './animationPlugin';
 import { BackgroundColourPlugin } from './backgroundColourPlugin';
 
 export type ChartJSNodeCanvasPlugins = {
@@ -61,10 +62,15 @@ export interface ChartJSNodeCanvasOptions {
 	 * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
 	 */
 	readonly backgroundColour?: string;
+	readonly animation?: AnimationOptions;
 }
 
 export class ChartJSNodeCanvas {
-
+	private readonly _animation: AnimationType = {
+		buffers: [],
+		urls: [],
+		completed: false
+	};
 	private readonly _width: number;
 	private readonly _height: number;
 	private readonly _chartJs: typeof ChartJS;
@@ -90,6 +96,7 @@ export class ChartJSNodeCanvas {
 			throw new Error('A height option is required');
 		}
 
+		this._animation.options = options.animation;
 		this._width = options.width;
 		this._height = options.height;
 		const canvas = freshRequire('canvas');
@@ -151,7 +158,7 @@ export class ChartJSNodeCanvas {
 	 * @param configuration The Chart JS configuration for the chart to render.
 	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
 	 */
-	public renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
+	public async renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
@@ -166,6 +173,29 @@ export class ChartJSNodeCanvas {
 				}
 				return resolve(buffer);
 			}, mimeType);
+		});
+	}
+
+	/**
+	 * Render to a buffer.
+	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 */
+	 public async renderAnimationFrames(configuration: ChartConfiguration): Promise<ReadonlyArray<string> | ReadonlyArray<Buffer>> {
+		this.renderChart(configuration);
+		return new Promise((resolve, reject) => {
+			const check = () => {
+				const { buffers, completed, error, options, urls } = this._animation;
+				if (error) {
+					reject(error);
+				} else if (completed) {
+					resolve(options?.renderType === 'dataurl' ? urls : buffers);
+				} else {
+					setTimeout(() => check(), 200);
+				}
+			};
+			check();
 		});
 	}
 
@@ -270,20 +300,28 @@ export class ChartJSNodeCanvas {
 		if (options.backgroundColour) {
 			chartJs.register(new BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
 		}
+		if (options.animation) {
+			const { buffers, urls } = this._animation;
+			chartJs.register(new AnimationPlugin(options.animation, buffers, urls, (animationError?: Error) => {
+				this._animation.completed = true;
+				this._animation.error = animationError;
+			}));
+		}
 
 		delete require.cache[require.resolve('chart.js')];
 
 		return chartJs;
 	}
 
-	private renderChart(configuration: ChartConfiguration): ChartJS {
-
+	public renderChart(configuration: ChartConfiguration): ChartJS {
 		const canvas = this._createCanvas(this._width, this._height, this._type);
 		(canvas as any).style = (canvas as any).style || {};
 		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
-		configuration.options.animation = false as any;
+		if (!this._animation) {
+			configuration.options.animation = this._animation;
+		}
 		const context = canvas.getContext('2d');
 		(global as any).Image = this._image; // Some plugins use this API
 		const chart = new this._chartJs(context, configuration);

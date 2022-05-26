@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChartJSNodeCanvas = void 0;
-if (typeof window !== 'undefined' && !global.window) {
-    global.window = { requestAnimationFrame: setImmediate };
-}
 const freshRequire_1 = require("./freshRequire");
 const animationPlugin_1 = require("./animationPlugin");
 const backgroundColourPlugin_1 = require("./backgroundColourPlugin");
@@ -216,7 +213,6 @@ class ChartJSNodeCanvas {
             chartJs.register(new backgroundColourPlugin_1.BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
         }
         if (options.animation) {
-            global.window = { requestAnimationFrame: setImmediate };
             const { buffers, urls } = this._animation;
             chartJs.register(new animationPlugin_1.AnimationPlugin(options.animation, buffers, urls, (animationError) => {
                 this._animation.completed = true;

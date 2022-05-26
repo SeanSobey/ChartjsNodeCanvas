@@ -1,10 +1,13 @@
+import './windowShim';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
+import { Assert } from 'ts-std-lib';
+
+const assert = new Assert();
 
 describe(ChartJSNodeCanvas.name, () => {
-
 	const width = 400;
 	const height = 400;
 	const configuration: ChartConfiguration = {
@@ -32,12 +35,6 @@ describe(ChartJSNodeCanvas.name, () => {
 				],
 				borderWidth: 1
 			}]
-		},
-		options: {
-			plugins: {
-				annotation: {
-				}
-			} as any
 		}
 	};
 	const chartCallback: ChartCallback = (ChartJS) => {
@@ -45,14 +42,18 @@ describe(ChartJSNodeCanvas.name, () => {
 		ChartJS.defaults.maintainAspectRatio = false;
 	};
 
-	it('works with render to buffer', async () => {
-		const chartJSNodeCanvas = new ChartJSNodeCanvas({ animation: {
-			renderType: 'dataurl',
-			// callback: console.log,
-			frameRate: 10
-		 }, width, height, chartCallback });
+	it('works animation', async () => {
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			animation: {
+				renderType: 'dataurl',
+				frameRate: 10
+			},
+			width,
+			height,
+			chartCallback
+		});
 		const urls = await chartJSNodeCanvas.renderAnimationFrames(configuration) as Array<string>;
-
-		// const chart = chartJSNodeCanvas.renderChart(configuration);
+		assert.equal(urls.length, 11);
+		global.window = undefined as any;
 	});
 });

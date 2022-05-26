@@ -46,14 +46,14 @@ describe(ChartJSNodeCanvas.name, () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
 			animation: {
 				renderType: 'dataurl',
-				frameRate: 10
+				frameRate: 30
 			},
 			width,
 			height,
 			chartCallback
 		});
 		const urls = await chartJSNodeCanvas.renderAnimationFrames(configuration) as Array<string>;
-		assert.equal(urls.length, 11);
+		assert.equal(urls.length, 26);
 		global.window = undefined as any;
 	});
 });

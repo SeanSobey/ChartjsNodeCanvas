@@ -35,6 +35,15 @@ describe(ChartJSNodeCanvas.name, () => {
 				],
 				borderWidth: 1
 			}]
+		},
+		options: {
+			animation: {
+				onProgress: (event) => {
+					// tslint:disable-next-line: no-unused-expression
+					(event as any).currentStep;
+				},
+				duration: 2000
+			}
 		}
 	};
 	const chartCallback: ChartCallback = (ChartJS) => {
@@ -45,15 +54,15 @@ describe(ChartJSNodeCanvas.name, () => {
 	it('works animation', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
 			animation: {
-				renderType: 'dataurl',
-				frameRate: 30
+				renderType: 'dataurlsync',
+				// frameRate: 30
 			},
 			width,
 			height,
 			chartCallback
 		});
 		const urls = await chartJSNodeCanvas.renderAnimationFrames(configuration) as Array<string>;
-		assert.equal(urls.length, 26);
+		assert.equal(urls.length > 20, true);
 		global.window = undefined as any;
 	});
 });

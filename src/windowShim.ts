@@ -1,18 +1,28 @@
 const requestAnimation = (() => {
 	// tslint:disable-next-line: no-let
 	let lastRunTimestamp = 0;
+	// tslint:disable-next-line: no-let
+	let scheduled = false;
 	const secondInMillis = 1000;
-	const frameRate = 60;
+	const frameRate = 10;
 	const frameDuration = secondInMillis / frameRate;
 	return (callback: (arg: number) => void) => {
 		const now = Date.now();
-		const runCallback = () => callback(performance.now());
+		const runCallback = () => {
+			scheduled = false;
+			return callback(Date.now());
+		};
 		const difference = now - lastRunTimestamp;
 		lastRunTimestamp = now;
 		if (difference > frameDuration) {
 			runCallback();
 		} else {
-			setTimeout(runCallback, frameDuration - difference);
+			if (scheduled)
+			{
+				return;
+			}
+			scheduled = true;
+			setTimeout(runCallback, frameDuration);
 		}
 	};
 });

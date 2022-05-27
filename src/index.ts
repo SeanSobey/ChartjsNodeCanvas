@@ -158,7 +158,7 @@ export class ChartJSNodeCanvas {
 	 * @param configuration The Chart JS configuration for the chart to render.
 	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
 	 */
-	public async renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
+	public renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
 
 		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
@@ -190,7 +190,7 @@ export class ChartJSNodeCanvas {
 				if (error) {
 					reject(error);
 				} else if (completed) {
-					resolve(options?.renderType === 'dataurl' ? urls : buffers);
+					resolve(['dataurl', 'dataurlsync'].includes(options?.renderType ?? '') ? urls : buffers);
 				} else {
 					setTimeout(() => check(), 200);
 				}
@@ -320,7 +320,7 @@ export class ChartJSNodeCanvas {
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
 		if (!this._animation) {
-			configuration.options.animation = this._animation;
+			configuration.options.animation = false as any;
 		}
 		const context = canvas.getContext('2d');
 		(global as any).Image = this._image; // Some plugins use this API

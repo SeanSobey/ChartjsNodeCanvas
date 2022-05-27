@@ -12,7 +12,7 @@ type Canvas	= HTMLCanvasElement & {
 
 export type AnimationOptions = {
 	readonly frameRate?: number;
-	readonly renderType?: 'buffer' | 'dataurl';
+	readonly renderType?: 'buffer' | 'dataurl' | 'dataurlsync';
 	readonly callback?: (chart: ChartJS, canvas: Canvas, frame: number) => void;
 };
 
@@ -57,9 +57,8 @@ export class AnimationPlugin implements ChartJSPlugin {
 	}
 
 	public afterDraw(chart: ChartJS): boolean | void {
-		const frameRate = this.options.frameRate ?? 30;
 		const diff = this.difference();
-		const timeHasPassed = (diff - this.vars.prev) > (1000 / frameRate);
+		const timeHasPassed = this.options.frameRate ? (diff - this.vars.prev) > (1000 / this.options.frameRate) : true;
 		if (timeHasPassed && !this.vars.wait) {
 			this.render(chart).catch(this._animationCompleted);
 		}
@@ -89,6 +88,9 @@ export class AnimationPlugin implements ChartJSPlugin {
 			}
 			if (this.options.renderType === 'dataurl') {
 				await this.renderToDataURL(chart);
+			}
+			if (this.options.renderType === 'dataurlsync') {
+				this.renderToDataURL(chart);
 			}
 			if (this.options.callback && chart.canvas) {
 				this.options.callback(chart, chart.canvas as Canvas, this.vars.frame);
@@ -130,6 +132,15 @@ export class AnimationPlugin implements ChartJSPlugin {
 				resolve();
 			});
 		});
+	}
+
+	private renderToDataURLSync(chart: ChartJS): void {
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
+		const png = canvas.toDataURL('image/png');
+		this._animationURLs!.push(png);
 	}
 
 	private startWaiting(): void {

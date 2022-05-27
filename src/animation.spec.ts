@@ -63,7 +63,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			chartCallback
 		});
 		const urls = await chartJSNodeCanvas.renderAnimationFrameDataURLs(configuration);
-		assert.equal(urls.length > 20, true);
+		assert.equal(urls.length > 50, true);
 	});
 
 	it('generates animation frames as buffers', async () => {
@@ -74,8 +74,8 @@ describe(ChartJSNodeCanvas.name, () => {
 			height,
 			chartCallback
 		});
-		const buffers = await chartJSNodeCanvas.renderAnimationFrameBuffers(configuration);
-		assert.equal(buffers.length > 20, true);
+		const buffers = await chartJSNodeCanvas.renderAnimationFrameBuffers(configuration, 40);
+		assert.equal(buffers.length, 26);
 		// tslint:disable-next-line: forin
 		for (const index in buffers) {
 			const buffer = buffers[index];

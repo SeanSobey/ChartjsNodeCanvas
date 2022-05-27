@@ -1,5 +1,6 @@
-import { Chart as ChartJS, Plugin as ChartJSPlugin } from 'chart.js';
+import { Chart as ChartJS, ChartConfiguration, Plugin as ChartJSPlugin } from 'chart.js';
 import { Readable } from 'stream';
+import { MimeType } from '.';
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
 type Canvas	= HTMLCanvasElement & {
@@ -10,148 +11,116 @@ type Canvas	= HTMLCanvasElement & {
 	createPDFStream(config?: any): Readable;
 };
 
-export type AnimationOptions = {
-	readonly frameRate?: number;
-	readonly renderType?: 'buffer' | 'dataurl' | 'dataurlsync';
-	readonly callback?: (chart: ChartJS, canvas: Canvas, frame: number) => void;
-};
+export type AnimationFrame = string | Buffer;
 
 export type AnimationType = {
 	// tslint:disable: readonly-keyword readonly-array
-	buffers: Array<Buffer>;
-	error?: Error;
-	urls: Array<string>;
-	options?: AnimationOptions;
+	frames: Array<AnimationFrame>;
 	completed: boolean;
+	error?: Error;
 	// tslint:enable: readonly-keyword readonly-array
 };
 
+export type AnimationRenderType = 'buffer' | 'dataurl';
+
+export type AnimationPluginOptions = {
+	readonly renderType: AnimationRenderType;
+	readonly mimeType: MimeType;
+};
+
+export type AnimationCallback = (result: ReadonlyArray<AnimationFrame>, error?: Error) => void;
+
 export class AnimationPlugin implements ChartJSPlugin {
-	public readonly id: string = 'chartjs-plugin-chartjs-node-canvas-animation';
-
-	// tslint:disable-next-line: readonly-array
-	private readonly _animationBuffers: Array<Buffer>;
-	// tslint:disable-next-line: readonly-array
-	private readonly _animationURLs: Array<string>;
-	private readonly _animationCompleted: (error?: Error) => void;
-	private readonly vars = {
-		count: 0,
-		prev: 0,
-		frame: 0,
-		beforeDatasetDraw: false,
-		wait: false
+	private static readonly defaultPluginOptions: AnimationPluginOptions = {
+		mimeType: 'image/png',
+		renderType: 'dataurl'
 	};
-	private readonly options: AnimationOptions;
-	private readonly startTime: number;
+	private static readonly ID = 'chartjs-plugin-chartjs-node-canvas-animation';
+
+	public readonly id: string = AnimationPlugin.ID;
 
 	// tslint:disable-next-line: readonly-array
-	public constructor(options: AnimationOptions, animationBuffers: Array<Buffer>, animationURLs: Array<string>, animationCompleted: () => void) {
-		this.startTime = (new Date()).getTime();
-		this.options = options;
-		this._animationBuffers = animationBuffers;
-		this._animationCompleted = animationCompleted;
-		this._animationURLs = animationURLs;
+	private readonly _frames: Array<AnimationFrame>;
+	private readonly _animationCompleted: AnimationCallback;
+	private readonly vars = {
+		beforeDatasetDraw: false,
+		count: 0,
+		frame: 0,
+	};
 
-		this.startWaiting = this.startWaiting.bind(this);
-		this.stopWaiting = this.stopWaiting.bind(this);
+	// tslint:disable-next-line: readonly-array
+	public constructor(animationCompleted: AnimationCallback) {
+		this._frames = [];
+		this._animationCompleted = animationCompleted;
 	}
 
-	public afterDraw(chart: ChartJS): boolean | void {
-		const diff = this.difference();
-		const timeHasPassed = this.options.frameRate ? (diff - this.vars.prev) > (1000 / this.options.frameRate) : true;
-		if (timeHasPassed && !this.vars.wait) {
-			this.render(chart).catch(this._animationCompleted);
-		}
+	public static includePluginOptions(configuration: ChartConfiguration, options: AnimationPluginOptions): ChartConfiguration {
+		return {
+			...configuration,
+			options: {
+				...(configuration.options ?? {}),
+				plugins: {
+					...(configuration.options?.plugins ?? {}),
+					...({[AnimationPlugin.ID]: options})
+				}
+			}
+		};
+	}
+
+	public afterDraw(chart: ChartJS): void {
+		this.render(chart);
 		this.vars.count += 1;
 	}
 
 	public afterRender(chart: ChartJS): void {
-		this.render(chart).then(() => this._animationCompleted()).catch(this._animationCompleted);
+		this.render(chart);
+		this._animationCompleted(this._frames);
 	}
 
 	public beforeDatasetDraw(chart: ChartJS): void {
-		if (this.vars.beforeDatasetDraw || this.vars.wait) {
+		if (this.vars.beforeDatasetDraw) {
 			return;
 		}
 		this.vars.beforeDatasetDraw = true;
-		this.render(chart).catch(this._animationCompleted);
+		this.render(chart);
 	}
 
-	private async render(chart: ChartJS): Promise<void> {
-		this.startWaiting();
-		const diff = this.difference();
+	private render(chart: ChartJS): void {
 		this.vars.frame += 1;
-		this.vars.prev = diff;
+		const { mimeType, renderType } = this.pluginOptions(chart);
 		try {
-			if (this.options.renderType === 'buffer') {
-				await this.renderToBuffer(chart);
+			if (renderType === 'buffer') {
+				this.renderToBuffer(chart, mimeType);
 			}
-			if (this.options.renderType === 'dataurl') {
-				await this.renderToDataURL(chart);
-			}
-			if (this.options.renderType === 'dataurlsync') {
-				this.renderToDataURL(chart);
-			}
-			if (this.options.callback && chart.canvas) {
-				this.options.callback(chart, chart.canvas as Canvas, this.vars.frame);
+			if (renderType === 'dataurl') {
+				this.renderToDataURL(chart, mimeType);
 			}
 		} catch (error) {
-			throw error;
-		} finally {
-			this.stopWaiting();
+			this._animationCompleted([], error instanceof Error ? error : new Error());
 		}
 	}
 
-	private renderToBuffer(chart: ChartJS): Promise<void> {
-		return new Promise((resolve, reject) => {
-			if (!chart.canvas) {
-				reject('Canvas is null');
-			}
-			const canvas = chart.canvas as Canvas;
-			canvas.toBuffer((error: Error | null, buffer: Buffer) => {
-				if (error) {
-					reject(error);
-				}
-				this._animationBuffers!.push(buffer);
-				resolve();
-			}, 'image/png');
-		});
-	}
-
-	private renderToDataURL(chart: ChartJS): Promise<void> {
-		return new Promise((resolve, reject) => {
-			if (!chart.canvas) {
-				reject('Canvas is null');
-			}
-			const canvas = chart.canvas as Canvas;
-			canvas.toDataURL('image/png', (error: Error | null, png: string) => {
-				if (error) {
-					reject(error);
-				}
-				this._animationURLs!.push(png);
-				resolve();
-			});
-		});
-	}
-
-	private renderToDataURLSync(chart: ChartJS): void {
+	private renderToBuffer(chart: ChartJS, mimeType: MimeType): void {
 		if (!chart.canvas) {
 			throw new Error('Canvas is null');
 		}
 		const canvas = chart.canvas as Canvas;
-		const png = canvas.toDataURL('image/png');
-		this._animationURLs!.push(png);
+		const buffer = canvas.toBuffer(mimeType);
+		this._frames.push(buffer);
 	}
 
-	private startWaiting(): void {
-		this.vars.wait = true;
+	private renderToDataURL(chart: ChartJS, mimeType: MimeType): void {
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
+		const png = canvas.toDataURL(mimeType);
+		this._frames.push(png);
 	}
 
-	private stopWaiting(): void {
-		this.vars.wait = false;
-	}
-
-	private difference(): number {
-		return (new Date()).getTime() - this.startTime;
+	private pluginOptions(chart: ChartJS): AnimationPluginOptions {
+		const plugins = chart.config.options?.plugins;
+		const options = plugins ? (plugins as any)[AnimationPlugin.ID] : {};
+		return { ...AnimationPlugin.defaultPluginOptions, ...options };
 	}
 }

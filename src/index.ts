@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
 import { createCanvas, registerFont, Image } from 'canvas';
 import { freshRequire } from './freshRequire';
-import { AnimationOptions, AnimationPlugin, AnimationType } from './animationPlugin';
+import { AnimationFrame, AnimationPlugin, AnimationType } from './animationPlugin';
 import { BackgroundColourPlugin } from './backgroundColourPlugin';
 
 export type ChartJSNodeCanvasPlugins = {
@@ -59,17 +59,20 @@ export interface ChartJSNodeCanvasOptions {
 	readonly plugins?: ChartJSNodeCanvasPlugins;
 
 	/**
-	 * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
+	 * Optional flag for the chart, otherwise it will render a still image.
 	 */
-	readonly backgroundColour?: string;
-	readonly animation?: AnimationOptions;
+	 readonly animation?: boolean;
+	 /**
+	  * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
+	  */
+	 readonly backgroundColour?: string;
 }
 
 export class ChartJSNodeCanvas {
 	private readonly _animation: AnimationType = {
-		buffers: [],
-		urls: [],
-		completed: false
+		completed: false,
+		frames: [],
+		error: undefined
 	};
 	private readonly _width: number;
 	private readonly _height: number;
@@ -96,7 +99,6 @@ export class ChartJSNodeCanvas {
 			throw new Error('A height option is required');
 		}
 
-		this._animation.options = options.animation;
 		this._width = options.width;
 		this._height = options.height;
 		const canvas = freshRequire('canvas');
@@ -159,7 +161,6 @@ export class ChartJSNodeCanvas {
 	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
 	 */
 	public renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
-
 		const chart = this.renderChart(configuration);
 		return new Promise<Buffer>((resolve, reject) => {
 			if (!chart.canvas) {
@@ -182,17 +183,50 @@ export class ChartJSNodeCanvas {
 	 *
 	 * @param configuration The Chart JS configuration for the chart to render.
 	 */
-	 public async renderAnimationFrames(configuration: ChartConfiguration): Promise<ReadonlyArray<string> | ReadonlyArray<Buffer>> {
-		this.renderChart(configuration);
+	 public async renderAnimationFrameBuffers(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<ReadonlyArray<Buffer>> {
+		this._animation.completed = false;
+		this._animation.error = undefined;
+		this._animation.frames = [];
+		const chart = this.renderChart(AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'buffer' }));
 		return new Promise((resolve, reject) => {
 			const check = () => {
-				const { buffers, completed, error, options, urls } = this._animation;
+				const { completed, error, frames } = this._animation;
 				if (error) {
 					reject(error);
+					chart.destroy();
 				} else if (completed) {
-					resolve(['dataurl', 'dataurlsync'].includes(options?.renderType ?? '') ? urls : buffers);
+					resolve(frames as ReadonlyArray<Buffer>);
+					chart.destroy();
 				} else {
-					setTimeout(() => check(), 200);
+					setTimeout(() => check(), 100);
+				}
+			};
+			check();
+		});
+	}
+
+	/**
+	 * Render to a buffer.
+	 * @see https://github.com/Automattic/node-canvas#canvastobuffer
+	 *
+	 * @param configuration The Chart JS configuration for the chart to render.
+	 */
+	 public async renderAnimationFrameDataURLs(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<ReadonlyArray<string>> {
+		this._animation.completed = false;
+		this._animation.error = undefined;
+		this._animation.frames = [];
+		const chart = this.renderChart(AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'dataurl' }));
+		return new Promise((resolve, reject) => {
+			const check = () => {
+				const { completed, error, frames } = this._animation;
+				if (error) {
+					reject(error);
+					chart.destroy();
+				} else if (completed) {
+					resolve(frames as ReadonlyArray<string>);
+					chart.destroy();
+				} else {
+					setTimeout(() => check(), 100);
 				}
 			};
 			check();
@@ -301,10 +335,10 @@ export class ChartJSNodeCanvas {
 			chartJs.register(new BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
 		}
 		if (options.animation) {
-			const { buffers, urls } = this._animation;
-			chartJs.register(new AnimationPlugin(options.animation, buffers, urls, (animationError?: Error) => {
+			chartJs.register(new AnimationPlugin((frames: ReadonlyArray<AnimationFrame>, animationError?: Error) => {
 				this._animation.completed = true;
 				this._animation.error = animationError;
+				this._animation.frames = [...frames];
 			}));
 		}
 
@@ -316,7 +350,6 @@ export class ChartJSNodeCanvas {
 	public renderChart(configuration: ChartConfiguration): ChartJS {
 		const canvas = this._createCanvas(this._width, this._height, this._type);
 		(canvas as any).style = (canvas as any).style || {};
-		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
 		if (!this._animation) {

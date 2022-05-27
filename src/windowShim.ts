@@ -4,7 +4,7 @@ const requestAnimation = (() => {
 	// tslint:disable-next-line: no-let
 	let scheduled = false;
 	const secondInMillis = 1000;
-	const frameRate = 10;
+	const frameRate = 30;
 	const frameDuration = secondInMillis / frameRate;
 	return (callback: (arg: number) => void) => {
 		const now = Date.now();
@@ -17,8 +17,7 @@ const requestAnimation = (() => {
 		if (difference > frameDuration) {
 			runCallback();
 		} else {
-			if (scheduled)
-			{
+			if (scheduled) {
 				return;
 			}
 			scheduled = true;
@@ -27,6 +26,6 @@ const requestAnimation = (() => {
 	};
 });
 
-if (!('window' in global) || !global.window.requestAnimationFrame) {
-	global.window = { requestAnimationFrame: requestAnimation() } as any;
+if (!('window' in global) || !global.window?.requestAnimationFrame) {
+	global.window = {} as any; //{ requestAnimationFrame: requestAnimation() } as any;
 }

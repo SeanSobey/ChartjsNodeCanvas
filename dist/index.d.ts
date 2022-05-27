@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
-import { AnimationOptions } from './animationPlugin';
 export declare type ChartJSNodeCanvasPlugins = {
     /**
      * Global plugins, see https://www.chartjs.org/docs/latest/developers/plugins.html.
@@ -45,10 +44,13 @@ export interface ChartJSNodeCanvasOptions {
      */
     readonly plugins?: ChartJSNodeCanvasPlugins;
     /**
+     * Optional flag for the chart, otherwise it will render a still image.
+     */
+    readonly animation?: boolean;
+    /**
      * Optional background color for the chart, otherwise it will be transparent. Note, this will apply to all charts. See the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API used for possible values.
      */
     readonly backgroundColour?: string;
-    readonly animation?: AnimationOptions;
 }
 export declare class ChartJSNodeCanvas {
     private readonly _animation;
@@ -95,7 +97,14 @@ export declare class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      */
-    renderAnimationFrames(configuration: ChartConfiguration): Promise<ReadonlyArray<string> | ReadonlyArray<Buffer>>;
+    renderAnimationFrameBuffers(configuration: ChartConfiguration, mimeType?: MimeType): Promise<ReadonlyArray<Buffer>>;
+    /**
+     * Render to a buffer.
+     * @see https://github.com/Automattic/node-canvas#canvastobuffer
+     *
+     * @param configuration The Chart JS configuration for the chart to render.
+     */
+    renderAnimationFrameDataURLs(configuration: ChartConfiguration, mimeType?: MimeType): Promise<ReadonlyArray<string>>;
     /**
      * Render to a buffer synchronously.
      * @see https://github.com/Automattic/node-canvas#canvastobuffer

@@ -12,9 +12,9 @@ class ChartJSNodeCanvas {
      */
     constructor(options) {
         this._animation = {
-            buffers: [],
-            urls: [],
-            completed: false
+            completed: false,
+            frames: [],
+            error: undefined
         };
         if (options === null || typeof (options) !== 'object') {
             throw new Error('An options parameter object is required');
@@ -25,7 +25,6 @@ class ChartJSNodeCanvas {
         if (!options.height || typeof (options.height) !== 'number') {
             throw new Error('A height option is required');
         }
-        this._animation.options = options.animation;
         this._width = options.width;
         this._height = options.height;
         const canvas = (0, freshRequire_1.freshRequire)('canvas');
@@ -104,20 +103,53 @@ class ChartJSNodeCanvas {
      *
      * @param configuration The Chart JS configuration for the chart to render.
      */
-    async renderAnimationFrames(configuration) {
-        this.renderChart(configuration);
+    async renderAnimationFrameBuffers(configuration, mimeType = 'image/png') {
+        this._animation.completed = false;
+        this._animation.error = undefined;
+        this._animation.frames = [];
+        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'buffer' }));
         return new Promise((resolve, reject) => {
             const check = () => {
-                var _a;
-                const { buffers, completed, error, options, urls } = this._animation;
+                const { completed, error, frames } = this._animation;
                 if (error) {
                     reject(error);
+                    chart.destroy();
                 }
                 else if (completed) {
-                    resolve(['dataurl', 'dataurlsync'].includes((_a = options === null || options === void 0 ? void 0 : options.renderType) !== null && _a !== void 0 ? _a : '') ? urls : buffers);
+                    resolve(frames);
+                    chart.destroy();
                 }
                 else {
-                    setTimeout(() => check(), 200);
+                    setTimeout(() => check(), 100);
+                }
+            };
+            check();
+        });
+    }
+    /**
+     * Render to a buffer.
+     * @see https://github.com/Automattic/node-canvas#canvastobuffer
+     *
+     * @param configuration The Chart JS configuration for the chart to render.
+     */
+    async renderAnimationFrameDataURLs(configuration, mimeType = 'image/png') {
+        this._animation.completed = false;
+        this._animation.error = undefined;
+        this._animation.frames = [];
+        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'dataurl' }));
+        return new Promise((resolve, reject) => {
+            const check = () => {
+                const { completed, error, frames } = this._animation;
+                if (error) {
+                    reject(error);
+                    chart.destroy();
+                }
+                else if (completed) {
+                    resolve(frames);
+                    chart.destroy();
+                }
+                else {
+                    setTimeout(() => check(), 100);
                 }
             };
             check();
@@ -214,10 +246,10 @@ class ChartJSNodeCanvas {
             chartJs.register(new backgroundColourPlugin_1.BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
         }
         if (options.animation) {
-            const { buffers, urls } = this._animation;
-            chartJs.register(new animationPlugin_1.AnimationPlugin(options.animation, buffers, urls, (animationError) => {
+            chartJs.register(new animationPlugin_1.AnimationPlugin((frames, animationError) => {
                 this._animation.completed = true;
                 this._animation.error = animationError;
+                this._animation.frames = [...frames];
             }));
         }
         delete require.cache[require.resolve('chart.js')];
@@ -226,7 +258,6 @@ class ChartJSNodeCanvas {
     renderChart(configuration) {
         const canvas = this._createCanvas(this._width, this._height, this._type);
         canvas.style = canvas.style || {};
-        // Disable animation (otherwise charts will throw exceptions)
         configuration.options = configuration.options || {};
         configuration.options.responsive = false;
         if (!this._animation) {

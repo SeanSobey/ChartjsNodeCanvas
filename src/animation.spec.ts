@@ -1,13 +1,17 @@
-import './windowShim';
+global.window = { requestAnimationFrame: setImmediate } as any;
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
+import { promises as fs } from 'fs';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
 import { Assert } from 'ts-std-lib';
+import { join } from 'path';
+import { platform } from 'os';
 
 const assert = new Assert();
 
 describe(ChartJSNodeCanvas.name, () => {
+	const folder = join(process.cwd(), 'testData', platform(), 'animation');
 	const width = 400;
 	const height = 400;
 	const configuration: ChartConfiguration = {
@@ -38,11 +42,10 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			animation: {
-				onProgress: (event) => {
+				onProgress: event => {
 					// tslint:disable-next-line: no-unused-expression
 					(event as any).currentStep;
-				},
-				duration: 2000
+				}
 			}
 		}
 	};
@@ -51,18 +54,34 @@ describe(ChartJSNodeCanvas.name, () => {
 		ChartJS.defaults.maintainAspectRatio = false;
 	};
 
-	it('works animation', async () => {
+	it('generates animation frames as data urls', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
-			animation: {
-				renderType: 'dataurlsync',
-				// frameRate: 30
-			},
+			animation: true,
+			backgroundColour: 'white',
 			width,
 			height,
 			chartCallback
 		});
-		const urls = await chartJSNodeCanvas.renderAnimationFrames(configuration) as Array<string>;
+		const urls = await chartJSNodeCanvas.renderAnimationFrameDataURLs(configuration);
 		assert.equal(urls.length > 20, true);
-		global.window = undefined as any;
+	});
+
+	it('generates animation frames as buffers', async () => {
+		const chartJSNodeCanvas = new ChartJSNodeCanvas({
+			animation: true,
+			backgroundColour: 'white',
+			width,
+			height,
+			chartCallback
+		});
+		const buffers = await chartJSNodeCanvas.renderAnimationFrameBuffers(configuration);
+		assert.equal(buffers.length > 20, true);
+		// tslint:disable-next-line: forin
+		for (const index in buffers) {
+			const buffer = buffers[index];
+			const fileNameWithExtension = `buffer-animation-frame-${index}.png`;
+			const testDataPath = join(folder, fileNameWithExtension);
+			await fs.writeFile(testDataPath, buffer);
+		}
 	});
 });

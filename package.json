@@ -5,6 +5,7 @@
   "main": "./dist/index",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "nvm": "cat .nvmrc | nvm use",
     "build": "tsc",
     "clean": "clean-dest -s ./src -d ./dist --file-map ./scripts/clean-dest --permanent --verbose && echo TODO: Delete .tsbuildinfo?",
     "lint": "tslint -p ./tsconfig.json",

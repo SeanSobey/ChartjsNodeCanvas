@@ -48,7 +48,6 @@ export class AnimationPlugin implements ChartJSPlugin {
 		frame: 0,
 	};
 
-	// tslint:disable-next-line: readonly-array
 	public constructor(animationCompleted: AnimationCallback) {
 		this._frames = [];
 		this._animationCompleted = animationCompleted;
@@ -87,7 +86,7 @@ export class AnimationPlugin implements ChartJSPlugin {
 
 	private render(chart: ChartJS): void {
 		this.vars.frame += 1;
-		const { mimeType, renderType } = this.pluginOptions(chart);
+		const { mimeType, renderType } = AnimationPlugin.pluginOptions(chart);
 		try {
 			if (renderType === 'buffer') {
 				this.renderToBuffer(chart, mimeType);
@@ -118,7 +117,7 @@ export class AnimationPlugin implements ChartJSPlugin {
 		this._frames.push(png);
 	}
 
-	private pluginOptions(chart: ChartJS): AnimationPluginOptions {
+	private static pluginOptions(chart: ChartJS): AnimationPluginOptions {
 		const plugins = chart.config.options?.plugins;
 		const options = plugins ? (plugins as any)[AnimationPlugin.ID] : {};
 		return { ...AnimationPlugin.defaultPluginOptions, ...options };

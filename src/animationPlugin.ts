@@ -24,6 +24,7 @@ export type AnimationType = {
 export type AnimationRenderType = 'buffer' | 'dataurl';
 
 export type AnimationPluginOptions = {
+	readonly frameDuration: number;
 	readonly renderType: AnimationRenderType;
 	readonly mimeType: MimeType;
 };
@@ -32,6 +33,7 @@ export type AnimationCallback = (result: ReadonlyArray<AnimationFrame>, error?: 
 
 export class AnimationPlugin implements ChartJSPlugin {
 	private static readonly defaultPluginOptions: AnimationPluginOptions = {
+		frameDuration: 1000/60,
 		mimeType: 'image/png',
 		renderType: 'dataurl'
 	};
@@ -46,6 +48,7 @@ export class AnimationPlugin implements ChartJSPlugin {
 		beforeDatasetDraw: false,
 		count: 0,
 		frame: 0,
+		last: 0
 	};
 
 	public constructor(animationCompleted: AnimationCallback) {
@@ -67,6 +70,11 @@ export class AnimationPlugin implements ChartJSPlugin {
 	}
 
 	public afterDraw(chart: ChartJS): void {
+		const now = Date.now();
+		const { frameDuration } = AnimationPlugin.pluginOptions(chart);
+		if ((now - this.vars.last) < frameDuration) {
+			return;
+		}
 		this.render(chart);
 		this.vars.count += 1;
 	}
@@ -85,6 +93,7 @@ export class AnimationPlugin implements ChartJSPlugin {
 	}
 
 	private render(chart: ChartJS): void {
+		this.vars.last = Date.now();
 		this.vars.frame += 1;
 		const { mimeType, renderType } = AnimationPlugin.pluginOptions(chart);
 		try {

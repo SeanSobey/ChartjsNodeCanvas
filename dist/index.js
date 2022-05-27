@@ -104,11 +104,11 @@ class ChartJSNodeCanvas {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    async renderAnimationFrameBuffers(configuration, mimeType = 'image/png') {
+    async renderAnimationFrameBuffers(configuration, frameDuration = 1000 / 60, mimeType = 'image/png') {
         this._animation.completed = false;
         this._animation.error = undefined;
         this._animation.frames = [];
-        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'buffer' }));
+        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { frameDuration, mimeType, renderType: 'buffer' }));
         return new Promise((resolve, reject) => {
             const check = () => {
                 const { completed, error, frames } = this._animation;
@@ -134,11 +134,11 @@ class ChartJSNodeCanvas {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    async renderAnimationFrameDataURLs(configuration, mimeType = 'image/png') {
+    async renderAnimationFrameDataURLs(configuration, frameDuration = 1000 / 60, mimeType = 'image/png') {
         this._animation.completed = false;
         this._animation.error = undefined;
         this._animation.frames = [];
-        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { mimeType, renderType: 'dataurl' }));
+        const chart = this.renderChart(animationPlugin_1.AnimationPlugin.includePluginOptions(configuration, { frameDuration, mimeType, renderType: 'dataurl' }));
         return new Promise((resolve, reject) => {
             const check = () => {
                 const { completed, error, frames } = this._animation;

@@ -98,10 +98,11 @@ class ChartJSNodeCanvas {
         });
     }
     /**
-     * Render to a buffer.
+     * Render to a buffer array.
      * @see https://github.com/Automattic/node-canvas#canvastobuffer
      *
      * @param configuration The Chart JS configuration for the chart to render.
+     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
     async renderAnimationFrameBuffers(configuration, mimeType = 'image/png') {
         this._animation.completed = false;
@@ -127,10 +128,11 @@ class ChartJSNodeCanvas {
         });
     }
     /**
-     * Render to a buffer.
-     * @see https://github.com/Automattic/node-canvas#canvastobuffer
+     * Render to a data url array.
+     * @see https://github.com/Automattic/node-canvas#canvastodataurl
      *
      * @param configuration The Chart JS configuration for the chart to render.
+     * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support), `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom), `application/pdf` (for PDF canvases) and image/svg+xml (for SVG canvases). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
     async renderAnimationFrameDataURLs(configuration, mimeType = 'image/png') {
         this._animation.completed = false;

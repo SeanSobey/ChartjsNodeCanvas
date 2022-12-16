@@ -156,7 +156,7 @@ Just use the `registerFont` method:
 ```js
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback: (ChartJS) => {
     // Just example usage
-    ChartJS.global.defaultFontFamily = 'VTKS UNAMOUR';
+    ChartJS.defaults.font.family = 'VTKS UNAMOUR';
 } });
 // Register before rendering any charts
 chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });

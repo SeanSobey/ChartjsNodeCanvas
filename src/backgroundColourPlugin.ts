@@ -11,6 +11,7 @@ export class BackgroundColourPlugin implements ChartJSPlugin {
 
 	public beforeDraw(chart: ChartJS): boolean | void {
 
+		console.log('beforeDraw');
 		const ctx = chart.ctx;
 		ctx.save();
 		ctx.fillStyle = this._fillStyle;

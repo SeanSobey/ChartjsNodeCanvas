@@ -1,6 +1,6 @@
 {
-  "name": "chartjs-node-canvas",
-  "version": "4.1.6",
+  "name": "@sourfanta/chartjs-node-canvas",
+  "version": "4.1.7",
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index",
   "types": "./dist/index.d.ts",

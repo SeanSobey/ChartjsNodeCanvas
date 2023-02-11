@@ -55,7 +55,7 @@
     "jsdoc-to-markdown": "^5.0.3",
     "mocha": "^7.2.0",
     "nodemon": "^2.0.13",
-    "release-it": "^14.11.6",
+    "release-it": "^15.6.0",
     "resemblejs": "^4.0.0",
     "source-map-support": "^0.5.20",
     "ts-std-lib": "^1.2.1",

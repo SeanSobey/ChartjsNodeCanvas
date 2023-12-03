@@ -2,7 +2,7 @@
   "name": "chartjs-node-canvas",
   "version": "4.1.6",
   "description": "A node renderer for Chart.js using canvas.",
-  "main": "./dist/index",
+  "main": "./proxy/proxy.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "nvm": "cat .nvmrc | nvm use",

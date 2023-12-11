@@ -49,7 +49,7 @@ class ChartJSNodeCanvas {
     async renderToBuffer ( configuration, mimeType = 'image/png' ) {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
-                this.#processInstance.once ( 'message', r => resolve ( r ) );
+                this.#processInstance.once ( 'message', r => resolve ( Buffer.from( r ) ) );
                 this.#processInstance.send ( {
                     command: 'renderToBuffer',
                     args   : [ converter.fn2string( configuration ), mimeType ]

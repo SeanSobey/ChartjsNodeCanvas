@@ -1,5 +1,6 @@
 const { fork } = require ( 'node:child_process' );
 const converter = require ( './converter' );
+const path = require ( 'node:path' );
 
 class ChartJSNodeCanvas {
 
@@ -7,7 +8,7 @@ class ChartJSNodeCanvas {
     #ready;
 
     constructor ( options ) {
-        this.#processInstance = fork ( './process.js' );
+        this.#processInstance = fork ( path.resolve( __dirname, 'process.js' ) );
         this.#ready = new Promise ( ( resolve, reject ) => {
             this.#processInstance.once ( 'exit', c => {
                 console.log ( `child process exited with code ${ c }` );

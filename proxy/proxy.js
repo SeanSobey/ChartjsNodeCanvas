@@ -10,10 +10,6 @@ class ChartJSNodeCanvas {
     constructor ( options ) {
         this.#processInstance = fork ( path.resolve( __dirname, 'process.js' ) );
         this.#ready = new Promise ( ( resolve, reject ) => {
-            this.#processInstance.once ( 'exit', c => {
-                console.log ( `child process exited with code ${ c }` );
-                reject ();
-            } );
             this.#processInstance.once ( 'error', e => {
                 console.error ( 'child process errored', e.message );
                 reject ( e );

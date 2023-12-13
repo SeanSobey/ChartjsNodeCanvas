@@ -8,7 +8,7 @@ class ChartJSNodeCanvas {
     #ready;
 
     constructor ( options ) {
-        this.#processInstance = fork ( path.resolve( __dirname, 'process.js' ) );
+        this.#processInstance = fork ( path.resolve ( __dirname, 'process.js' ) );
         this.#ready = new Promise ( ( resolve, reject ) => {
             this.#processInstance.once ( 'error', e => {
                 console.error ( 'child process errored', e.message );
@@ -19,7 +19,7 @@ class ChartJSNodeCanvas {
             } );
             this.#processInstance.send ( {
                 command: 'constructor',
-                args   : [ converter.fn2string( options ) ]
+                args   : [ converter.fn2string ( options ) ]
             } );
         } );
     }
@@ -30,12 +30,18 @@ class ChartJSNodeCanvas {
     async renderToDataURL ( configuration, mimeType = 'image/png' ) {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
-                this.#processInstance.once ( 'message', r => resolve ( r ) );
+                this.#processInstance.once ( 'message', r => {
+                    resolve ( r );
+                    this.#processInstance.kill ();
+                } );
                 this.#processInstance.send ( {
                     command: 'renderToDataURL',
-                    args   : [ converter.fn2string( configuration ), mimeType ]
+                    args   : [ converter.fn2string ( configuration ), mimeType ]
                 } );
-            } ).catch ( e => reject ( e ) );
+            } ).catch ( e => {
+                reject ( e );
+                this.#processInstance.kill ();
+            } );
         } );
     }
 
@@ -45,12 +51,18 @@ class ChartJSNodeCanvas {
     async renderToBuffer ( configuration, mimeType = 'image/png' ) {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
-                this.#processInstance.once ( 'message', r => resolve ( Buffer.from( r ) ) );
+                this.#processInstance.once ( 'message', r => {
+                    resolve ( Buffer.from ( r ) );
+                    this.#processInstance.kill ();
+                } );
                 this.#processInstance.send ( {
                     command: 'renderToBuffer',
-                    args   : [ converter.fn2string( configuration ), mimeType ]
+                    args   : [ converter.fn2string ( configuration ), mimeType ]
                 } );
-            } ).catch ( e => reject ( e ) );
+            } ).catch ( e => {
+                reject ( e );
+                this.#processInstance.kill ();
+            } );
         } );
     }
 

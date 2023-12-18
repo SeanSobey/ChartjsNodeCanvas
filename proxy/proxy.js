@@ -31,7 +31,11 @@ class ChartJSNodeCanvas {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
                 this.#processInstance.once ( 'message', r => {
-                    resolve ( r );
+                    if ( r && r.message ) {
+                        reject ( r );
+                    } else {
+                        resolve ( Buffer.from ( r ) );
+                    }
                     this.#processInstance.kill ();
                 } );
                 this.#processInstance.send ( {
@@ -52,7 +56,11 @@ class ChartJSNodeCanvas {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
                 this.#processInstance.once ( 'message', r => {
-                    resolve ( Buffer.from ( r ) );
+                    if ( r && r.message ) {
+                        reject ( r );
+                    } else {
+                        resolve ( Buffer.from ( r ) );
+                    }
                     this.#processInstance.kill ();
                 } );
                 this.#processInstance.send ( {
@@ -72,7 +80,11 @@ class ChartJSNodeCanvas {
     async registerFont ( path, options ) {
         return new Promise ( ( resolve, reject ) => {
             this.#ready.then ( () => {
-                this.#processInstance.once ( 'message', r => resolve ( r ) );
+                if ( r && r.message ) {
+                    reject ( r );
+                } else {
+                    resolve ( r );
+                }
                 this.#processInstance.send ( {
                     command: 'registerFont',
                     args   : [ path, options ]

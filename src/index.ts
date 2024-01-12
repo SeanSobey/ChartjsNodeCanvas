@@ -284,7 +284,7 @@ export class ChartJSNodeCanvas {
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
 		configuration.options.animation = false as any;
-		const context = canvas.getContext('2d');
+		const context = canvas.getContext('2d') as any;
 		(global as any).Image = this._image; // Some plugins use this API
 		const chart = new this._chartJs(context, configuration);
 		delete (global as any).Image;

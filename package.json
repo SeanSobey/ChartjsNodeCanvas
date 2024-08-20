@@ -35,8 +35,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.11.2",
-    "tslib": "^2.6.2"
+    "canvas": "^2.11.2"
   },
   "peerDependencies": {
     "chart.js": "^3.9.1"

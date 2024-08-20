@@ -2,7 +2,7 @@ import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
 import { ChartConfiguration } from 'chart.js';
 
-import { ChartJSNodeCanvas, ChartCallback, CanvasType, MimeType, ChartJSNodeCanvasPlugins } from './';
+import { ChartJSNodeCanvas, ChartCallback, MimeType, ChartJSNodeCanvasPlugins } from './';
 
 const assert = new Assert();
 
@@ -61,14 +61,14 @@ describe(ChartJSNodeCanvas.name, () => {
 		} as any
 	};
 
-	function createSUT(type?: CanvasType, plugins?: ChartJSNodeCanvasPlugins): ChartJSNodeCanvas {
+	function createSUT(plugins?: ChartJSNodeCanvasPlugins): ChartJSNodeCanvas {
 
 		const chartCallback: ChartCallback = (ChartJS) => {
 
 			ChartJS.defaults.responsive = true;
 			ChartJS.defaults.maintainAspectRatio = false;
 		};
-		return new ChartJSNodeCanvas({ width, height, chartCallback, type, plugins });
+		return new ChartJSNodeCanvas({ width, height, chartCallback, plugins });
 	}
 
 	const mimeTypes: ReadonlyArray<MimeType> = ['image/png', 'image/jpeg'];
@@ -149,62 +149,58 @@ describe(ChartJSNodeCanvas.name, () => {
 	describe(ChartJSNodeCanvas.prototype.renderToBufferSync.name, () => {
 
 		([
-			[undefined, mimeTypes],
-			['svg', ['image/svg+xml']],
-			['pdf', ['application/pdf']]
-		] as ReadonlyArray<[CanvasType, ReadonlyArray<MimeType | 'application/pdf' | 'image/svg+xml'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+			[mimeTypes],
+			[['image/svg+xml']],
+			[['application/pdf']]
+		] as ReadonlyArray<[ReadonlyArray<MimeType | 'application/pdf' | 'image/svg+xml'>]>).forEach(([extendedMimeTypes]) => {
 
-			describe(`given canvasType '${canvasType}'`, () => {
+			extendedMimeTypes.forEach((mimeType) => {
 
-				extendedMimeTypes.forEach((mimeType) => {
+				describe(`given mimeType '${mimeType}'`, () => {
 
-					describe(`given mimeType '${mimeType}'`, () => {
-
-						it('renders chart', async () => {
-							const chartJSNodeCanvas = createSUT(canvasType);
-							const image = chartJSNodeCanvas.renderToBufferSync(configuration, mimeType);
-							assert.equal(image instanceof Buffer, true);
-						});
+					it('renders chart', async () => {
+						const chartJSNodeCanvas = createSUT();
+						const image = chartJSNodeCanvas.renderToBufferSync(configuration, mimeType);
+						assert.equal(image instanceof Buffer, true);
 					});
 				});
 			});
+
 		});
 	});
 
 	describe(ChartJSNodeCanvas.prototype.renderToStream.name, () => {
 
 		([
-			[undefined, mimeTypes],
-			['pdf', ['application/pdf']]
-		] as ReadonlyArray<[CanvasType | undefined, ReadonlyArray<MimeType | 'application/pdf'>]>).forEach(([canvasType, extendedMimeTypes]) => {
+			[mimeTypes],
+			[['application/pdf']]
+		] as ReadonlyArray<[ReadonlyArray<MimeType | 'application/pdf'>]>).forEach(([extendedMimeTypes]) => {
 
-			describe(`given canvasType '${canvasType}'`, () => {
+			extendedMimeTypes.forEach((mimeType) => {
 
-				extendedMimeTypes.forEach((mimeType) => {
+				describe(`given extended mimeType '${mimeType}'`, () => {
 
-					describe(`given extended mimeType '${mimeType}'`, () => {
-
-						it('renders stream', (done) => {
-							const chartJSNodeCanvas = createSUT(canvasType);
-							const stream = chartJSNodeCanvas.renderToStream(configuration, mimeType);
-							const data: Array<Buffer> = [];
-							stream.on('data', (chunk: Buffer) => {
-								data.push(chunk);
-							});
-							stream.on('end', () => {
-								assert.equal(Buffer.concat(data).length > 0, true);
-								done();
-							});
-							stream.on('finish', () => {
-								assert.equal(Buffer.concat(data).length > 0, true);
-								done();
-							});
-							stream.on('error', (error) => {
-								done(error);
-							});
+					it('renders stream', (done) => {
+						const chartJSNodeCanvas = createSUT();
+						const stream = chartJSNodeCanvas.renderToStream(configuration, mimeType);
+						const data: Array<Buffer> = [];
+						stream.on('data', (chunk: Buffer) => {
+							data.push(chunk);
+						});
+						stream.on('end', () => {
+							assert.equal(Buffer.concat(data).length > 0, true);
+							done();
+						});
+						stream.on('finish', () => {
+							assert.equal(Buffer.concat(data).length > 0, true);
+							done();
+						});
+						stream.on('error', (error) => {
+							done(error);
 						});
 					});
 				});
+
 			});
 		});
 	});

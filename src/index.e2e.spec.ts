@@ -266,7 +266,7 @@ describe(ChartJSNodeCanvas.name, () => {
 				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
 			}
 		});
-		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', 'VTKS UNAMOUR');
 		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {

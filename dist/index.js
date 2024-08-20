@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChartJSNodeCanvas = void 0;
+const canvas_1 = require("@napi-rs/canvas");
 const freshRequire_1 = require("./freshRequire");
 const backgroundColourPlugin_1 = require("./backgroundColourPlugin");
 class ChartJSNodeCanvas {
@@ -21,11 +22,9 @@ class ChartJSNodeCanvas {
         }
         this._width = options.width;
         this._height = options.height;
-        const canvas = (0, freshRequire_1.freshRequire)('canvas');
+        const canvas = (0, freshRequire_1.freshRequire)('@napi-rs/canvas');
         this._createCanvas = canvas.createCanvas;
-        this._registerFont = canvas.registerFont;
         this._image = canvas.Image;
-        this._type = options.type && options.type.toLowerCase();
         this._chartJs = this.initialize(options);
     }
     /**
@@ -75,21 +74,13 @@ class ChartJSNodeCanvas {
      * @param configuration The Chart JS configuration for the chart to render.
      * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
      */
-    renderToBuffer(configuration, mimeType = 'image/png') {
+    async renderToBuffer(configuration, mimeType = 'image/png') {
         const chart = this.renderChart(configuration);
-        return new Promise((resolve, reject) => {
-            if (!chart.canvas) {
-                throw new Error('Canvas is null');
-            }
-            const canvas = chart.canvas;
-            canvas.toBuffer((error, buffer) => {
-                chart.destroy();
-                if (error) {
-                    return reject(error);
-                }
-                return resolve(buffer);
-            }, mimeType);
-        });
+        if (!chart.canvas) {
+            throw new Error('Canvas is null');
+        }
+        const canvas = chart.canvas;
+        return canvas.toBuffer(mimeType);
     }
     /**
      * Render to a buffer synchronously.
@@ -137,12 +128,14 @@ class ChartJSNodeCanvas {
      * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
      *
      * @param path The path to the font file.
-     * @param options The font options.
+     * @param nameAlias The name to use when registering the font, this is the name that will be used in the font property in the chart configuration.
      * @example
-     * registerFont('comicsans.ttf', { family: 'Comic Sans' });
+     * registerFont('comicsans.ttf', 'Comic Sans');
      */
-    registerFont(path, options) {
-        this._registerFont(path, options);
+    registerFont(path, nameAlias) {
+        if (!canvas_1.GlobalFonts.registerFromPath(path, nameAlias)) {
+            throw new Error(`ChartJsNodeCanvas: Failed to register font: ${path} with alias: ${nameAlias}`);
+        }
     }
     initialize(options) {
         var _a, _b, _c, _d;
@@ -185,7 +178,7 @@ class ChartJSNodeCanvas {
         return chartJs;
     }
     renderChart(configuration) {
-        const canvas = this._createCanvas(this._width, this._height, this._type);
+        const canvas = this._createCanvas(this._width, this._height);
         canvas.style = canvas.style || {};
         // Disable animation (otherwise charts will throw exceptions)
         configuration.options = configuration.options || {};

@@ -7,8 +7,6 @@
     "sourceMap": true,
     "outDir": "./dist/",
     "importHelpers": true,
-    "incremental": true,
-    "tsBuildInfoFile": "./.tsbuildinfo",
 
     /* Strict Type-Checking Options */
     "strict": true,

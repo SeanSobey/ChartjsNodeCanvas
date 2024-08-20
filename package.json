@@ -35,7 +35,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.11.2"
+    "@napi-rs/canvas": "^0.1.54"
   },
   "peerDependencies": {
     "chart.js": "^3.9.1"

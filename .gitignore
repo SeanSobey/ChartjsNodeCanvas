@@ -108,3 +108,7 @@ typings/
 
 #dist
 dist/**
+
+dist/
+
+example.png

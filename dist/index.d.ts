@@ -20,7 +20,6 @@ export declare type ChartJSNodeCanvasPlugins = {
     readonly requireLegacy?: ReadonlyArray<string>;
 };
 export declare type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
-export declare type CanvasType = 'pdf' | 'svg';
 export declare type MimeType = 'image/png' | 'image/jpeg';
 export interface ChartJSNodeCanvasOptions {
     /**
@@ -36,10 +35,6 @@ export interface ChartJSNodeCanvasOptions {
      */
     readonly chartCallback?: ChartCallback;
     /**
-     * Optional canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
-     */
-    readonly type?: CanvasType;
-    /**
      * Optional plugins to register.
      */
     readonly plugins?: ChartJSNodeCanvasPlugins;
@@ -53,9 +48,7 @@ export declare class ChartJSNodeCanvas {
     private readonly _height;
     private readonly _chartJs;
     private readonly _createCanvas;
-    private readonly _registerFont;
     private readonly _image;
-    private readonly _type?;
     /**
      * Create a new instance of CanvasRenderService.
      *
@@ -106,15 +99,11 @@ export declare class ChartJSNodeCanvas {
      * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
      *
      * @param path The path to the font file.
-     * @param options The font options.
+     * @param nameAlias The name to use when registering the font, this is the name that will be used in the font property in the chart configuration.
      * @example
-     * registerFont('comicsans.ttf', { family: 'Comic Sans' });
+     * registerFont('comicsans.ttf', 'Comic Sans');
      */
-    registerFont(path: string, options: {
-        readonly family: string;
-        readonly weight?: string;
-        readonly style?: string;
-    }): void;
+    registerFont(path: string, nameAlias?: string): void;
     private initialize;
     private renderChart;
 }

@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
-import { createCanvas, registerFont, Image } from 'canvas';
+import { createCanvas, GlobalFonts, Image } from '@napi-rs/canvas'
 import { freshRequire } from './freshRequire';
 import { BackgroundColourPlugin } from './backgroundColourPlugin';
 
@@ -23,7 +23,6 @@ export type ChartJSNodeCanvasPlugins = {
 	readonly requireLegacy?: ReadonlyArray<string>;
 };
 export type ChartCallback = (chartJS: typeof ChartJS) => void | Promise<void>;
-export type CanvasType = 'pdf' | 'svg';
 export type MimeType = 'image/png' | 'image/jpeg';
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
@@ -49,10 +48,6 @@ export interface ChartJSNodeCanvasOptions {
 	 */
 	readonly chartCallback?: ChartCallback;
 	/**
-	 * Optional canvas type ('PDF' or 'SVG'), see the [canvas pdf doc](https://github.com/Automattic/node-canvas#pdf-output-support).
-	 */
-	readonly type?: CanvasType;
-	/**
 	 * Optional plugins to register.
 	 */
 	readonly plugins?: ChartJSNodeCanvasPlugins;
@@ -69,9 +64,7 @@ export class ChartJSNodeCanvas {
 	private readonly _height: number;
 	private readonly _chartJs: typeof ChartJS;
 	private readonly _createCanvas: typeof createCanvas;
-	private readonly _registerFont: typeof registerFont;
 	private readonly _image: typeof Image;
-	private readonly _type?: CanvasType;
 
 	/**
 	 * Create a new instance of CanvasRenderService.
@@ -92,11 +85,9 @@ export class ChartJSNodeCanvas {
 
 		this._width = options.width;
 		this._height = options.height;
-		const canvas = freshRequire('canvas');
+		const canvas = freshRequire('@napi-rs/canvas');
 		this._createCanvas = canvas.createCanvas;
-		this._registerFont = canvas.registerFont;
 		this._image = canvas.Image;
-		this._type = options.type && options.type.toLowerCase() as CanvasType;
 		this._chartJs = this.initialize(options);
 	}
 
@@ -151,22 +142,16 @@ export class ChartJSNodeCanvas {
 	 * @param configuration The Chart JS configuration for the chart to render.
 	 * @param mimeType A string indicating the image format. Valid options are `image/png`, `image/jpeg` (if node-canvas was built with JPEG support) or `raw` (unencoded ARGB32 data in native-endian byte order, top-to-bottom). Defaults to `image/png` for image canvases, or the corresponding type for PDF or SVG canvas.
 	 */
-	public renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
+	public async renderToBuffer(configuration: ChartConfiguration, mimeType: MimeType = 'image/png'): Promise<Buffer> {
 
 		const chart = this.renderChart(configuration);
-		return new Promise<Buffer>((resolve, reject) => {
-			if (!chart.canvas) {
-				throw new Error('Canvas is null');
-			}
-			const canvas = chart.canvas as Canvas;
-			canvas.toBuffer((error: Error | null, buffer: Buffer) => {
-				chart.destroy();
-				if (error) {
-					return reject(error);
-				}
-				return resolve(buffer);
-			}, mimeType);
-		});
+
+		if (!chart.canvas) {
+			throw new Error('Canvas is null');
+		}
+		const canvas = chart.canvas as Canvas;
+		return canvas.toBuffer(mimeType)
+
 	}
 
 	/**
@@ -219,13 +204,16 @@ export class ChartJSNodeCanvas {
 	 * Use to register the font with Canvas to use a font file that is not installed as a system font, this must be done before the Canvas is created.
 	 *
 	 * @param path The path to the font file.
-	 * @param options The font options.
+	 * @param nameAlias The name to use when registering the font, this is the name that will be used in the font property in the chart configuration.
 	 * @example
-	 * registerFont('comicsans.ttf', { family: 'Comic Sans' });
+	 * registerFont('comicsans.ttf', 'Comic Sans');
 	 */
-	public registerFont(path: string, options: { readonly family: string, readonly weight?: string, readonly style?: string }): void {
+	public registerFont(path: string, nameAlias?: string): void {
 
-		this._registerFont(path, options);
+		if (!GlobalFonts.registerFromPath(path, nameAlias)) {
+			throw new Error(`ChartJsNodeCanvas: Failed to register font: ${path} with alias: ${nameAlias}`);
+		}
+
 	}
 
 	private initialize(options: ChartJSNodeCanvasOptions): typeof ChartJS {
@@ -278,13 +266,13 @@ export class ChartJSNodeCanvas {
 
 	private renderChart(configuration: ChartConfiguration): ChartJS {
 
-		const canvas = this._createCanvas(this._width, this._height, this._type);
+		const canvas = this._createCanvas(this._width, this._height);
 		(canvas as any).style = (canvas as any).style || {};
 		// Disable animation (otherwise charts will throw exceptions)
 		configuration.options = configuration.options || {};
 		configuration.options.responsive = false;
 		configuration.options.animation = false as any;
-		const context = canvas.getContext('2d');
+		const context = canvas.getContext('2d') as any;
 		(global as any).Image = this._image; // Some plugins use this API
 		const chart = new this._chartJs(context, configuration);
 		delete (global as any).Image;

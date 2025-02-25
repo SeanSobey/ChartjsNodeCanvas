@@ -1,4 +1,4 @@
-import { ChartJSNodeCanvas, ChartCallback } from './';
+import { ChartJSNodeCanvas, AnimatedChartJSNodeCanvas, ChartCallback } from './';
 import { ChartConfiguration } from 'chart.js';
 import { promises as fs } from 'fs';
 
@@ -52,5 +52,17 @@ async function main(): Promise<void> {
 	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
 	await fs.writeFile('./example.png', buffer, 'base64');
+
+	// const animatedChartJSNodeCanvas = new AnimatedChartJSNodeCanvas({ width, height, chartCallback });
+	// const buffers = await animatedChartJSNodeCanvas.renderToBuffer(configuration);
+	// const { Gif } = await import('make-a-gif');
+	// const gif = new Gif(width, height, 1);
+	// const totalDuration = 1000;
+	// const duration = totalDuration / buffers.length;
+	// await gif.setFrames(buffers.map(buffer => ({ src: new Uint8Array(buffer), duration })));
+	// // const data = await chartJSNodeCanvas.renderToDataURL(configuration);
+	// // console.log(data.length);
+	// const image = await gif.encode();
+	// await fs.writeFile('./example.gif', image);
 }
 main();

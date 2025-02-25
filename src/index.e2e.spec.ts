@@ -199,6 +199,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
 				datasets: [{
+					label: 'Red',
 					backgroundColor: chartColors.red,
 					data: [12, 19, 3, 5, 2, 3],
 					datalabels: {
@@ -206,6 +207,7 @@ describe(ChartJSNodeCanvas.name, () => {
 						anchor: 'start'
 					}
 				}, {
+					label: 'Blue',
 					backgroundColor: chartColors.blue,
 					data: [3, 5, 2, 3, 30, 15, 19, 2],
 					datalabels: {
@@ -213,6 +215,7 @@ describe(ChartJSNodeCanvas.name, () => {
 						anchor: 'center'
 					}
 				}, {
+					label: 'Green',
 					backgroundColor: chartColors.green,
 					data: [12, 19, 3, 5, 2, 3],
 					datalabels: {

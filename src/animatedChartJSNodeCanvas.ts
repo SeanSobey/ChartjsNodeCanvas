@@ -103,7 +103,7 @@ export class AnimatedChartJSNodeCanvas extends ChartJSNodeCanvasBase {
 		global.window.cancelAnimationFrame = animationFrameProvider.cancelAnimationFrame;
 		const context = canvas.getContext('2d');
 		(global as any).Image = this._image; // Some plugins use this API
-		const chart = new this._chartJs(context, configuredChartConfig);
+		const chart = new this._chartJs((context as any), configuredChartConfig);
 		delete (global as any).Image;
 		return chart;
 	}

@@ -35,7 +35,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.8.0",
+    "canvas": "^2.11.2",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^16.10.4",
-    "@types/offscreencanvas": "^2019.6.4",
+    "@types/offscreencanvas": "^2019.7.3",
     "c8": "^7.10.0",
     "chart.js": "^3.5.1",
     "chartjs-plugin-annotation": "^1.0.2",

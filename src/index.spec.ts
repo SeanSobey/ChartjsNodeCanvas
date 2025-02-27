@@ -1,6 +1,6 @@
 import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration } from 'chart.js/auto';
 
 import { ChartJSNodeCanvas, ChartCallback, CanvasType, MimeType, ChartJSNodeCanvasPlugins } from './';
 
@@ -47,7 +47,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: {
+				y: {
 					ticks: {
 						beginAtZero: true,
 						callback: (value: number) => '$' + value

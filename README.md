@@ -164,6 +164,13 @@ chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UN
 
 See the node-canvas [docs](https://github.com/Automattic/node-canvas#registerfont) and the chart js [docs](https://www.chartjs.org/docs/latest/general/fonts.html).
 
+#### Windows
+
+On windows you need to install the font first, before running your app. Otherwise you will get an error something like:
+`Pango-WARNING **: 11:13:09.211: couldn't load font "vtks unamour Not-Rotated 12px", falling back to "Sans Not-Rotated 12px", expect ugly output.`
+
+See [here](https://github.com/Automattic/node-canvas/issues/1643).
+
 ### Background color
 
 Due to the many issues and question this includes a [convenience plugin](./src/backgroundColourPlugin.ts) to fill the otherwise transparent background. It uses the [fillStyle](https://www.w3schools.com/tags/canvas_fillstyle.asp) canvas API;

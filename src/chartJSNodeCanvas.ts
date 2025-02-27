@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
+import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js/auto';
 import { ChartJSNodeCanvasBase, MimeType, Canvas } from './chartJSNodeCanvasBase';
 
 export class ChartJSNodeCanvas extends ChartJSNodeCanvasBase {

@@ -5,7 +5,7 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration } from 'chart.js/auto';
 import resemble /*, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult }*/ from 'resemblejs';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
@@ -51,7 +51,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: {
+				y: {
 					beginAtZero: true,
 					ticks: {
 						callback: (tickValue, _index, _ticks) => '$' + tickValue
@@ -149,36 +149,18 @@ describe(ChartJSNodeCanvas.name, () => {
 				responsive: true,
 				plugins: {
 					annotation: {
-						annotations: [
-							{
-								drawTime: 'afterDatasetsDraw',
-								id: 'hline',
-								type: 'line',
-								mode: 'horizontal',
-								scaleID: 'y-axis-0',
-								value: 48,
-								borderColor: 'black',
-								borderWidth: 5,
-								label: {
-									backgroundColor: 'red',
-									content: 'Test Label',
-									enabled: true
+						annotations: {
+							label1: {
+								type: 'label',
+								xValue: 3,
+								yValue: 20,
+								backgroundColor: 'rgba(245,245,245)',
+								content: ['This is my text', 'This is my text, second line'],
+								font: {
+									size: 18
 								}
-							},
-							{
-								drawTime: 'beforeDatasetsDraw',
-								type: 'box',
-								xScaleID: 'x-axis-0',
-								yScaleID: 'y-axis-0',
-								xMin: 'February',
-								xMax: 'April',
-								yMin: -23,
-								yMax: 40,
-								backgroundColor: 'rgba(101, 33, 171, 0.5)',
-								borderColor: 'rgb(101, 33, 171)',
-								borderWidth: 1,
 							}
-						]
+						}
 					}
 				} as any
 			}
@@ -238,10 +220,10 @@ describe(ChartJSNodeCanvas.name, () => {
 					}
 				} as any, // TODO: resolve type
 				scales: {
-					xAxes: {
+					x: {
 						stacked: true
 					},
-					yAxes: {
+					y: {
 						stacked: true
 					}
 				}
@@ -266,10 +248,10 @@ describe(ChartJSNodeCanvas.name, () => {
 	it('works with custom font', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
 			width, height, backgroundColour: 'white', chartCallback: (ChartJS) => {
-				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
+				ChartJS.defaults.font.family = 'Anthrope';
 			}
 		});
-		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		chartJSNodeCanvas.registerFont('./testData/Anthrope.ttf', { family: 'Anthrope' });
 		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
@@ -298,7 +280,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			},
 			options: {
 				scales: {
-					yAxes: {
+					y: {
 						ticks: {
 							beginAtZero: true,
 							callback: (value: number) => '$' + value

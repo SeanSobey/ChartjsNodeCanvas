@@ -1,4 +1,4 @@
-import { Chart as ChartJS, ChartConfiguration } from 'chart.js';
+import { Chart as ChartJS, ChartConfiguration } from 'chart.js/auto';
 import { ChartJSNodeCanvasBase, MimeType, Canvas } from './chartJSNodeCanvasBase';
 
 const animationFrameProvider: AnimationFrameProvider = {

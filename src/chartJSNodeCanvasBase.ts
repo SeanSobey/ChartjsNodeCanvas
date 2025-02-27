@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
-import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js';
+import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js/auto';
 import { createCanvas, registerFont, Image } from 'canvas';
+import { join as pathJoin } from 'path';
 import { freshRequire } from './freshRequire';
 import { BackgroundColourPlugin } from './backgroundColourPlugin';
 
@@ -114,7 +115,7 @@ export abstract class ChartJSNodeCanvasBase {
 
 	protected initialize(options: ChartJSNodeCanvasOptions): typeof ChartJS {
 
-		const chartJs: typeof ChartJS = require('chart.js');
+		const chartJs: typeof ChartJS = require('chart.js/auto');
 
 		if (options.plugins?.requireChartJSLegacy) {
 			for (const plugin of options.plugins.requireChartJSLegacy) {
@@ -154,8 +155,13 @@ export abstract class ChartJSNodeCanvasBase {
 		if (options.backgroundColour) {
 			chartJs.register(new BackgroundColourPlugin(options.width, options.height, options.backgroundColour));
 		}
+		const chartJsPath  = pathJoin('node_modules','chart.js');
 
-		delete require.cache[require.resolve('chart.js')];
+		for (const key of Object.keys(require.cache)) {
+			if (key.includes(chartJsPath)) {
+				delete require.cache[key];
+			}
+		}
 
 		return chartJs;
 	}

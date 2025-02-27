@@ -1,8 +1,9 @@
 {
   "name": "chartjs-node-canvas",
-  "version": "4.1.6",
+  "version": "5.0.0",
   "description": "A node renderer for Chart.js using canvas.",
   "main": "./dist/index",
+  "type": "commonjs",
   "types": "./dist/index.d.ts",
   "scripts": {
     "nvm": "cat .nvmrc | nvm use",
@@ -35,22 +36,21 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.11.2",
+    "canvas": "^3.1.0",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "chart.js": "^3.9.1"
+    "chart.js": "^4.4.8"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^16.10.4",
     "@types/offscreencanvas": "^2019.7.3",
     "c8": "^7.10.0",
-    "chart.js": "^3.9.1",
-    "chartjs-plugin-annotation": "^1.0.2",
-    "chartjs-plugin-crosshair": "^1.2.0",
-    "chartjs-plugin-datalabels": "^2.0.0",
-    "chartjs-plugin-piechart-outlabels": "^0.1.4",
+    "chart.js": "^4.4.8",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "chartjs-plugin-crosshair": "^2.0.0",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "clean-dest": "^1.3.3",
     "gifencoder": "^2.0.1",
     "jsdoc-to-markdown": "^5.0.3",
@@ -60,10 +60,6 @@
     "resemblejs": "^4.0.0",
     "source-map-support": "^0.5.20",
     "ts-std-lib": "^1.2.2",
-    "tslint": "^6.1.3",
-    "tslint-divid": "^1.3.0",
-    "tslint-eslint-rules": "^5.4.0",
-    "tslint-immutable": "^6.0.1",
     "typescript": "^5.7.3",
     "wtfnode": "^0.9.1"
   }

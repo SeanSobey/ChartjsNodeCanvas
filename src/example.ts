@@ -54,7 +54,7 @@ async function main(): Promise<void> {
 
 	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-	await fs.writeFile('./example.png', buffer, 'base64');
+	await fs.writeFile('./resources/example.png', buffer, 'base64');
 
 	const k = Object.keys(require.cache).find(key => key.includes(path.join('node_modules','chart.js')));
 	console.log('keys', k);
@@ -69,6 +69,6 @@ async function main(): Promise<void> {
 	// // const data = await chartJSNodeCanvas.renderToDataURL(configuration);
 	// // console.log(data.length);
 	// const image = await gif.encode();
-	// await fs.writeFile('./example.gif', image);
+	// await fs.writeFile('./resources/example.gif', image);
 }
 main();

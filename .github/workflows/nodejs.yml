@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        node-version: ['10.x', '12.x', '14.x', '16.x']
+        node-version: ['20.x', '21.x']
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -26,6 +26,10 @@ jobs:
         Expand-Archive gtk.zip -DestinationPath "C:\GTK"
         Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
         .\libjpeg.exe /S
+    - name: Install Anthrope font
+      run: |
+        Copy-Item -Path "${{ github.workspace }}\\testData\\Anthrope.ttf" -Destination "$Env:WINDIR\Fonts"
+        reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts" /v "Anthrope (TrueType)" /t REG_SZ /d "Anthrope.ttf" /f
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
       with:
@@ -59,7 +63,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        node-version: ['16.x']
+        node-version: ['21.x']
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}

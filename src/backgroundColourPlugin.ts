@@ -1,4 +1,5 @@
-import { Chart as ChartJS, Plugin as ChartJSPlugin } from 'chart.js';
+// @ts-expect-error moduleResolution:nodenext issue 54523
+import { Chart as ChartJS, Plugin as ChartJSPlugin } from 'chart.js/auto';
 
 export class BackgroundColourPlugin implements ChartJSPlugin {
 	public readonly id: string = 'chartjs-plugin-chartjs-node-canvas-background-colour';
@@ -13,6 +14,7 @@ export class BackgroundColourPlugin implements ChartJSPlugin {
 
 		const ctx = chart.ctx;
 		ctx.save();
+		ctx.globalCompositeOperation = 'destination-over';
 		ctx.fillStyle = this._fillStyle;
 		ctx.fillRect(0, 0, this._width, this._height);
 		ctx.restore();

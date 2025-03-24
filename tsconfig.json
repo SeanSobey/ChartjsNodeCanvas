@@ -2,13 +2,14 @@
   "compilerOptions": {
     /* Basic Options */
     "target": "es2017",
-    "module": "commonjs",
+    "module": "Node16",
     "declaration": true,
     "sourceMap": true,
     "outDir": "./dist/",
     "importHelpers": true,
     "incremental": true,
     "tsBuildInfoFile": "./.tsbuildinfo",
+    "noEmitOnError": false,
 
     /* Strict Type-Checking Options */
     "strict": true,
@@ -27,11 +28,15 @@
     "skipLibCheck": true,
 
     /* Module Resolution Options */
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/chart.js/auto"
+    ],
 
     /* Source Map Options */
     "inlineSourceMap": false,

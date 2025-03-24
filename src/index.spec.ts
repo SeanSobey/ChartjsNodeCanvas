@@ -1,6 +1,7 @@
 import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
-import { ChartConfiguration } from 'chart.js';
+// @ts-expect-error moduleResolution:nodenext issue 54523
+import { ChartConfiguration } from 'chart.js/auto';
 
 import { ChartJSNodeCanvas, ChartCallback, CanvasType, MimeType, ChartJSNodeCanvasPlugins } from './';
 
@@ -47,7 +48,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: {
+				y: {
 					ticks: {
 						beginAtZero: true,
 						callback: (value: number) => '$' + value

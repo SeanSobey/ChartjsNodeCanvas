@@ -5,7 +5,8 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
-import { ChartConfiguration } from 'chart.js';
+// @ts-expect-error moduleResolution:nodenext issue 54523
+import { ChartConfiguration } from 'chart.js/auto';
 import resemble /*, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult }*/ from 'resemblejs';
 
 import { ChartJSNodeCanvas, ChartCallback } from './';
@@ -51,7 +52,7 @@ describe(ChartJSNodeCanvas.name, () => {
 		},
 		options: {
 			scales: {
-				yAxes: {
+				y: {
 					beginAtZero: true,
 					ticks: {
 						callback: (tickValue, _index, _ticks) => '$' + tickValue
@@ -149,36 +150,18 @@ describe(ChartJSNodeCanvas.name, () => {
 				responsive: true,
 				plugins: {
 					annotation: {
-						annotations: [
-							{
-								drawTime: 'afterDatasetsDraw',
-								id: 'hline',
-								type: 'line',
-								mode: 'horizontal',
-								scaleID: 'y-axis-0',
-								value: 48,
-								borderColor: 'black',
-								borderWidth: 5,
-								label: {
-									backgroundColor: 'red',
-									content: 'Test Label',
-									enabled: true
+						annotations: {
+							label1: {
+								type: 'label',
+								xValue: 3,
+								yValue: 20,
+								backgroundColor: 'rgba(245,245,245)',
+								content: ['This is my text', 'This is my text, second line'],
+								font: {
+									size: 18
 								}
-							},
-							{
-								drawTime: 'beforeDatasetsDraw',
-								type: 'box',
-								xScaleID: 'x-axis-0',
-								yScaleID: 'y-axis-0',
-								xMin: 'February',
-								xMax: 'April',
-								yMin: -23,
-								yMax: 40,
-								backgroundColor: 'rgba(101, 33, 171, 0.5)',
-								borderColor: 'rgb(101, 33, 171)',
-								borderWidth: 1,
 							}
-						]
+						}
 					}
 				} as any
 			}
@@ -199,6 +182,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			data: {
 				labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as any,
 				datasets: [{
+					label: 'Red',
 					backgroundColor: chartColors.red,
 					data: [12, 19, 3, 5, 2, 3],
 					datalabels: {
@@ -206,6 +190,7 @@ describe(ChartJSNodeCanvas.name, () => {
 						anchor: 'start'
 					}
 				}, {
+					label: 'Blue',
 					backgroundColor: chartColors.blue,
 					data: [3, 5, 2, 3, 30, 15, 19, 2],
 					datalabels: {
@@ -213,6 +198,7 @@ describe(ChartJSNodeCanvas.name, () => {
 						anchor: 'center'
 					}
 				}, {
+					label: 'Green',
 					backgroundColor: chartColors.green,
 					data: [12, 19, 3, 5, 2, 3],
 					datalabels: {
@@ -235,10 +221,10 @@ describe(ChartJSNodeCanvas.name, () => {
 					}
 				} as any, // TODO: resolve type
 				scales: {
-					xAxes: {
+					x: {
 						stacked: true
 					},
-					yAxes: {
+					y: {
 						stacked: true
 					}
 				}
@@ -263,10 +249,10 @@ describe(ChartJSNodeCanvas.name, () => {
 	it('works with custom font', async () => {
 		const chartJSNodeCanvas = new ChartJSNodeCanvas({
 			width, height, backgroundColour: 'white', chartCallback: (ChartJS) => {
-				ChartJS.defaults.font.family = 'VTKS UNAMOUR';
+				ChartJS.defaults.font.family = 'Anthrope';
 			}
 		});
-		chartJSNodeCanvas.registerFont('./testData/VTKS UNAMOUR.ttf', { family: 'VTKS UNAMOUR' });
+		chartJSNodeCanvas.registerFont('./testData/Anthrope.ttf', { family: 'Anthrope' });
 		const actual = await chartJSNodeCanvas.renderToBuffer({
 			type: 'bar',
 			data: {
@@ -295,7 +281,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			},
 			options: {
 				scales: {
-					yAxes: {
+					y: {
 						ticks: {
 							beginAtZero: true,
 							callback: (value: number) => '$' + value
@@ -317,46 +303,6 @@ describe(ChartJSNodeCanvas.name, () => {
 		const actual = await chartJSNodeCanvas.renderToBuffer(configuration);
 		await assertImage(actual, 'no-background-color');
 	});
-
-	// TODO: Replace node-memwatch with a new lib!
-
-	/*
-	it('does not leak with new instance', async () => {
-
-		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
-			const heapDiff = new memwatch.HeapDiff();
-			console.log('generated heap for iteration ' + (iteration + 1));
-			const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
-			return ChartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
-				.then(() => {
-					const diff = heapDiff.end();
-					console.log('generated diff for iteration ' + (iteration + 1));
-					return diff;
-				});
-		}));
-		const actual = diffs.map(d => d.change.size_bytes);
-		const expected = actual.slice().sort();
-		assert.notDeepEqual(actual, expected);
-	});
-
-	it('does not leak with same instance', async () => {
-
-		const ChartJSNodeCanvas = new ChartJSNodeCanvas(width, height, chartCallback);
-		const diffs = await Promise.all([...Array(4).keys()].map((iteration) => {
-			const heapDiff = new memwatch.HeapDiff();
-			console.log('generated heap for iteration ' + (iteration + 1));
-			return ChartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
-				.then(() => {
-					const diff = heapDiff.end();
-					console.log('generated diff for iteration ' + (iteration + 1));
-					return diff;
-				});
-		}));
-		const actual = diffs.map(d => d.change.size_bytes);
-		const expected = actual.slice().sort();
-		assert.notDeepEqual(actual, expected);
-	});
-	*/
 
 	/*
 	function hashCode(string: string): number {
@@ -469,4 +415,119 @@ describe(ChartJSNodeCanvas.name, () => {
 	function pathExists(path: string): Promise<boolean> {
 		return fs.access(path).then(() => true).catch(() => false);
 	}
+
+	describe('Memory tests', () => {
+
+		const count = 20;
+		// TODO: Replace node-memwatch with a new lib!
+
+		it('does not leak with new instance parallel', async () => {
+
+			const memoryUsages = new Array<NodeJS.MemoryUsage>(count + 2);
+			memoryUsages[0] = process.memoryUsage();
+			const diffs = await Promise.all([...Array(count).keys()].map((iteration) => {
+				console.log('generated heap for iteration ' + (iteration + 1));
+				const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+				return chartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
+					.then(() => {
+						memoryUsages[iteration + 1] = process.memoryUsage();
+						return 1;
+					});
+			}));
+			memoryUsages[count + 1] = process.memoryUsage();
+
+			const config = generateMemoryUsageChartConfig(memoryUsages, 'New Instance Test');
+			const buffer = await new ChartJSNodeCanvas({ width: 800, height: 600 }).renderToBuffer(config);
+			await fs.writeFile('./resources/memory-usage-new-instance-parallel.png', buffer);
+		});
+
+		it('does not leak with new instance sequential', async () => {
+
+			const memoryUsages = new Array<NodeJS.MemoryUsage>(count + 2);
+			memoryUsages[0] = process.memoryUsage();
+			for (let index = 0; index < count; index++) {
+				const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+				await chartJSNodeCanvas.renderToBuffer(configuration, 'image/png');
+				memoryUsages[index + 1] = process.memoryUsage();
+
+			}
+			memoryUsages[count + 1] = process.memoryUsage();
+
+			const config = generateMemoryUsageChartConfig(memoryUsages, 'New Instance Test');
+			const buffer = await new ChartJSNodeCanvas({ width: 800, height: 600 }).renderToBuffer(config);
+			await fs.writeFile('./resources/memory-usage-new-instance-sequential.png', buffer);
+		});
+
+		it('does not leak with same instance', async () => {
+
+			const memoryUsages = new Array<NodeJS.MemoryUsage>(count + 2);
+			memoryUsages[0] = process.memoryUsage();
+			const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+			const diffs = await Promise.all([...Array(count).keys()].map((iteration) => {
+				return chartJSNodeCanvas.renderToBuffer(configuration, 'image/png')
+					.then(() => {
+						memoryUsages[iteration + 1] = process.memoryUsage();
+						return 1;
+					});
+			}));
+			memoryUsages[count + 1] = process.memoryUsage();
+			const config = generateMemoryUsageChartConfig(memoryUsages, 'Same Instance Test');
+			const buffer = await new ChartJSNodeCanvas({ width: 800, height: 600 }).renderToBuffer(config);
+			await fs.writeFile('./resources/memory-usage-same-instance.png', buffer);
+		});
+
+		function generateMemoryUsageChartConfig(memoryUsages: NodeJS.MemoryUsage[], _testName: string): ChartConfiguration {
+			const labels = memoryUsages.map((_, index) => `Iteration ${index}`);
+			const data = {
+				labels,
+				datasets: [
+					{
+						label: 'RSS',
+						data: memoryUsages.map(usage => usage.rss / 1000000), // Convert to MB
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						borderWidth: 1
+					},
+					{
+						label: 'Heap Total',
+						data: memoryUsages.map(usage => usage.heapTotal / 1000000), // Convert to MB
+						backgroundColor: 'rgba(54, 162, 235, 0.2)',
+						borderColor: 'rgba(54, 162, 235, 1)',
+						borderWidth: 1
+					},
+					{
+						label: 'Heap Used',
+						data: memoryUsages.map(usage => usage.heapUsed / 1000000), // Convert to MB
+						backgroundColor: 'rgba(75, 192, 192, 0.2)',
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 1
+					},
+					{
+						label: 'External',
+						data: memoryUsages.map(usage => usage.external / 1000000), // Convert to MB
+						backgroundColor: 'rgba(153, 102, 255, 0.2)',
+						borderColor: 'rgba(153, 102, 255, 1)',
+						borderWidth: 1
+					}
+				]
+			};
+
+			return {
+				type: 'line',
+				data,
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					scales: {
+						y: {
+							beginAtZero: true,
+							ticks: {
+								callback: (value: number) => `${value} MB`
+							} as any
+						}
+					}
+				}
+			};
+		}
+	});
 });

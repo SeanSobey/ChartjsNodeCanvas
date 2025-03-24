@@ -1,5 +1,7 @@
 import { ChartJSNodeCanvas, ChartCallback } from './';
-import { ChartConfiguration } from 'chart.js';
+// @ts-expect-error moduleResolution:nodenext issue 54523
+import { ChartConfiguration } from 'chart.js/auto';
+import path from 'path';
 import { promises as fs } from 'fs';
 
 async function main(): Promise<void> {
@@ -49,8 +51,25 @@ async function main(): Promise<void> {
 		ChartJS.defaults.responsive = true;
 		ChartJS.defaults.maintainAspectRatio = false;
 	};
+	console.log('here');
+
 	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-	await fs.writeFile('./example.png', buffer, 'base64');
+	await fs.writeFile('./resources/example.png', buffer, 'base64');
+
+	const k = Object.keys(require.cache).find(key => key.includes(path.join('node_modules','chart.js')));
+	console.log('keys', k);
+
+	// const animatedChartJSNodeCanvas = new AnimatedChartJSNodeCanvas({ width, height, chartCallback });
+	// const buffers = await animatedChartJSNodeCanvas.renderToBuffer(configuration);
+	// const { Gif } = await import('make-a-gif');
+	// const gif = new Gif(width, height, 1);
+	// const totalDuration = 1000;
+	// const duration = totalDuration / buffers.length;
+	// await gif.setFrames(buffers.map(buffer => ({ src: new Uint8Array(buffer), duration })));
+	// // const data = await chartJSNodeCanvas.renderToDataURL(configuration);
+	// // console.log(data.length);
+	// const image = await gif.encode();
+	// await fs.writeFile('./resources/example.gif', image);
 }
 main();

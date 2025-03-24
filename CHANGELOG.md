@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.0.0
+
+Migrated to support chart.js v4.x.x, dropped support for 3.x.x
+Upgraded to canvas v3.x.x
+
+WIP support for animated charts, exporting to GIF.
+
 ## 4.0.0
 
 Migrated to support chart.js v3.x.x, dropped support for 2.x.x

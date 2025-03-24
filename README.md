@@ -26,6 +26,7 @@ Provides and alternative to [chartjs-node](https://www.npmjs.com/package/chartjs
 5. [API](#api)
 6. [Usage](#usage)
 7. [Known Issues](#known-issues)
+8. [Sponsors](#sponsors)
 
 ## Installation
 
@@ -41,7 +42,7 @@ See the GitHub Actions [yml](.github/workflows/nodejs.yml) section for the curre
 
 ### Charts.JS version
 
-Currently supports 3.x.x. You are given the ability to maintain the version yourself via peer dependency, but be aware that going above the specified [version](./package.json) might result in errors.
+Currently supports 4.x.x. You are given the ability to maintain the version yourself via peer dependency, but be aware that going above the specified [version](./package.json) might result in errors.
 
 ## Features
 
@@ -54,6 +55,10 @@ Currently supports 3.x.x. You are given the ability to maintain the version your
 
 ## Limitations
 
+### Node Modules
+
+I hope to convert this package to a node module in the future, but since it uses the CommonJS API to manage memory for ChartJS this is not a simple task. It it a top priority for the next major release.
+
 ### Animations
 
 Chart animation (and responsive resize) is disabled by this library. This is necessary since the animation API's required are not available in Node JS/canvas-node (this is not a browser environment after all).
@@ -64,6 +69,8 @@ This is the same as:
 Chart.defaults.animation = false;
 Chart.defaults.responsive = false;
 ```
+
+*Note this is WIP, see the [change log](CHANGELOG.md) for most recent development.
 
 ### SVG and PDF
 
@@ -247,3 +254,7 @@ See the [tests](src/index.e2e.spec.ts#106) for some examples.
 ## Known Issues
 
 There is a problem with persisting config objects between render calls, see this [issue](https://github.com/SeanSobey/ChartjsNodeCanvas/issues/9) for details and workarounds.
+
+## Sponsors
+
+@athombv at https://homey.app

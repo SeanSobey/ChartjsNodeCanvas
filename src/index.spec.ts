@@ -1,5 +1,6 @@
 import { Assert } from 'ts-std-lib';
 import { describe, it } from 'mocha';
+// @ts-expect-error moduleResolution:nodenext issue 54523
 import { ChartConfiguration } from 'chart.js/auto';
 
 import { ChartJSNodeCanvas, ChartCallback, CanvasType, MimeType, ChartJSNodeCanvasPlugins } from './';

@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+// @ts-expect-error moduleResolution:nodenext issue 54523
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js/auto';
 import { ChartJSNodeCanvasBase, MimeType, Canvas } from './chartJSNodeCanvasBase';
 

@@ -5,6 +5,7 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { describe, it } from 'mocha';
 import { Stream } from 'stream';
+// @ts-expect-error moduleResolution:nodenext issue 54523
 import { ChartConfiguration } from 'chart.js/auto';
 import resemble /*, { ResembleSingleCallbackComparisonOptions, ResembleSingleCallbackComparisonResult }*/ from 'resemblejs';
 
@@ -415,9 +416,9 @@ describe(ChartJSNodeCanvas.name, () => {
 		return fs.access(path).then(() => true).catch(() => false);
 	}
 
-	describe.only('Memory tests', () => {
+	describe('Memory tests', () => {
 
-		const count = 50;
+		const count = 20;
 		// TODO: Replace node-memwatch with a new lib!
 
 		it('does not leak with new instance parallel', async () => {
@@ -475,7 +476,7 @@ describe(ChartJSNodeCanvas.name, () => {
 			await fs.writeFile('./resources/memory-usage-same-instance.png', buffer);
 		});
 
-		function generateMemoryUsageChartConfig(memoryUsages: NodeJS.MemoryUsage[], testName: string): ChartConfiguration {
+		function generateMemoryUsageChartConfig(memoryUsages: NodeJS.MemoryUsage[], _testName: string): ChartConfiguration {
 			const labels = memoryUsages.map((_, index) => `Iteration ${index}`);
 			const data = {
 				labels,

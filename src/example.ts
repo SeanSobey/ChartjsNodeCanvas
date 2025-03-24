@@ -1,4 +1,5 @@
-import { ChartJSNodeCanvas, AnimatedChartJSNodeCanvas, ChartCallback } from './';
+import { ChartJSNodeCanvas, ChartCallback } from './';
+// @ts-expect-error moduleResolution:nodenext issue 54523
 import { ChartConfiguration } from 'chart.js/auto';
 import path from 'path';
 import { promises as fs } from 'fs';

@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
-import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js/auto';
+// @ts-expect-error moduleResolution:nodenext issue 54523
+import { Chart as ChartJS, ChartComponentLike } from 'chart.js/auto';
 import { createCanvas, registerFont, Image } from 'canvas';
 import { join as pathJoin } from 'path';
 import { freshRequire } from './freshRequire';

@@ -1,3 +1,4 @@
+// @ts-expect-error moduleResolution:nodenext issue 54523
 import { Chart as ChartJS, Plugin as ChartJSPlugin } from 'chart.js/auto';
 
 export class BackgroundColourPlugin implements ChartJSPlugin {

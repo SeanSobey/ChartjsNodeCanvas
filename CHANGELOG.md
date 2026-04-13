@@ -4,6 +4,7 @@
 
 Migrated to support chart.js v4.x.x, dropped support for 3.x.x
 Upgraded to canvas v3.x.x
+Added support for gradients in the built in background plugin.
 
 WIP support for animated charts, exporting to GIF.
 

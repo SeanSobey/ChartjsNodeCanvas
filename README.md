@@ -186,6 +186,40 @@ Due to the many issues and question this includes a [convenience plugin](./src/b
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour: 'purple' });
 ```
 
+This also supports more complex gradients using a CSS style configuration:
+
+// // Solid color
+// {
+// 	"background": {
+// 	  "type": "solid",
+// 	  "color": "#ff5733"
+// 	}
+// }
+// // Linear gradient
+// {
+// 	"background": {
+// 	  "type": "linear-gradient",
+// 	  "direction": "to right",
+// 	  "colors": [
+// 		{"color": "#ff5733", "position": "0%"},
+// 		{"color": "#33c1ff", "position": "100%"}
+// 	  ]
+// 	}
+// }
+// // Radial gradient
+// {
+// 	"background": {
+// 	  "type": "radial-gradient",
+// 	  "shape": "circle",
+// 	  "size": "farthest-corner",
+// 	  "position": "center",
+// 	  "colors": [
+// 		{"color": "#ff5733", "position": "0%"},
+// 		{"color": "#33c1ff", "position": "100%"}
+// 	  ]
+// 	}
+// }
+
 ### Loading plugins
 
 This library is designed to make loading plugins as simple as possible. For legacy plugins, you should just be able to add the module name to the appropriate array option and the library handles the rest.

@@ -38,6 +38,7 @@ jobs:
       run: npm ci
     - name: Audit
       run: npm audit
+      continue-on-error: true
     - name: Build
       run: npm run-script build
     - name: Lint

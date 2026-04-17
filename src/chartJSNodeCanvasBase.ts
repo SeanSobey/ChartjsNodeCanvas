@@ -30,6 +30,7 @@ export type MimeType = 'image/png' | 'image/jpeg';
 
 // https://github.com/Automattic/node-canvas#non-standard-apis
 export type Canvas = HTMLCanvasElement & {
+	toDataURL(mimeType: string, callback: (err: Error | null, result: string) => void): void;
 	toBuffer(callback: (err: Error | null, result: Buffer) => void, mimeType?: string, config?: any): void;
 	toBuffer(mimeType?: string, config?: any): Buffer;
 	createPNGStream(config?: any): Readable;

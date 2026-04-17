@@ -36,6 +36,9 @@ jobs:
         vs-version: '15.0'
     - name: NPM install
       run: npm ci
+    - name: Audit
+      run: npm audit
+      continue-on-error: true
     - name: Build
       run: npm run-script build
     - name: Lint

@@ -3,6 +3,10 @@ import { Readable } from 'stream';
 import { Chart as ChartJS, ChartConfiguration, ChartComponentLike } from 'chart.js/auto';
 import { ChartJSNodeCanvasBase, MimeType, Canvas } from './chartJSNodeCanvasBase';
 
+/**
+ * @class ChartJSNodeCanvas
+ * @extends ChartJSNodeCanvasBase
+ */
 export class ChartJSNodeCanvas extends ChartJSNodeCanvasBase {
 
 	/**

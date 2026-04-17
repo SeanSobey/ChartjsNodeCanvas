@@ -10,6 +10,10 @@ const animationFrameProvider: AnimationFrameProvider = {
 type OnProgress = (chart: ChartJS, progress: number, initial: boolean) => void;
 type OnComplete = (chart: ChartJS, initial: boolean) => void;
 
+/**
+ * @class AnimatedChartJSNodeCanvas
+ * @extends ChartJSNodeCanvasBase
+ */
 export class AnimatedChartJSNodeCanvas extends ChartJSNodeCanvasBase {
 
 	/**

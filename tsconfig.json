@@ -5,6 +5,7 @@
     "module": "Node16",
     "declaration": true,
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist/",
     "importHelpers": true,
     "incremental": true,
@@ -30,6 +31,7 @@
     /* Module Resolution Options */
     "moduleResolution": "node16",
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
